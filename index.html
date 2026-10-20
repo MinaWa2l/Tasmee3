@@ -13,8 +13,13 @@
   main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
   h1 { font-size: 22px; margin: 0 0 16px; }
   label { display: block; margin: 12px 0 4px; font-weight: 600; }
-  select, button { width: 100%; font: inherit; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); box-sizing: border-box; }
+  select, input, button { width: 100%; font: inherit; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); box-sizing: border-box; }
   button { border: 0; margin-top: 12px; color: #fff; background: var(--accent); }
+  .combo { position: relative; }
+  #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 220px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.15); z-index: 10; }
+  #names li { padding: 11px 12px; border-radius: 8px; cursor: pointer; }
+  #names li:hover, #names li.hit { background: var(--bg); }
+  #names li.none { color: #7a8a85; cursor: default; }
   #recwrap { text-align: center; margin-top: 12px; }
   button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; }
   button.mic svg { width: 36px; height: 36px; fill: #fff; }
@@ -48,7 +53,10 @@
   <img class="logo" src="logo.png" alt="مدرسة القديس استفانوس للشمامسة" width="120" height="125">
   <h1>سجّل حفظك</h1>
   <label for="name">الاسم</label>
-  <select id="name"><option>جارٍ التحميل...</option></select>
+  <div class="combo">
+    <input id="name" type="text" autocomplete="off" placeholder="اكتب للبحث عن اسمك...">
+    <ul id="names" hidden></ul>
+  </div>
   <label for="piece">المحفوظ</label>
   <select id="piece"><option>جارٍ التحميل...</option></select>
 
@@ -75,6 +83,7 @@ const MAX_SECONDS = 180;
 const $ = id => document.getElementById(id);
 let recorder, chunks = [], blob, mime, timer, secs = 0;
 let userPiecesMap = {};
+let allNames = [];
 
 function setRec(on, text) {
   $('rec').classList.toggle('on', on);
@@ -90,15 +99,19 @@ fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
     say('خطأ في التحديث', 'err', 'تأكد من عمل Deploy > New Version وتحديث رابط الـ API.');
     return;
   }
-  
   userPiecesMap = d.userPieces;
-  fill($('name'), d.names);
+  allNames = d.names;
   $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
 }).catch(() => say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.'));
 
-$('name').addEventListener('change', function() {
-  const name = this.value;
-  
+// ---------- البحث في الأسماء ----------
+// تجاهل الفروق بين أ/إ/آ و ة/ه و ى/ي والتشكيل
+const norm = s => String(s).toLowerCase()
+  .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+  .replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+  .replace(/\s+/g, ' ').trim();
+
+function updatePieces(name) {
   if (!name) {
     $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
   } else if (userPiecesMap && userPiecesMap[name] && userPiecesMap[name].length > 0) {
@@ -106,7 +119,48 @@ $('name').addEventListener('change', function() {
   } else {
     $('piece').replaceChildren(new Option('أكملت جميع المحفوظات 🎉', ''));
   }
+}
+
+function matches() {
+  const typed = $('name').value;
+  if (allNames.includes(typed)) return allNames;      // اسم مختار بالفعل: اعرض الكل
+  const words = norm(typed).split(' ').filter(Boolean);
+  return allNames.filter(n => { const x = norm(n); return words.every(w => x.includes(w)); });
+}
+
+function showNames() {
+  if (!allNames.length) return;
+  const found = matches();
+  const items = found.length
+    ? found.map(n => Object.assign(document.createElement('li'), { textContent: n }))
+    : [Object.assign(document.createElement('li'), { className: 'none', textContent: 'لا يوجد اسم مطابق' })];
+  $('names').replaceChildren(...items);
+  $('names').hidden = false;
+}
+
+function pickName(n) {
+  $('name').value = n;
+  $('names').hidden = true;
+  $('name').blur();
+  updatePieces(n);
+}
+
+$('name').addEventListener('focus', () => { $('name').select(); showNames(); });
+$('name').addEventListener('input', () => {
+  updatePieces(allNames.includes($('name').value) ? $('name').value : '');
+  showNames();
 });
+$('name').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const first = matches()[0];
+  if (first && !allNames.includes($('name').value)) pickName(first);
+});
+$('names').addEventListener('click', e => {
+  const li = e.target.closest('li');
+  if (li && !li.classList.contains('none')) pickName(li.textContent);
+});
+document.addEventListener('click', e => { if (!e.target.closest('.combo')) $('names').hidden = true; });
 
 function fill(sel, items) {
   sel.replaceChildren(new Option('اختر...', ''), ...items.map(x => new Option(x, x)));
