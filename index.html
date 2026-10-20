@@ -24,7 +24,16 @@
   button.mic.on .stopic { display: block; }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,.55); } 100% { box-shadow: 0 0 0 22px rgba(192,57,43,0); } }
   @media (prefers-reduced-motion: reduce) { button.mic.on { animation: none; box-shadow: 0 0 0 8px rgba(192,57,43,.35); } }
+  .logo { display: block; width: 120px; height: auto; margin: 0 auto 12px; background: #fff; border-radius: 16px; padding: 8px; box-sizing: content-box; }
   #lbl { margin-top: 8px; font-weight: 600; }
+  #msg.box { white-space: pre-line; text-align: center; border-radius: 12px; padding: 14px; line-height: 1.6; }
+  #msg.box b { display: block; font-size: 19px; margin-bottom: 4px; }
+  #msg.ok { background: #e3f4ec; color: #14543d; border: 1px solid #1f7a5a; }
+  #msg.err { background: #fbe9e7; color: #8f2a1f; border: 1px solid #c0392b; }
+  @media (prefers-color-scheme: dark) {
+    #msg.ok { background: #1d3a30; color: #bfe9d6; }
+    #msg.err { background: #3d2220; color: #f3c1ba; }
+  }
   #lbl.on { color: var(--rec); }
   button.alt { background: transparent; color: var(--fg); border: 1px solid var(--line); }
   button:disabled { opacity: .5; }
@@ -35,6 +44,7 @@
 </head>
 <body>
 <main>
+  <img class="logo" src="logo.png" alt="مدرسة القديس استفانوس للشمامسة" width="120" height="125">
   <h1>سجّل حفظك</h1>
   <label for="name">الاسم</label>
   <select id="name"><option>جارٍ التحميل...</option></select>
@@ -74,16 +84,24 @@ const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 
 fetch(API + '?action=lists').then(r => r.json()).then(d => {
   fill($('name'), d.names); fill($('piece'), d.pieces);
-}).catch(() => say('تعذّر تحميل القوائم. حدّث الصفحة.'));
+}).catch(() => say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.'));
 
 function fill(sel, items) {
   sel.replaceChildren(new Option('اختر...', ''), ...items.map(x => new Option(x, x)));
 }
-function say(t) { $('msg').textContent = t; }
+function say(t, kind, sub) {
+  const m = $('msg');
+  m.replaceChildren();
+  m.className = kind ? 'box ' + kind : '';
+  if (!kind) { m.textContent = t; return; }
+  const b = document.createElement('b'); b.textContent = t; m.append(b);
+  if (sub) m.append(sub);
+  m.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 
 $('rec').onclick = async () => {
   if (recorder && recorder.state === 'recording') return recorder.stop();
-  if (!$('name').value || !$('piece').value) return say('اختر الاسم والمحفوظ أولاً.');
+  if (!$('name').value || !$('piece').value) return say('اختر الاسم والمحفوظ أولاً', 'err');
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
@@ -108,7 +126,7 @@ $('rec').onclick = async () => {
       secs++; $('lbl').textContent = 'جارٍ التسجيل ' + fmt(secs) + ' — اضغط للإيقاف';
       if (secs >= MAX_SECONDS) recorder.stop();
     }, 1000);
-  } catch (e) { say('لم يتم السماح بالميكروفون. اسمح به من إعدادات المتصفح.'); }
+  } catch (e) { say('لم يتم السماح بالميكروفون', 'err', 'اسمح بالميكروفون من إعدادات المتصفح ثم حاول مرة أخرى.'); }
 };
 
 $('redo').onclick = () => {
@@ -126,11 +144,11 @@ $('send').onclick = () => {
         name: $('name').value, piece: $('piece').value, mime: mime, audio: fr.result.split(',')[1] }) });
       const d = await res.json();
       if (!d.ok) throw new Error(d.error);
-      say('تم الإرسال، شكراً!');
+      say('✓ تم إرسال تسجيلك بنجاح', 'ok', $('name').value + ' — ' + $('piece').value + '\nسيستمع إليه المسؤول ويوافق عليه قريباً.');
       $('after').hidden = $('preview').hidden = true; $('recwrap').hidden = false;
       setRec(false, 'اضغط لتسجيل آخر');
       $('name').disabled = $('piece').disabled = false;
-    } catch (e) { say('فشل الإرسال، حاول مرة أخرى.'); }
+    } catch (e) { say('لم يتم الإرسال', 'err', 'تأكد من الإنترنت ثم اضغط إرسال مرة أخرى. تسجيلك ما زال محفوظاً هنا.'); }
     $('send').disabled = $('redo').disabled = false;
   };
   fr.readAsDataURL(blob);
