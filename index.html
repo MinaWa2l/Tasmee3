@@ -24,7 +24,8 @@
   button.mic.on .stopic { display: block; }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,.55); } 100% { box-shadow: 0 0 0 22px rgba(192,57,43,0); } }
   @media (prefers-reduced-motion: reduce) { button.mic.on { animation: none; box-shadow: 0 0 0 8px rgba(192,57,43,.35); } }
-  .logo { display: block; width: 120px; height: auto; margin: 0 auto 12px; background: #fff; border-radius: 16px; padding: 8px; box-sizing: content-box; }
+  .logo { display: block; width: 130px; height: auto; margin: 0 auto 12px; }
+  @media (prefers-color-scheme: dark) { .logo { background: #fff; border-radius: 16px; padding: 8px; box-sizing: content-box; } }
   #lbl { margin-top: 8px; font-weight: 600; }
   #msg.box { white-space: pre-line; text-align: center; border-radius: 12px; padding: 14px; line-height: 1.6; }
   #msg.box b { display: block; font-size: 19px; margin-bottom: 4px; }
@@ -99,34 +100,52 @@ function say(t, kind, sub) {
   m.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+let starting = false;
 $('rec').onclick = async () => {
   if (recorder && recorder.state === 'recording') return recorder.stop();
+  if (starting) return;                       // ignore taps while the mic is still starting
   if (!$('name').value || !$('piece').value) return say('اختر الاسم والمحفوظ أولاً', 'err');
+
+  starting = true;
+  $('lbl').textContent = 'جارٍ تشغيل الميكروفون...';
+  let stream;
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
-    recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
-    chunks = [];
-    recorder.ondataavailable = e => chunks.push(e.data);
-    recorder.onstop = () => {
-      clearInterval(timer);
-      stream.getTracks().forEach(t => t.stop());
-      blob = new Blob(chunks, { type: recorder.mimeType });
-      mime = recorder.mimeType;
-      $('preview').src = URL.createObjectURL(blob);
-      $('preview').hidden = false; $('after').hidden = false; $('recwrap').hidden = true;
-      $('name').disabled = $('piece').disabled = true;
-      say('استمع للتسجيل ثم اضغط إرسال.');
-    };
-    recorder.start();
-    secs = 0;
-    setRec(true, 'جارٍ التسجيل 0:00 — اضغط للإيقاف');
-    say('');
-    timer = setInterval(() => {
-      secs++; $('lbl').textContent = 'جارٍ التسجيل ' + fmt(secs) + ' — اضغط للإيقاف';
-      if (secs >= MAX_SECONDS) recorder.stop();
-    }, 1000);
-  } catch (e) { say('لم يتم السماح بالميكروفون', 'err', 'اسمح بالميكروفون من إعدادات المتصفح ثم حاول مرة أخرى.'); }
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    starting = false;
+    $('lbl').textContent = 'اضغط للتسجيل';
+    return say('لم يتم السماح بالميكروفون', 'err', 'اسمح بالميكروفون من إعدادات المتصفح ثم حاول مرة أخرى.');
+  }
+
+  mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+  const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
+  recorder = rec;
+  chunks = [];
+  rec.ondataavailable = e => chunks.push(e.data);
+  rec.onstop = () => {
+    clearInterval(timer);
+    stream.getTracks().forEach(t => t.stop());
+    blob = new Blob(chunks, { type: rec.mimeType });
+    mime = rec.mimeType;
+    $('preview').src = URL.createObjectURL(blob);
+    $('preview').hidden = false; $('after').hidden = false; $('recwrap').hidden = true;
+    $('name').disabled = $('piece').disabled = true;
+    setRec(false, 'اضغط للتسجيل');
+    say('استمع للتسجيل ثم اضغط إرسال.');
+  };
+
+  rec.start();
+  starting = false;
+  clearInterval(timer);
+  secs = 0;
+  setRec(true, 'جارٍ التسجيل 0:00 — اضغط للإيقاف');
+  say('');
+  timer = setInterval(() => {
+    if (rec.state !== 'recording') return clearInterval(timer);
+    secs++;
+    $('lbl').textContent = 'جارٍ التسجيل ' + fmt(secs) + ' — اضغط للإيقاف';
+    if (secs >= MAX_SECONDS) rec.stop();
+  }, 1000);
 };
 
 $('redo').onclick = () => {
