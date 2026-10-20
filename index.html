@@ -103,8 +103,8 @@
 </main>
 
 <script>
-// ---------- ضع الرابط الجديد بالأسفل ----------
-const API = 'https://script.google.com/macros/s/AKfycbzSNPgRBbhZfENrDv9p-ujal4pc80XlsYS_JsMVzZCwLljV-vSTapWZPOSxPqan68gE/exec';
+// ----- PASTE YOUR NEW DEPLOYMENT URL HERE -----
+const API = 'https://script.google.com/macros/s/AKfycbwO38U8e1n6qNxBina9dcDCcOUXXBtuoX6EF1_wpiM4JbQUgreKqIbWsrcbUI3r109e/exec';
 const MAX_SECONDS = 180;
 
 const $ = id => document.getElementById(id);
@@ -144,7 +144,6 @@ fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
   allNames = d.names || [];
   progressMap = d.progress || {}; 
   
-  // تحديث مباشر في حال تم كتابة الاسم أثناء التحميل
   updatePieces(allNames.includes($('name').value) ?$('name').value : '');
 }).catch((e) => {
   say('تعذّر تحميل القوائم', 'err', e.message || 'تأكد من الإنترنت ثم حدّث الصفحة.');
