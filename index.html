@@ -48,12 +48,13 @@
   #msg { margin-top: 12px; min-height: 1.4em; }
   [hidden] { display: none !important; }
 
+  /* تنسيقات شريط التقدم المحدثة */
   #progwrap { margin: 20px 0 10px; }
   .prog-text { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
   .prog-text span:first-child { color: var(--fg); }
-  #prog-val { font-weight: 900; transition: color 0.8s ease; }
+  .prog-text span:last-child { color: var(--accent); font-weight: 900; }
   .prog-bar-bg { width: 100%; height: 16px; background: var(--line); border-radius: 8px; overflow: hidden; }
-  #prog-bar-fill { height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s ease; }
+  #prog-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
 </style>
 </head>
 <body>
@@ -103,8 +104,7 @@
 </main>
 
 <script>
-// ----- PASTE YOUR NEW DEPLOYMENT URL HERE -----
-const API = 'https://script.google.com/macros/s/AKfycbwO38U8e1n6qNxBina9dcDCcOUXXBtuoX6EF1_wpiM4JbQUgreKqIbWsrcbUI3r109e/exec';
+const API = 'https://script.google.com/macros/s/AKfycbyNlHfDly8EtQ1nBncGnvAgExXCYn0dqILARbRBEoKPIi0y-SUrcUEGbbqs_tQ9_UG4/exec';
 const MAX_SECONDS = 180;
 
 const $ = id => document.getElementById(id);
@@ -124,31 +124,22 @@ function showLink() {
 
 function setRec(on, text) {
   $('rec').classList.toggle('on', on);
-  $('lbl').classList.toggle('on', on);$('rec').setAttribute('aria-label', on ? 'إيقاف التسجيل' : 'تسجيل');
+  $('lbl').classList.toggle('on', on);
+  $('rec').setAttribute('aria-label', on ? 'إيقاف التسجيل' : 'تسجيل');
   $('lbl').textContent = text;
 }
 const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 
 fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
-  if (d.error) {
-    say('خطأ في السيرفر', 'err', d.error);
-    $('piece').replaceChildren(new Option('خطأ في البيانات', ''));
-    return;
-  }
   if (!d.userPieces) {
-    say('خطأ في التحديث', 'err', 'تأكد أنك قمت بعمل New Deployment ووضع الرابط الجديد.');
-    $('piece').replaceChildren(new Option('خطأ في الرابط', ''));
+    say('خطأ في التحديث', 'err', 'تأكد من عمل Deploy > New Version وتحديث رابط الـ API.');
     return;
   }
   userPiecesMap = d.userPieces;
-  allNames = d.names || [];
+  allNames = d.names;
   progressMap = d.progress || {}; 
-  
-  updatePieces(allNames.includes($('name').value) ?$('name').value : '');
-}).catch((e) => {
-  say('تعذّر تحميل القوائم', 'err', e.message || 'تأكد من الإنترنت ثم حدّث الصفحة.');
-  $('piece').replaceChildren(new Option('فشل التحميل', ''));
-});
+  $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
+}).catch(() => say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.'));
 
 fetch(API + '?action=links&t=' + Date.now()).then(r => r.json())
   .then(l => { linksMap = l || {}; showLink(); })
@@ -163,14 +154,9 @@ function updatePieces(name) {
   const cat = $('category').value;
   
   if (name && cat === 'مردات' && progressMap[name] !== undefined) {
-    const pVal = Number(progressMap[name]) || 0; 
-    let hue = Math.floor((pVal / 100) * 120); 
-    if (isNaN(hue)) hue = 0;
-    
-    const dynamicColor = `hsl(${hue}, 80%, 45%)`;
-    
-    $('prog-val').textContent = pVal + '\%';$('prog-val').style.color = dynamicColor;
-    $('prog-bar-fill').style.width = pVal + '\%';$('prog-bar-fill').style.backgroundColor = dynamicColor;
+    const pVal = progressMap[name];
+    $('prog-val').textContent = pVal + '%';
+    $('prog-bar-fill').style.width = pVal + '%';
     $('progwrap').hidden = false;
   } else {
     $('progwrap').hidden = true;
@@ -190,7 +176,7 @@ function updatePieces(name) {
 }
 
 $('category').addEventListener('change', () => {
-  updatePieces(allNames.includes($('name').value) ?$('name').value : '');
+  updatePieces(allNames.includes($('name').value) ? $('name').value : '');
 });
 
 $('piece').addEventListener('change', showLink);
@@ -208,7 +194,8 @@ function showNames() {
   const items = found.length
     ? found.map(n => Object.assign(document.createElement('li'), { textContent: n }))
     : [Object.assign(document.createElement('li'), { className: 'none', textContent: 'لا يوجد اسم مطابق' })];
-  $('names').replaceChildren(...items);$('names').hidden = false;
+  $('names').replaceChildren(...items);
+  $('names').hidden = false;
 }
 
 function pickName(n) {
@@ -218,8 +205,9 @@ function pickName(n) {
   updatePieces(n);
 }
 
-$('name').addEventListener('focus', () => { $('name').select(); showNames(); });$('name').addEventListener('input', () => {
-  updatePieces(allNames.includes($('name').value) ?$('name').value : '');
+$('name').addEventListener('focus', () => { $('name').select(); showNames(); });
+$('name').addEventListener('input', () => {
+  updatePieces(allNames.includes($('name').value) ? $('name').value : '');
   showNames();
 });
 $('name').addEventListener('keydown', e => {
@@ -252,7 +240,7 @@ let starting = false;
 $('rec').onclick = async () => {
   if (recorder && recorder.state === 'recording') return recorder.stop();
   if (starting) return;
-  if (!$('name').value \vert{}\vert{} !$('piece').value) return say('اختر الاسم والمحفوظ أولاً', 'err');
+  if (!$('name').value || !$('piece').value) return say('اختر الاسم والمحفوظ أولاً', 'err');
 
   starting = true;
   $('lbl').textContent = 'جارٍ تشغيل الميكروفون...';
@@ -275,8 +263,9 @@ $('rec').onclick = async () => {
     stream.getTracks().forEach(t => t.stop());
     blob = new Blob(chunks, { type: rec.mimeType });
     mime = rec.mimeType;
-    $('preview').src = URL.createObjectURL(blob);$('preview').hidden = false; $('after').hidden = false; $('recwrap').hidden = true;
-    $('name').disabled = $('piece').disabled =$('category').disabled = true;
+    $('preview').src = URL.createObjectURL(blob);
+    $('preview').hidden = false; $('after').hidden = false; $('recwrap').hidden = true;
+    $('name').disabled = $('piece').disabled = $('category').disabled = true;
     setRec(false, 'اضغط للتسجيل');
     say('استمع للتسجيل ثم اضغط إرسال.');
   };
@@ -295,13 +284,14 @@ $('rec').onclick = async () => {
   }, 1000);
 };
 
-$('redo').onclick = () => {$('preview').hidden = $('after').hidden = true; $('recwrap').hidden = false;
+$('redo').onclick = () => {
+  $('preview').hidden = $('after').hidden = true; $('recwrap').hidden = false;
   setRec(false, 'اضغط للتسجيل');
-  $('name').disabled = $('piece').disabled =$('category').disabled = false; say('');
+  $('name').disabled = $('piece').disabled = $('category').disabled = false; say('');
 };
 
 $('send').onclick = () => {
-  $('send').disabled =$('redo').disabled = true; say('جارٍ الإرسال...');
+  $('send').disabled = $('redo').disabled = true; say('جارٍ الإرسال...');
   const fr = new FileReader();
   fr.onload = async () => {
     try {
@@ -314,12 +304,12 @@ $('send').onclick = () => {
       }) });
       const d = await res.json();
       if (!d.ok) throw new Error(d.error);
-      say('✓ تم إرسال تسجيلك بنجاح', 'ok', $('name').value + ' — ' + $('category').value + ' (' +$('piece').value + ')\nسيستمع إليه المسؤول ويوافق عليه قريباً.');
+      say('✓ تم إرسال تسجيلك بنجاح', 'ok', $('name').value + ' — ' + $('category').value + ' (' + $('piece').value + ')\nسيستمع إليه المسؤول ويوافق عليه قريباً.');
       $('after').hidden = $('preview').hidden = true; $('recwrap').hidden = false;
       setRec(false, 'اضغط لتسجيل آخر');
-      $('name').disabled = $('piece').disabled =$('category').disabled = false;
+      $('name').disabled = $('piece').disabled = $('category').disabled = false;
     } catch (e) { say('لم يتم الإرسال', 'err', 'تأكد من الإنترنت ثم اضغط إرسال مرة أخرى. تسجيلك ما زال محفوظاً هنا.'); }
-    $('send').disabled =$('redo').disabled = false;
+    $('send').disabled = $('redo').disabled = false;
   };
   fr.readAsDataURL(blob);
 };
