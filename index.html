@@ -15,6 +15,7 @@
   label { display: block; margin: 12px 0 4px; font-weight: 600; }
   select, input, button { width: 100%; font: inherit; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); box-sizing: border-box; }
   button { border: 0; margin-top: 12px; color: #fff; background: var(--accent); }
+  .plink { display: block; margin-top: 8px; padding: 10px; text-align: center; border: 1px solid var(--accent); color: var(--accent); border-radius: 10px; text-decoration: none; font-weight: 600; }
   .combo { position: relative; }
   #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 220px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.15); z-index: 10; }
   #names li { padding: 11px 12px; border-radius: 8px; cursor: pointer; }
@@ -59,6 +60,7 @@
   </div>
   <label for="piece">المحفوظ</label>
   <select id="piece"><option>جارٍ التحميل...</option></select>
+  <a id="plink" class="plink" target="_blank" rel="noopener" hidden>▶ افتح رابط المحفوظ</a>
 
   <div id="recwrap">
     <button id="rec" class="mic" aria-label="تسجيل">
@@ -84,6 +86,14 @@ const $ = id => document.getElementById(id);
 let recorder, chunks = [], blob, mime, timer, secs = 0;
 let userPiecesMap = {};
 let allNames = [];
+let linksMap = {};
+
+// يظهر رابط المحفوظ المختار (إن وجد) كزر قابل للضغط
+function showLink() {
+  const u = linksMap[$('piece').value];
+  $('plink').hidden = !u;
+  if (u) $('plink').href = u;
+}
 
 function setRec(on, text) {
   $('rec').classList.toggle('on', on);
@@ -104,6 +114,10 @@ fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
   $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
 }).catch(() => say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.'));
 
+fetch(API + '?action=links&t=' + Date.now()).then(r => r.json())
+  .then(l => { linksMap = l || {}; showLink(); })
+  .catch(() => {});
+
 // ---------- البحث في الأسماء ----------
 // تجاهل الفروق بين أ/إ/آ و ة/ه و ى/ي والتشكيل
 const norm = s => String(s).toLowerCase()
@@ -119,7 +133,9 @@ function updatePieces(name) {
   } else {
     $('piece').replaceChildren(new Option('أكملت جميع المحفوظات 🎉', ''));
   }
+  showLink();
 }
+$('piece').addEventListener('change', showLink);
 
 function matches() {
   const typed = $('name').value;
