@@ -48,7 +48,6 @@
   #msg { margin-top: 12px; min-height: 1.4em; }
   [hidden] { display: none !important; }
 
-  /* تنسيقات شريط التقدم */
   #progwrap { margin: 20px 0 10px; }
   .prog-text { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
   .prog-text span:first-child { color: var(--fg); }
@@ -104,6 +103,7 @@
 </main>
 
 <script>
+// ---------- ضع الرابط الجديد (الذي ينتهي بـ /exec) بالأسفل ----------
 const API = 'https://script.google.com/macros/s/AKfycbyNlHfDly8EtQ1nBncGnvAgExXCYn0dqILARbRBEoKPIi0y-SUrcUEGbbqs_tQ9_UG4/exec';
 const MAX_SECONDS = 180;
 
@@ -131,11 +131,11 @@ const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 
 fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
   if (!d.userPieces) {
-    say('خطأ في التحديث', 'err', 'تأكد من عمل Deploy > New Version وتحديث رابط الـ API.');
+    say('خطأ في التحديث', 'err', 'تأكد أنك قمت بعمل New Deployment ووضع الرابط الجديد.');
     return;
   }
   userPiecesMap = d.userPieces;
-  allNames = d.names;
+  allNames = d.names || [];
   progressMap = d.progress || {}; 
   $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
 }).catch(() => say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.'));
@@ -153,12 +153,12 @@ function updatePieces(name) {
   const cat = $('category').value;
   
   if (name && cat === 'مردات' && progressMap[name] !== undefined) {
-    const pVal = progressMap[name];
+    const pVal = Number(progressMap[name]) || 0; 
+    let hue = Math.floor((pVal / 100) * 120); 
+    if (isNaN(hue)) hue = 0;
     
-    // حساب اللون ديناميكياً: 0 = أحمر، 60 = أصفر، 120 = أخضر
-    const hue = Math.floor((pVal / 100) * 120); 
     const dynamicColor = `hsl(${hue}, 80%, 45%)`;
-
+    
     $('prog-val').textContent = pVal + '\%';$('prog-val').style.color = dynamicColor;
     $('prog-bar-fill').style.width = pVal + '\%';$('prog-bar-fill').style.backgroundColor = dynamicColor;
     $('progwrap').hidden = false;
