@@ -68,7 +68,7 @@
 </main>
 
 <script>
-// Paste the URL of the "Anyone" deployment here (ends with /exec)
+// تأكد أن هذا الرابط هو رابط الإصدار الجديد
 const API = 'https://script.google.com/macros/s/AKfycbztGpdpgnNzXvavNnSnx3bub2ErEZXrXduF0lYv6nF2_lsVfQcCZ5P3TVgsRnjEAxm8/exec';
 const MAX_SECONDS = 180;
 
@@ -84,10 +84,10 @@ function setRec(on, text) {
 }
 const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 
-fetch(API + '?action=lists').then(r => r.json()).then(d => {
-  // SAFETY CHECK: If the backend hasn't been updated properly
+// أضفنا Date.now() لمنع المتصفح من استخدام نسخة قديمة مخزنة
+fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
   if (!d.userPieces) {
-    say('خطأ في التحديث', 'err', 'يجب عمل New Version أثناء الـ Deploy في Google Apps Script.');
+    say('خطأ في التحديث', 'err', 'تأكد من عمل Deploy > New Version وتحديث رابط الـ API.');
     return;
   }
   
