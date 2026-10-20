@@ -58,6 +58,13 @@
     <input id="name" type="text" autocomplete="off" placeholder="اكتب للبحث عن اسمك...">
     <ul id="names" hidden></ul>
   </div>
+  
+  <label for="category">النوع</label>
+  <select id="category">
+    <option value="مردات">مردات</option>
+    <option value="ألحان">ألحان</option>
+  </select>
+
   <label for="piece">المحفوظ</label>
   <select id="piece"><option>جارٍ التحميل...</option></select>
   <a id="plink" class="plink" target="_blank" rel="noopener" hidden>▶ افتح رابط المحفوظ</a>
@@ -88,9 +95,10 @@ let userPiecesMap = {};
 let allNames = [];
 let linksMap = {};
 
-// يظهر رابط المحفوظ المختار (إن وجد) كزر قابل للضغط
 function showLink() {
-  const u = linksMap[$('piece').value];
+  const cat = $('category').value;
+  const p = $('piece').value;
+  const u = linksMap[cat] && linksMap[cat][p];
   $('plink').hidden = !u;
   if (u) $('plink').href = u;
 }
@@ -103,7 +111,6 @@ function setRec(on, text) {
 }
 const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 
-// أضفنا Date.now() لمنع المتصفح من استخدام نسخة قديمة مخزنة
 fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
   if (!d.userPieces) {
     say('خطأ في التحديث', 'err', 'تأكد من عمل Deploy > New Version وتحديث رابط الـ API.');
@@ -118,8 +125,6 @@ fetch(API + '?action=links&t=' + Date.now()).then(r => r.json())
   .then(l => { linksMap = l || {}; showLink(); })
   .catch(() => {});
 
-// ---------- البحث في الأسماء ----------
-// تجاهل الفروق بين أ/إ/آ و ة/ه و ى/ي والتشكيل
 const norm = s => String(s).toLowerCase()
   .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
   .replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
@@ -128,18 +133,27 @@ const norm = s => String(s).toLowerCase()
 function updatePieces(name) {
   if (!name) {
     $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
-  } else if (userPiecesMap && userPiecesMap[name] && userPiecesMap[name].length > 0) {
-    fill($('piece'), userPiecesMap[name]);
-  } else {
-    $('piece').replaceChildren(new Option('أكملت جميع المحفوظات 🎉', ''));
+  } else if (userPiecesMap && userPiecesMap[name]) {
+    const cat = $('category').value;
+    const pieces = userPiecesMap[name][cat] || [];
+    if (pieces.length > 0) {
+      fill($('piece'), pieces);
+    } else {
+      $('piece').replaceChildren(new Option('أكملت جميع المحفوظات في هذا النوع 🎉', ''));
+    }
   }
   showLink();
 }
+
+$('category').addEventListener('change', () => {
+  updatePieces(allNames.includes($('name').value) ? $('name').value : '');
+});
+
 $('piece').addEventListener('change', showLink);
 
 function matches() {
   const typed = $('name').value;
-  if (allNames.includes(typed)) return allNames;      // اسم مختار بالفعل: اعرض الكل
+  if (allNames.includes(typed)) return allNames;
   const words = norm(typed).split(' ').filter(Boolean);
   return allNames.filter(n => { const x = norm(n); return words.every(w => x.includes(w)); });
 }
@@ -181,6 +195,7 @@ document.addEventListener('click', e => { if (!e.target.closest('.combo')) $('na
 function fill(sel, items) {
   sel.replaceChildren(new Option('اختر...', ''), ...items.map(x => new Option(x, x)));
 }
+
 function say(t, kind, sub) {
   const m = $('msg');
   m.replaceChildren();
@@ -220,7 +235,7 @@ $('rec').onclick = async () => {
     mime = rec.mimeType;
     $('preview').src = URL.createObjectURL(blob);
     $('preview').hidden = false; $('after').hidden = false; $('recwrap').hidden = true;
-    $('name').disabled = $('piece').disabled = true;
+    $('name').disabled = $('piece').disabled = $('category').disabled = true;
     setRec(false, 'اضغط للتسجيل');
     say('استمع للتسجيل ثم اضغط إرسال.');
   };
@@ -242,7 +257,7 @@ $('rec').onclick = async () => {
 $('redo').onclick = () => {
   $('preview').hidden = $('after').hidden = true; $('recwrap').hidden = false;
   setRec(false, 'اضغط للتسجيل');
-  $('name').disabled = $('piece').disabled = false; say('');
+  $('name').disabled = $('piece').disabled = $('category').disabled = false; say('');
 };
 
 $('send').onclick = () => {
@@ -251,13 +266,18 @@ $('send').onclick = () => {
   fr.onload = async () => {
     try {
       const res = await fetch(API, { method: 'POST', body: JSON.stringify({
-        name: $('name').value, piece: $('piece').value, mime: mime, audio: fr.result.split(',')[1] }) });
+        name: $('name').value, 
+        category: $('category').value, 
+        piece: $('piece').value, 
+        mime: mime, 
+        audio: fr.result.split(',')[1] 
+      }) });
       const d = await res.json();
       if (!d.ok) throw new Error(d.error);
-      say('✓ تم إرسال تسجيلك بنجاح', 'ok', $('name').value + ' — ' + $('piece').value + '\nسيستمع إليه المسؤول ويوافق عليه قريباً.');
+      say('✓ تم إرسال تسجيلك بنجاح', 'ok', $('name').value + ' — ' + $('category').value + ' (' + $('piece').value + ')\nسيستمع إليه المسؤول ويوافق عليه قريباً.');
       $('after').hidden = $('preview').hidden = true; $('recwrap').hidden = false;
       setRec(false, 'اضغط لتسجيل آخر');
-      $('name').disabled = $('piece').disabled = false;
+      $('name').disabled = $('piece').disabled = $('category').disabled = false;
     } catch (e) { say('لم يتم الإرسال', 'err', 'تأكد من الإنترنت ثم اضغط إرسال مرة أخرى. تسجيلك ما زال محفوظاً هنا.'); }
     $('send').disabled = $('redo').disabled = false;
   };
