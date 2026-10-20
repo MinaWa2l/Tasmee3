@@ -12,16 +12,16 @@
   body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 16px; display: flex; justify-content: center; }
   main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
   h1 { font-size: 22px; margin: 0 0 16px; }
-  label { display: block; margin: 12px 0 4px; font-weight: 600; }
+  label { display: block; margin: 12px 0 6px; font-weight: 600; font-size: 15px; }
   select, input, button { width: 100%; font: inherit; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); box-sizing: border-box; }
-  button { border: 0; margin-top: 12px; color: #fff; background: var(--accent); }
+  button { border: 0; margin-top: 12px; color: #fff; background: var(--accent); font-weight: bold; }
   .plink { display: block; margin-top: 8px; padding: 10px; text-align: center; border: 1px solid var(--accent); color: var(--accent); border-radius: 10px; text-decoration: none; font-weight: 600; }
   .combo { position: relative; }
   #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 220px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.15); z-index: 10; }
   #names li { padding: 11px 12px; border-radius: 8px; cursor: pointer; }
   #names li:hover, #names li.hit { background: var(--bg); }
   #names li.none { color: #7a8a85; cursor: default; }
-  #recwrap { text-align: center; margin-top: 12px; }
+  #recwrap { text-align: center; margin-top: 16px; }
   button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; }
   button.mic svg { width: 36px; height: 36px; fill: #fff; }
   button.mic .stopic { display: none; }
@@ -32,7 +32,7 @@
   @media (prefers-reduced-motion: reduce) { button.mic.on { animation: none; box-shadow: 0 0 0 8px rgba(192,57,43,.35); } }
   .logo { display: block; width: 130px; height: auto; margin: 0 auto 12px; }
   @media (prefers-color-scheme: dark) { .logo { background: #fff; border-radius: 16px; padding: 8px; box-sizing: content-box; } }
-  #lbl { margin-top: 8px; font-weight: 600; }
+  #lbl { margin-top: 10px; font-weight: 600; }
   #msg.box { white-space: pre-line; text-align: center; border-radius: 12px; padding: 14px; line-height: 1.6; }
   #msg.box b { display: block; font-size: 19px; margin-bottom: 4px; }
   #msg.ok { background: #e3f4ec; color: #14543d; border: 1px solid #1f7a5a; }
@@ -48,11 +48,13 @@
   #msg { margin-top: 12px; min-height: 1.4em; }
   [hidden] { display: none !important; }
 
-  /* تنسيقات شريط التقدم */
-  #progwrap { margin: 16px 0 6px; }
-  .prog-text { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--accent); }
-  .prog-bar-bg { width: 100%; height: 10px; background: var(--line); border-radius: 6px; overflow: hidden; }
-  .prog-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+  /* تنسيقات شريط التقدم المحدثة */
+  #progwrap { margin: 20px 0 10px; }
+  .prog-text { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .prog-text span:first-child { color: var(--fg); }
+  .prog-text span:last-child { color: var(--accent); font-weight: 900; }
+  .prog-bar-bg { width: 100%; height: 16px; background: var(--line); border-radius: 8px; overflow: hidden; }
+  #prog-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
 </style>
 </head>
 <body>
@@ -74,7 +76,7 @@
   <!-- شريط التقدم -->
   <div id="progwrap" hidden>
     <div class="prog-text">
-      <span>نسبة الإنجاز الإجمالية</span>
+      <span>نسبة تسميع مردات الهيكل</span>
       <span id="prog-val">0%</span>
     </div>
     <div class="prog-bar-bg">
@@ -110,7 +112,7 @@ let recorder, chunks = [], blob, mime, timer, secs = 0;
 let userPiecesMap = {};
 let allNames = [];
 let linksMap = {};
-let progressMap = {}; // تخزين نسبة الإنجاز لكل شخص
+let progressMap = {}; 
 
 function showLink() {
   const cat = $('category').value;
@@ -135,7 +137,7 @@ fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
   }
   userPiecesMap = d.userPieces;
   allNames = d.names;
-  progressMap = d.progress || {}; // حفظ نسب الإنجاز القادمة من الشيت
+  progressMap = d.progress || {}; 
   $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
 }).catch(() => say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.'));
 
@@ -151,7 +153,6 @@ const norm = s => String(s).toLowerCase()
 function updatePieces(name) {
   const cat = $('category').value;
   
-  // تحديث شريط التقدم
   if (name && cat === 'مردات' && progressMap[name] !== undefined) {
     const pVal = progressMap[name];
     $('prog-val').textContent = pVal + '%';
@@ -161,7 +162,6 @@ function updatePieces(name) {
     $('progwrap').hidden = true;
   }
 
-  // تحديث قائمة المقطوعات
   if (!name) {
     $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
   } else if (userPiecesMap && userPiecesMap[name]) {
