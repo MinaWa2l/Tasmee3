@@ -1,3 +1,73 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تسجيل الحفظ</title>
+<style>
+  :root { --bg: #f4f6f5; --fg: #1c2a26; --card: #fff; --line: #d5dedb; --accent: #1f7a5a; --rec: #c0392b; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #17201d; --fg: #e8efec; --card: #1f2b27; --line: #34453f; --accent: #3fb087; --rec: #e5594a; }
+  }
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 16px; display: flex; justify-content: center; }
+  main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+  h1 { font-size: 22px; margin: 0 0 16px; }
+  label { display: block; margin: 12px 0 4px; font-weight: 600; }
+  select, button { width: 100%; font: inherit; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); box-sizing: border-box; }
+  button { border: 0; margin-top: 12px; color: #fff; background: var(--accent); }
+  #recwrap { text-align: center; margin-top: 12px; }
+  button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; }
+  button.mic svg { width: 36px; height: 36px; fill: #fff; }
+  button.mic .stopic { display: none; }
+  button.mic.on { background: var(--rec); animation: pulse 1.2s infinite; }
+  button.mic.on .micic { display: none; }
+  button.mic.on .stopic { display: block; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,.55); } 100% { box-shadow: 0 0 0 22px rgba(192,57,43,0); } }
+  @media (prefers-reduced-motion: reduce) { button.mic.on { animation: none; box-shadow: 0 0 0 8px rgba(192,57,43,.35); } }
+  .logo { display: block; width: 130px; height: auto; margin: 0 auto 12px; }
+  @media (prefers-color-scheme: dark) { .logo { background: #fff; border-radius: 16px; padding: 8px; box-sizing: content-box; } }
+  #lbl { margin-top: 8px; font-weight: 600; }
+  #msg.box { white-space: pre-line; text-align: center; border-radius: 12px; padding: 14px; line-height: 1.6; }
+  #msg.box b { display: block; font-size: 19px; margin-bottom: 4px; }
+  #msg.ok { background: #e3f4ec; color: #14543d; border: 1px solid #1f7a5a; }
+  #msg.err { background: #fbe9e7; color: #8f2a1f; border: 1px solid #c0392b; }
+  @media (prefers-color-scheme: dark) {
+    #msg.ok { background: #1d3a30; color: #bfe9d6; }
+    #msg.err { background: #3d2220; color: #f3c1ba; }
+  }
+  #lbl.on { color: var(--rec); }
+  button.alt { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  button:disabled { opacity: .5; }
+  audio { width: 100%; margin-top: 12px; }
+  #msg { margin-top: 12px; min-height: 1.4em; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <img class="logo" src="logo.png" alt="مدرسة القديس استفانوس للشمامسة" width="120" height="125">
+  <h1>سجّل حفظك</h1>
+  <label for="name">الاسم</label>
+  <select id="name"><option>جارٍ التحميل...</option></select>
+  <label for="piece">المحفوظ</label>
+  <select id="piece"><option>جارٍ التحميل...</option></select>
+
+  <div id="recwrap">
+    <button id="rec" class="mic" aria-label="تسجيل">
+      <svg class="micic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15zm6-3.5a1 1 0 0 0-2 0 4 4 0 0 1-8 0 1 1 0 0 0-2 0 6 6 0 0 0 5 5.9V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.6a6 6 0 0 0 5-5.9z"/></svg>
+      <svg class="stopic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+    </button>
+    <div id="lbl">اضغط للتسجيل</div>
+  </div>
+  <audio id="preview" controls hidden></audio>
+  <div id="after" hidden>
+    <button id="send">إرسال</button>
+    <button id="redo" class="alt">إعادة التسجيل</button>
+  </div>
+  <div id="msg" role="status"></div>
+</main>
+
+<script>
 // Paste the URL of the "Anyone" deployment here (ends with /exec)
 const API = 'https://script.google.com/macros/s/AKfycbztGpdpgnNzXvavNnSnx3bub2ErEZXrXduF0lYv6nF2_lsVfQcCZ5P3TVgsRnjEAxm8/exec';
 const MAX_SECONDS = 180;
@@ -15,12 +85,6 @@ function setRec(on, text) {
 const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 
 fetch(API + '?action=lists').then(r => r.json()).then(d => {
-  // SAFETY CHECK: If the backend hasn't been updated properly
-  if (!d.userPieces) {
-    say('خطأ في التحديث', 'err', 'يجب عمل New Version أثناء الـ Deploy في Google Apps Script.');
-    return;
-  }
-  
   userPiecesMap = d.userPieces;
   fill($('name'), d.names);
   $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
@@ -28,10 +92,9 @@ fetch(API + '?action=lists').then(r => r.json()).then(d => {
 
 $('name').addEventListener('change', function() {
   const name = this.value;
-  
   if (!name) {
     $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
-  } else if (userPiecesMap && userPiecesMap[name] && userPiecesMap[name].length > 0) {
+  } else if (userPiecesMap[name] && userPiecesMap[name].length > 0) {
     fill($('piece'), userPiecesMap[name]);
   } else {
     $('piece').replaceChildren(new Option('أكملت جميع المحفوظات 🎉', ''));
@@ -123,3 +186,6 @@ $('send').onclick = () => {
   };
   fr.readAsDataURL(blob);
 };
+</script>
+</body>
+</html>
