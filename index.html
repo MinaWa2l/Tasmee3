@@ -74,6 +74,7 @@ const MAX_SECONDS = 180;
 
 const $ = id => document.getElementById(id);
 let recorder, chunks = [], blob, mime, timer, secs = 0;
+let userPiecesMap = {};
 
 function setRec(on, text) {
   $('rec').classList.toggle('on', on);
@@ -84,8 +85,21 @@ function setRec(on, text) {
 const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 
 fetch(API + '?action=lists').then(r => r.json()).then(d => {
-  fill($('name'), d.names); fill($('piece'), d.pieces);
+  userPiecesMap = d.userPieces;
+  fill($('name'), d.names);
+  $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
 }).catch(() => say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.'));
+
+$('name').addEventListener('change', function() {
+  const name = this.value;
+  if (!name) {
+    $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
+  } else if (userPiecesMap[name] && userPiecesMap[name].length > 0) {
+    fill($('piece'), userPiecesMap[name]);
+  } else {
+    $('piece').replaceChildren(new Option('أكملت جميع المحفوظات 🎉', ''));
+  }
+});
 
 function fill(sel, items) {
   sel.replaceChildren(new Option('اختر...', ''), ...items.map(x => new Option(x, x)));
@@ -103,7 +117,7 @@ function say(t, kind, sub) {
 let starting = false;
 $('rec').onclick = async () => {
   if (recorder && recorder.state === 'recording') return recorder.stop();
-  if (starting) return;                       // ignore taps while the mic is still starting
+  if (starting) return;
   if (!$('name').value || !$('piece').value) return say('اختر الاسم والمحفوظ أولاً', 'err');
 
   starting = true;
