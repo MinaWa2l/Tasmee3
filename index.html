@@ -30,8 +30,8 @@
   button.mic.on .stopic { display: block; }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,.55); } 100% { box-shadow: 0 0 0 22px rgba(192,57,43,0); } }
   @media (prefers-reduced-motion: reduce) { button.mic.on { animation: none; box-shadow: 0 0 0 8px rgba(192,57,43,.35); } }
-  .logo { display: block; width: 130px; height: auto; margin: 0 auto 12px; }
-  @media (prefers-color-scheme: dark) { .logo { background: #fff; border-radius: 16px; padding: 8px; box-sizing: content-box; } }
+  .logo { display: block; width: 170px; height: auto; margin: 0 auto 12px; }
+ 
   #lbl { margin-top: 10px; font-weight: 600; }
   #msg.box { white-space: pre-line; text-align: center; border-radius: 12px; padding: 14px; line-height: 1.6; }
   #msg.box b { display: block; font-size: 19px; margin-bottom: 4px; }
@@ -63,7 +63,7 @@
 <body>
 <div id="ver"></div>
 <main>
-  <img class="logo" src="logo.png" alt="مدرسة القديس استفانوس للشمامسة" width="120" height="125">
+  <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة" width="170" height="170">
   <h1>سجّل حفظك</h1>
   <label for="name">الاسم</label>
   <div class="combo">
@@ -110,7 +110,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwO38U8e1n6qNxBina9dcDCcOUXXBtuoX6EF1_wpiM4JbQUgreKqIbWsrcbUI3r109e/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v1.1';
+const VERSION = 'v1.2';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
