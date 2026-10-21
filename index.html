@@ -187,7 +187,7 @@ function updatePieces(name) {
     if (pieces.length > 0) {
       fill($('piece'), pieces);
     } else {
-      $('piece').replaceChildren(new Option('أكملت جميع المحفوظات في هذا النوع 🎉', ''));
+      $('piece').replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', ''));
     }
   }
   showLink();
@@ -372,7 +372,7 @@ $('send').onclick = () => {
       }) });
       const d = await res.json();
       if (!d.ok) throw new Error(d.error);
-      say('✓ تم إرسال تسجيلك بنجاح', 'ok', $('name').value + ' — ' + $('category').value + ' (' + $('piece').value + ')\nسيستمع إليه المسؤول ويوافق عليه قريباً.');
+      say('✓ تم إرسال تسجيلك بنجاح', 'ok', $('name').value + ' — ' + $('category').value + ' (' + $('piece').value + ')\nسيستمع إليه الخادم ويوافق عليه قريباً.');
       $('after').hidden = $('preview').hidden = true; $('recwrap').hidden = false;
       setRec(false, 'اضغط لتسجيل آخر');
       $('name').disabled = $('piece').disabled = $('category').disabled = false;
