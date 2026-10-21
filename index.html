@@ -6,10 +6,10 @@
 <title>تسجيل الحفظ</title>
 <link rel="apple-touch-icon" href="logo_hifz_192.png">
 <style>
-  :root { --bg: #f4f6f5; --fg: #1c2a26; --card: #fff; --line: #d5dedb; --accent: #1f7a5a; --rec: #c0392b; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #17201d; --fg: #e8efec; --card: #1f2b27; --line: #34453f; --accent: #3fb087; --rec: #e5594a; }
-  }
+  :root { --bg: #f4f6f5; --fg: #1c2a26; --card: #fff; --line: #d5dedb; --accent: #12305c; --rec: #c0392b; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #17201d; --fg: #e8efec; --card: #1f2b27; --line: #34453f; --accent: #1d4f91; --rec: #e5594a; }
+}
   body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 16px; display: flex; justify-content: center; }
   main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
   h1 { font-size: 22px; margin: 0 0 16px; }
@@ -111,7 +111,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwO38U8e1n6qNxBina9dcDCcOUXXBtuoX6EF1_wpiM4JbQUgreKqIbWsrcbUI3r109e/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v1.2';
+const VERSION = 'v1.3';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
