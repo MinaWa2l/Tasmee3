@@ -6,10 +6,27 @@
 <title>تسجيل الحفظ</title>
 <link rel="apple-touch-icon" href="logo_hifz_192.png">
 <style>
-  :root { --bg: #12305c; --fg: #ffffff; --card: #1f3a63; --line: #2a4b7a; --accent: #12305c; --rec: #c0392b; }
-@media (prefers-color-scheme: dark) {
-  :root { --bg: #0a1b35; --fg: #e8efec; --card: #122442; --line: #1f3a63; --accent: #1d4f91; --rec: #e5594a; }
-}
+  /* Light Mode (Default) - White/Light gray background with dark text */
+  :root { 
+    --bg: #f4f6f9; 
+    --fg: #111827; 
+    --card: #ffffff; 
+    --line: #cbd5e1; 
+    --accent: #0f2d59; 
+    --rec: #c0392b; 
+  }
+
+  /* Dark Mode - Deep midnight blue matching the darkest part of the logo */
+  @media (prefers-color-scheme: dark) {
+    :root { 
+      --bg: #020f24; /* Deepest logo blue[cite: 4] */
+      --fg: #f8fafc; 
+      --card: #0a1d3b; /* Slightly lighter blue for the main box */
+      --line: #1c365e; 
+      --accent: #2563eb; 
+      --rec: #e5594a; 
+    }
+  }
   body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 16px; display: flex; justify-content: center; }
   main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
   h1 { font-size: 22px; margin: 0 0 16px; }
@@ -111,7 +128,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwO38U8e1n6qNxBina9dcDCcOUXXBtuoX6EF1_wpiM4JbQUgreKqIbWsrcbUI3r109e/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v1.5';
+const VERSION = 'v1.51';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
