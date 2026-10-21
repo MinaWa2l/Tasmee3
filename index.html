@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>تسجيل الحفظ</title>
 <style>
+  #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; direction: ltr; pointer-events: none; user-select: none; }
   :root { --bg: #f4f6f5; --fg: #1c2a26; --card: #fff; --line: #d5dedb; --accent: #1f7a5a; --rec: #c0392b; }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #17201d; --fg: #e8efec; --card: #1f2b27; --line: #34453f; --accent: #3fb087; --rec: #e5594a; }
@@ -58,12 +59,13 @@
 </style>
 </head>
 <body>
+  <div id="ver"></div>
 <main>
   <img class="logo" src="logo.png" alt="مدرسة القديس استفانوس للشمامسة" width="120" height="125">
   <h1>سجّل حفظك</h1>
   <label for="name">الاسم</label>
   <div class="combo">
-    <input id="name" type="text" autocomplete="off" placeholder="اكتب للبحث عن اسمك...">
+    <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
     <ul id="names" hidden></ul>
   </div>
   
@@ -106,6 +108,8 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwO38U8e1n6qNxBina9dcDCcOUXXBtuoX6EF1_wpiM4JbQUgreKqIbWsrcbUI3r109e/exec';
 const MAX_SECONDS = 180;
+  const VERSION = 'v1.0';
+document.getElementById('ver').textContent = VERSION;
 
 const $ = id => document.getElementById(id);
 let recorder, chunks = [], blob, mime, timer, secs = 0;
@@ -132,14 +136,20 @@ const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 
 fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
   if (!d.userPieces) {
+    $('name').placeholder = 'تعذّر التحميل';
     say('خطأ في التحديث', 'err', 'تأكد من عمل Deploy > New Version وتحديث رابط الـ API.');
     return;
   }
   userPiecesMap = d.userPieces;
   allNames = d.names;
-  progressMap = d.progress || {}; 
+  progressMap = d.progress || {};
   $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
-}).catch(() => say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.'));
+  $('name').disabled = false;
+  $('name').placeholder = 'اكتب للبحث عن اسمك...';
+}).catch(() => {
+  $('name').placeholder = 'تعذّر التحميل';
+  say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.');
+});
 
 fetch(API + '?action=links&t=' + Date.now()).then(r => r.json())
   .then(l => { linksMap = l || {}; showLink(); })
