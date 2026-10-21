@@ -19,9 +19,9 @@
   /* Dark Mode - Deep midnight blue matching the darkest part of the logo */
   @media (prefers-color-scheme: dark) {
     :root { 
-      --bg: #020f24; /* Deepest logo blue[cite: 4] */
+      --bg: #020f24;
       --fg: #f8fafc; 
-      --card: #0a1d3b; /* Slightly lighter blue for the main box */
+      --card: #0a1d3b;
       --line: #1c365e; 
       --accent: #2563eb; 
       --rec: #e5594a; 
@@ -128,7 +128,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v1.52';
+const VERSION = 'v1.53';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -159,27 +159,6 @@ const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 function progColor(p) {
   return 'hsl(' + Math.round(p * 1.2) + ', 70%, 42%)';
 }
-
-fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
-  if (!d.userPieces) {
-    $('name').placeholder = 'تعذّر التحميل';
-    say('خطأ في التحديث', 'err', 'تأكد من عمل Deploy > New Version وتحديث رابط الـ API.');
-    return;
-  }
-  userPiecesMap = d.userPieces;
-  allNames = d.names;
-  progressMap = d.progress || {}; 
-  $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
-  $('name').disabled = false;
-  $('name').placeholder = 'اكتب للبحث عن اسمك...';
-}).catch(() => {
-  $('name').placeholder = 'تعذّر التحميل';
-  say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.');
-});
-
-fetch(API + '?action=links&t=' + Date.now()).then(r => r.json())
-  .then(l => { linksMap = l || {}; showLink(); })
-  .catch(() => {});
 
 const norm = s => String(s).toLowerCase()
   .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
@@ -213,6 +192,56 @@ function updatePieces(name) {
   }
   showLink();
 }
+
+// ===== تحميل القوائم: نسخة محفوظة تظهر فوراً ثم تتحدّث في الخلفية =====
+let listsLoaded = false;
+
+function applyLists(d) {
+  userPiecesMap = d.userPieces;
+  allNames = d.names;
+  progressMap = d.progress || {};
+
+  if (!listsLoaded) {
+    listsLoaded = true;
+    $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
+    $('name').disabled = false;
+    $('name').placeholder = 'اكتب للبحث عن اسمك...';
+  }
+
+  // لو وصلت بيانات جديدة بعد أن اختار الطفل اسمه، حدّث القائمة مع الحفاظ على اختياره
+  const typed = $('name').value;
+  if (allNames.includes(typed)) {
+    const keep = $('piece').value;
+    updatePieces(typed);
+    if ([...$('piece').options].some(o => o.value === keep)) $('piece').value = keep;
+    showLink();
+  }
+}
+
+function refreshLists() {
+  return fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
+    if (!d.userPieces) throw new Error('bad response');
+    try { localStorage.setItem('lists_v1', JSON.stringify(d)); } catch (e) {}
+    applyLists(d);
+  });
+}
+
+let cachedLists = null;
+try { cachedLists = JSON.parse(localStorage.getItem('lists_v1')); } catch (e) {}
+if (cachedLists && cachedLists.userPieces) applyLists(cachedLists);
+
+refreshLists().catch(() => {
+  if (listsLoaded) return; // النسخة المحفوظة تكفي للعمل
+  $('name').placeholder = 'تعذّر التحميل';
+  say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.');
+});
+
+try { linksMap = JSON.parse(localStorage.getItem('links_v1')) || {}; } catch (e) {}
+fetch(API + '?action=links&t=' + Date.now()).then(r => r.json()).then(l => {
+  linksMap = l || {};
+  try { localStorage.setItem('links_v1', JSON.stringify(linksMap)); } catch (e) {}
+  showLink();
+}).catch(() => {});
 
 $('category').addEventListener('change', () => {
   updatePieces(allNames.includes($('name').value) ? $('name').value : '');
@@ -347,7 +376,15 @@ $('send').onclick = () => {
       $('after').hidden = $('preview').hidden = true; $('recwrap').hidden = false;
       setRec(false, 'اضغط لتسجيل آخر');
       $('name').disabled = $('piece').disabled = $('category').disabled = false;
-    } catch (e) { say('لم يتم الإرسال', 'err', 'تأكد من الإنترنت ثم اضغط إرسال مرة أخرى. تسجيلك ما زال محفوظاً هنا.'); }
+      refreshLists().catch(() => {});
+    } catch (e) {
+      if (String(e.message).includes('already completed')) {
+        say('هذا المحفوظ تم تسميعه مسبقاً', 'err', 'تم تحديث القائمة. اضغط إعادة التسجيل ثم اختر محفوظاً آخر.');
+        refreshLists().catch(() => {});
+      } else {
+        say('لم يتم الإرسال', 'err', 'تأكد من الإنترنت ثم اضغط إرسال مرة أخرى. تسجيلك ما زال محفوظاً هنا.');
+      }
+    }
     $('send').disabled = $('redo').disabled = false;
   };
   fr.readAsDataURL(blob);
