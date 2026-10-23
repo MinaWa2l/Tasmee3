@@ -6,6 +6,454 @@
 <title>تسجيل الحفظ</title>
 <link rel="apple-touch-icon" href="logo_hifz_192.png">
 <style>
+  /* Light Mode */
+  :root { 
+    --bg: #f4f6f9; 
+    --fg: #111827; 
+    --card: #ffffff; 
+    --line: #cbd5e1; 
+    --accent: #0f2d59; 
+    --rec: #c0392b; 
+  }
+
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    :root { 
+      --bg: #020f24;
+      --fg: #f8fafc; 
+      --card: #0a1d3b;
+      --line: #1c365e; 
+      --accent: #2563eb; 
+      --rec: #e5594a; 
+    }
+  }
+  
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 12px; display: flex; justify-content: center; }
+  
+  /* 1. App Container & Typography */
+  main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  h1 { font-size: 18px; margin: 0 0 10px; }
+  .logo { display: block; width: 120px; height: auto; margin: 0 auto 8px; }
+
+  /* 2. Inputs & Labels */
+  label { display: block; margin: 8px 0 4px; font-weight: 600; font-size: 13px; }
+  select, input, button { width: 100%; font: inherit; padding: 8px 10px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); box-sizing: border-box; }
+  button { border: 0; margin-top: 8px; color: #fff; background: var(--accent); font-weight: bold; }
+  .plink { display: block; margin-top: 6px; padding: 8px; text-align: center; font-size: 13px; border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; text-decoration: none; font-weight: 600; }
+  
+  .combo { position: relative; }
+  #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 180px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.15); z-index: 10; }
+  #names li { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+  #names li:hover, #names li.hit { background: var(--bg); }
+  #names li.none { color: #7a8a85; cursor: default; }
+
+  /* 3. Progress Bar */
+  #progwrap { margin: 12px 0 8px; }
+  .prog-text { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .prog-text span:first-child { color: var(--fg); }
+  .prog-text span:last-child { font-weight: 900; transition: color 0.8s; }
+  .prog-bar-bg { width: 100%; height: 12px; background: var(--line); border-radius: 6px; overflow: hidden; }
+  #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s; }
+
+  /* 4. History Panel (with scroll limit) */
+  #history { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+  #history h3 { margin: 0 0 6px 0; font-size: 14px; }
+  #history-list { max-height: 160px; overflow-y: auto; padding-left: 4px; }
+  .h-card { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; margin-bottom: 6px; font-size: 13px; }
+  .h-title { font-weight: bold; margin-bottom: 2px; display: flex; justify-content: space-between; }
+  .s-pending { color: #d97706; } 
+  .s-approved { color: #16a34a; } 
+  .s-rejected { color: #dc2626; } 
+  .h-comment { margin-top: 4px; font-size: 12px; font-style: italic; color: var(--accent); }
+
+  /* 5. Record Button area */
+  #recwrap { text-align: center; margin-top: 12px; }
+  button.mic { width: 64px; height: 64px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; }
+  button.mic svg { width: 28px; height: 28px; fill: #fff; }
+  button.mic .stopic { display: none; }
+  button.mic.on { background: var(--rec); animation: pulse 1.2s infinite; }
+  button.mic.on .micic { display: none; }
+  button.mic.on .stopic { display: block; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,.55); } 100% { box-shadow: 0 0 0 16px rgba(192,57,43,0); } }
+  @media (prefers-reduced-motion: reduce) { button.mic.on { animation: none; box-shadow: 0 0 0 6px rgba(192,57,43,.35); } }
+  
+  #lbl { margin-top: 6px; font-weight: 600; font-size: 13px; }
+  #lbl.on { color: var(--rec); }
+  
+  #msg.box { white-space: pre-line; text-align: center; border-radius: 10px; padding: 10px; line-height: 1.5; font-size: 14px; }
+  #msg.box b { display: block; font-size: 16px; margin-bottom: 4px; }
+  #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+  #msg.err { background: #fbe9e7; color: #8f2a1f; border: 1px solid #c0392b; }
+  @media (prefers-color-scheme: dark) {
+    #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+    #msg.err { background: #3d2220; color: #f3c1ba; }
+  }
+  
+  button.alt { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  button:disabled { opacity: .5; }
+  audio { width: 100%; margin-top: 10px; height: 40px; }
+  #msg { margin-top: 10px; min-height: 1.4em; }
+  [hidden] { display: none !important; }
+  #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; direction: ltr; pointer-events: none; user-select: none; }
+</style>
+</head>
+<body>
+<div id="ver"></div>
+<main>
+  <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة" width="120" height="120">
+  <h1>سجّل حفظك</h1>
+  <label for="name">الاسم</label>
+  <div class="combo">
+    <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
+    <ul id="names" hidden></ul>
+  </div>
+  
+  <label for="category">النوع</label>
+  <select id="category">
+    <option value="مردات">مردات</option>
+    <option value="ألحان">ألحان</option>
+  </select>
+
+  <!-- شريط التقدم -->
+  <div id="progwrap" hidden>
+    <div class="prog-text">
+      <span>نسبة تسميع مردات الهيكل</span>
+      <span id="prog-val">0%</span>
+    </div>
+    <div class="prog-bar-bg">
+      <div id="prog-bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- لوحة سجل التسميع -->
+  <div id="history" hidden>
+    <h3>سجل التسميع</h3>
+    <div id="history-list"></div>
+  </div>
+
+  <label for="piece">المحفوظ</label>
+  <select id="piece"><option>جارٍ التحميل...</option></select>
+  <a id="plink" class="plink" target="_blank" rel="noopener" hidden>▶ افتح رابط المحفوظ</a>
+
+  <div id="recwrap">
+    <button id="rec" class="mic" aria-label="تسجيل">
+      <svg class="micic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15zm6-3.5a1 1 0 0 0-2 0 4 4 0 0 1-8 0 1 1 0 0 0-2 0 6 6 0 0 0 5 5.9V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.6a6 6 0 0 0 5-5.9z"/></svg>
+      <svg class="stopic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+    </button>
+    <div id="lbl">اضغط للتسجيل</div>
+  </div>
+  <audio id="preview" controls hidden></audio>
+  <div id="after" hidden>
+    <button id="send">إرسال</button>
+    <button id="redo" class="alt">إعادة التسجيل</button>
+  </div>
+  <div id="msg" role="status"></div>
+</main>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
+const MAX_SECONDS = 180;
+const VERSION = 'v1.55';
+
+const $ = id => document.getElementById(id);
+$('ver').textContent = VERSION;
+
+let recorder, chunks = [], blob, mime, timer, secs = 0;
+let userPiecesMap = {};
+let allNames = [];
+let linksMap = {};
+let progressMap = {}; 
+
+function showLink() {
+  const cat = $('category').value;
+  const p = $('piece').value;
+  const u = linksMap[cat] && linksMap[cat][p];
+  $('plink').hidden = !u;
+  if (u) $('plink').href = u;
+}
+
+function setRec(on, text) {
+  $('rec').classList.toggle('on', on);
+  $('lbl').classList.toggle('on', on);
+  $('rec').setAttribute('aria-label', on ? 'إيقاف التسجيل' : 'تسجيل');
+  $('lbl').textContent = text;
+}
+const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+
+function progColor(p) {
+  return 'hsl(' + Math.round(p * 1.2) + ', 70%, 42%)';
+}
+
+const norm = s => String(s).toLowerCase()
+  .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+  .replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+  .replace(/ڤ/g, 'ف')
+  .replace(/چ/g, 'ج')
+  .replace(/\s+/g, ' ').trim();
+
+function updatePieces(name) {
+  const cat = $('category').value;
+  
+  if (name && cat === 'مردات' && progressMap[name] !== undefined) {
+    const pVal = Math.max(0, Math.min(100, Number(progressMap[name]) || 0));
+    const color = progColor(pVal);
+    $('prog-val').textContent = pVal + '%';
+    $('prog-val').style.color = color;
+    $('prog-bar-fill').style.width = pVal + '%';
+    $('prog-bar-fill').style.backgroundColor = color;
+    $('progwrap').hidden = false;
+  } else {
+    $('progwrap').hidden = true;
+  }
+
+  if (!name) {
+    $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
+  } else if (userPiecesMap && userPiecesMap[name]) {
+    const pieces = userPiecesMap[name][cat] || [];
+    if (pieces.length > 0) {
+      fill($('piece'), pieces);
+    } else {
+      $('piece').replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', ''));
+    }
+  }
+  showLink();
+}
+
+let listsLoaded = false;
+
+function applyLists(d) {
+  userPiecesMap = d.userPieces;
+  allNames = d.names;
+  progressMap = d.progress || {};
+
+  if (!listsLoaded) {
+    listsLoaded = true;
+    $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
+    $('name').disabled = false;
+    $('name').placeholder = 'اكتب للبحث عن اسمك...';
+  }
+
+  const typed = $('name').value;
+  if (allNames.includes(typed)) {
+    const keep = $('piece').value;
+    updatePieces(typed);
+    if ([...$('piece').options].some(o => o.value === keep)) $('piece').value = keep;
+    showLink();
+  }
+}
+
+function refreshLists() {
+  return fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
+    if (!d.userPieces) throw new Error('bad response');
+    try { localStorage.setItem('lists_v1', JSON.stringify(d)); } catch (e) {}
+    applyLists(d);
+  });
+}
+
+let cachedLists = null;
+try { cachedLists = JSON.parse(localStorage.getItem('lists_v1')); } catch (e) {}
+if (cachedLists && cachedLists.userPieces) applyLists(cachedLists);
+
+refreshLists().catch(() => {
+  if (listsLoaded) return;
+  $('name').placeholder = 'تعذّر التحميل';
+  say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.');
+});
+
+try { linksMap = JSON.parse(localStorage.getItem('links_v1')) || {}; } catch (e) {}
+fetch(API + '?action=links&t=' + Date.now()).then(r => r.json()).then(l => {
+  linksMap = l || {};
+  try { localStorage.setItem('links_v1', JSON.stringify(linksMap)); } catch (e) {}
+  showLink();
+}).catch(() => {});
+
+$('category').addEventListener('change', () => {
+  updatePieces(allNames.includes($('name').value) ? $('name').value : '');
+});
+
+$('piece').addEventListener('change', showLink);
+
+function matches() {
+  const typed = $('name').value;
+  if (allNames.includes(typed)) return allNames;
+  const words = norm(typed).split(' ').filter(Boolean);
+  return allNames.filter(n => { const x = norm(n); return words.every(w => x.includes(w)); });
+}
+
+function showNames() {
+  if (!allNames.length) return;
+  const found = matches();
+  const items = found.length
+    ? found.map(n => Object.assign(document.createElement('li'), { textContent: n }))
+    : [Object.assign(document.createElement('li'), { className: 'none', textContent: 'لا يوجد اسم مطابق' })];
+  $('names').replaceChildren(...items);
+  $('names').hidden = false;
+}
+
+function fetchHistory(name) {
+  $('history').hidden = true;
+  $('history-list').replaceChildren();
+  if (!name) return;
+  
+  fetch(API + '?action=history&name=' + encodeURIComponent(name))
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.length) return;
+      
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'h-card';
+        
+        let statusText = 'قيد المراجعة 🟡';
+        let statusClass = 's-pending';
+        if (item.status === 'Approved') { statusText = 'مقبول 🟢'; statusClass = 's-approved'; }
+        if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
+
+        let html = `<div class="h-title"><span>${item.category} - ${item.piece}</span> <span class="${statusClass}">${statusText}</span></div>`;
+        if (item.comment) html += `<div class="h-comment">تعليق الخادم: ${item.comment}</div>`;
+        
+        card.innerHTML = html;
+        $('history-list').append(card);
+      });
+      $('history').hidden = false;
+    }).catch(e => console.error(e));
+}
+
+function pickName(n) {
+  $('name').value = n;
+  $('names').hidden = true;
+  $('name').blur();
+  updatePieces(n);
+  fetchHistory(n);
+}
+
+$('name').addEventListener('focus', () => { $('name').select(); showNames(); });
+$('name').addEventListener('input', () => {
+  updatePieces(allNames.includes($('name').value) ? $('name').value : '');
+  showNames();
+});
+$('name').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const first = matches()[0];
+  if (first && !allNames.includes($('name').value)) pickName(first);
+});
+$('names').addEventListener('click', e => {
+  const li = e.target.closest('li');
+  if (li && !li.classList.contains('none')) pickName(li.textContent);
+});
+document.addEventListener('click', e => { if (!e.target.closest('.combo')) $('names').hidden = true; });
+
+function fill(sel, items) {
+  sel.replaceChildren(new Option('اختر...', ''), ...items.map(x => new Option(x, x)));
+}
+
+function say(t, kind, sub) {
+  const m = $('msg');
+  m.replaceChildren();
+  m.className = kind ? 'box ' + kind : '';
+  if (!kind) { m.textContent = t; return; }
+  const b = document.createElement('b'); b.textContent = t; m.append(b);
+  if (sub) m.append(sub);
+  m.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+let starting = false;
+$('rec').onclick = async () => {
+  if (recorder && recorder.state === 'recording') return recorder.stop();
+  if (starting) return;
+  if (!$('name').value || !$('piece').value) return say('اختر الاسم والمحفوظ أولاً', 'err');
+
+  starting = true;
+  $('lbl').textContent = 'جارٍ تشغيل الميكروفون...';
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    starting = false;
+    $('lbl').textContent = 'اضغط للتسجيل';
+    return say('لم يتم السماح بالميكروفون', 'err', 'اسمح بالميكروفون من إعدادات المتصفح ثم حاول مرة أخرى.');
+  }
+
+  mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+  const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
+  recorder = rec;
+  chunks = [];
+  rec.ondataavailable = e => chunks.push(e.data);
+  rec.onstop = () => {
+    clearInterval(timer);
+    stream.getTracks().forEach(t => t.stop());
+    blob = new Blob(chunks, { type: rec.mimeType });
+    mime = rec.mimeType;
+    $('preview').src = URL.createObjectURL(blob);
+    $('preview').hidden = false; $('after').hidden = false; $('recwrap').hidden = true;
+    $('name').disabled = $('piece').disabled = $('category').disabled = true;
+    setRec(false, 'اضغط للتسجيل');
+    say('استمع للتسجيل ثم اضغط إرسال.');
+  };
+
+  rec.start();
+  starting = false;
+  clearInterval(timer);
+  secs = 0;
+  setRec(true, 'جارٍ التسجيل 0:00 — اضغط للإيقاف');
+  say('');
+  timer = setInterval(() => {
+    if (rec.state !== 'recording') return clearInterval(timer);
+    secs++;
+    $('lbl').textContent = 'جارٍ التسجيل ' + fmt(secs) + ' — اضغط للإيقاف';
+    if (secs >= MAX_SECONDS) rec.stop();
+  }, 1000);
+};
+
+$('redo').onclick = () => {
+  $('preview').hidden = $('after').hidden = true; $('recwrap').hidden = false;
+  setRec(false, 'اضغط للتسجيل');
+  $('name').disabled = $('piece').disabled = $('category').disabled = false; say('');
+};
+
+$('send').onclick = () => {
+  $('send').disabled = $('redo').disabled = true; say('جارٍ الإرسال...');
+  const fr = new FileReader();
+  fr.onload = async () => {
+    try {
+      const res = await fetch(API, { method: 'POST', body: JSON.stringify({
+        name: $('name').value, 
+        category: $('category').value, 
+        piece: $('piece').value, 
+        mime: mime, 
+        audio: fr.result.split(',')[1] 
+      }) });
+      const d = await res.json();
+      if (!d.ok) throw new Error(d.error);
+      say('✓ تم إرسال تسجيلك بنجاح', 'ok', $('name').value + ' — ' + $('category').value + ' (' + $('piece').value + ')\nسيستمع إليه الخادم ويوافق عليه قريباً.');
+      $('after').hidden = $('preview').hidden = true; $('recwrap').hidden = false;
+      setRec(false, 'اضغط لتسجيل آخر');
+      $('name').disabled = $('piece').disabled = $('category').disabled = false;
+      refreshLists().catch(() => {});
+      fetchHistory($('name').value);
+    } catch (e) {
+      if (String(e.message).includes('already completed')) {
+        say('هذا المحفوظ تم تسميعه مسبقاً', 'err', 'تم تحديث القائمة. اضغط إعادة التسجيل ثم اختر محفوظاً آخر.');
+        refreshLists().catch(() => {});
+      } else {
+        say('لم يتم الإرسال', 'err', 'تأكد من الإنترنت ثم اضغط إرسال مرة أخرى. تسجيلك ما زال محفوظاً هنا.');
+      }
+    }
+    $('send').disabled = $('redo').disabled = false;
+  };
+  fr.readAsDataURL(blob);
+};
+</script>
+</body>
+</html><!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تسجيل الحفظ</title>
+<link rel="apple-touch-icon" href="logo_hifz_192.png">
+<style>
   /* Light Mode (Default) */
   :root { 
     --bg: #f4f6f9; 
@@ -144,7 +592,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v1.54';
+const VERSION = 'v1.6';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
