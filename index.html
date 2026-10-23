@@ -13,6 +13,7 @@
     --card: #ffffff; 
     --line: #cbd5e1; 
     --accent: #0f2d59; 
+    --accent-light: #e6edf8;
     --rec: #c0392b; 
   }
 
@@ -23,65 +24,79 @@
       --fg: #f8fafc; 
       --card: #0a1d3b;
       --line: #1c365e; 
-      --accent: #2563eb; 
-      --rec: #e5594a; 
+      --accent: #3b82f6; 
+      --accent-light: #172a4f;
+      --rec: #ef4444; 
     }
   }
   
   body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 12px; display: flex; justify-content: center; }
   
-  /* 1. App Container & Typography */
-  main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
-  h1 { font-size: 18px; margin: 0 0 10px; }
-  .logo { display: block; width: 120px; height: auto; margin: 0 auto 8px; }
-
-  /* 2. Inputs & Labels */
-  label { display: block; margin: 8px 0 4px; font-weight: 600; font-size: 13px; }
-  select, input, button { width: 100%; font: inherit; padding: 8px 10px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); box-sizing: border-box; }
-  button { border: 0; margin-top: 8px; color: #fff; background: var(--accent); font-weight: bold; }
-  .plink { display: block; margin-top: 6px; padding: 8px; text-align: center; font-size: 13px; border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; text-decoration: none; font-weight: 600; }
+  /* 1. App Container */
+  main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); box-sizing: border-box; }
   
-  .combo { position: relative; }
-  #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 180px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.15); z-index: 10; }
-  #names li { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-  #names li:hover, #names li.hit { background: var(--bg); }
-  #names li.none { color: #7a8a85; cursor: default; }
-
-  /* 3. Progress Bar */
-  #progwrap { margin: 12px 0 8px; }
-  .prog-text { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-  .prog-text span:first-child { color: var(--fg); }
+  /* 2. Header Row (Logo + Title + Progress) */
+  .top-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .logo { width: 76px; height: 76px; border-radius: 12px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .header-info { flex: 1; }
+  h1 { font-size: 20px; margin: 0 0 6px; font-weight: 800; }
+  
+  /* Progress Bar inside Header */
+  #progwrap { margin-top: 4px; }
+  .prog-text { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 4px; color: var(--fg); opacity: 0.9; }
   .prog-text span:last-child { font-weight: 900; transition: color 0.8s; }
-  .prog-bar-bg { width: 100%; height: 12px; background: var(--line); border-radius: 6px; overflow: hidden; }
+  .prog-bar-bg { width: 100%; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
   #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s; }
 
-  /* 4. History Panel (with scroll limit) */
-  #history { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
-  #history h3 { margin: 0 0 6px 0; font-size: 14px; }
-  #history-list { max-height: 160px; overflow-y: auto; padding-left: 4px; }
-  .h-card { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; margin-bottom: 6px; font-size: 13px; }
-  .h-title { font-weight: bold; margin-bottom: 2px; display: flex; justify-content: space-between; }
+  /* 3. Inputs & Grids */
+  label { display: block; margin: 0 0 4px; font-weight: 700; font-size: 12px; opacity: 0.8; }
+  select, input, button { width: 100%; font: inherit; padding: 10px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); box-sizing: border-box; transition: border-color 0.2s; }
+  select:focus, input:focus { outline: none; border-color: var(--accent); }
+  
+  .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .input-row > div:first-child { flex: 2; }
+  .input-row > div:last-child { flex: 1; }
+  
+  /* Inline Piece & Link */
+  .piece-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .piece-row select { flex: 1; }
+  .plink-btn { flex: 0 0 44px; display: flex; align-items: center; justify-content: center; background: var(--accent-light); border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; text-decoration: none; font-size: 16px; transition: all 0.2s; }
+  
+  /* Autocomplete Dropdown */
+  .combo { position: relative; }
+  #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 160px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.2); z-index: 20; }
+  #names li { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  #names li:hover, #names li.hit { background: var(--bg); color: var(--accent); font-weight: bold; }
+  #names li.none { color: #7a8a85; cursor: default; }
+
+  /* 4. History Panel */
+  #history { margin-bottom: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+  #history h3 { margin: 0 0 6px 0; font-size: 12px; font-weight: 700; opacity: 0.8; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  #history-list { max-height: 110px; overflow-y: auto; padding-left: 4px; }
+  .h-card { padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 12px; }
+  .h-card:last-child { border-bottom: none; padding-bottom: 0; }
+  .h-title { font-weight: bold; margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center; }
   .s-pending { color: #d97706; } 
   .s-approved { color: #16a34a; } 
   .s-rejected { color: #dc2626; } 
-  .h-comment { margin-top: 4px; font-size: 12px; font-style: italic; color: var(--accent); }
+  .h-comment { margin-top: 2px; font-size: 11px; font-style: italic; color: var(--accent); opacity: 0.9; }
 
   /* 5. Record Button area */
-  #recwrap { text-align: center; margin-top: 12px; }
-  button.mic { width: 64px; height: 64px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; }
-  button.mic svg { width: 28px; height: 28px; fill: #fff; }
+  #recwrap { text-align: center; margin-top: 16px; }
+  button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: var(--accent); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  button.mic svg { width: 36px; height: 36px; fill: #fff; }
   button.mic .stopic { display: none; }
   button.mic.on { background: var(--rec); animation: pulse 1.2s infinite; }
   button.mic.on .micic { display: none; }
   button.mic.on .stopic { display: block; }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,.55); } 100% { box-shadow: 0 0 0 16px rgba(192,57,43,0); } }
-  @media (prefers-reduced-motion: reduce) { button.mic.on { animation: none; box-shadow: 0 0 0 6px rgba(192,57,43,.35); } }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,.55); } 100% { box-shadow: 0 0 0 22px rgba(192,57,43,0); } }
   
-  #lbl { margin-top: 6px; font-weight: 600; font-size: 13px; }
+  #lbl { margin-top: 10px; font-weight: 700; font-size: 14px; }
   #lbl.on { color: var(--rec); }
   
-  #msg.box { white-space: pre-line; text-align: center; border-radius: 10px; padding: 10px; line-height: 1.5; font-size: 14px; }
-  #msg.box b { display: block; font-size: 16px; margin-bottom: 4px; }
+  /* System Messages & Audio */
+  #msg.box { white-space: pre-line; text-align: center; border-radius: 10px; padding: 10px; line-height: 1.5; font-size: 13px; margin-top: 12px; }
+  #msg.box b { display: block; font-size: 15px; margin-bottom: 2px; }
   #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
   #msg.err { background: #fbe9e7; color: #8f2a1f; border: 1px solid #c0392b; }
   @media (prefers-color-scheme: dark) {
@@ -89,52 +104,67 @@
     #msg.err { background: #3d2220; color: #f3c1ba; }
   }
   
-  button.alt { background: transparent; color: var(--fg); border: 1px solid var(--line); }
-  button:disabled { opacity: .5; }
-  audio { width: 100%; margin-top: 10px; height: 40px; }
-  #msg { margin-top: 10px; min-height: 1.4em; }
+  button.send-btn { background: var(--accent); color: #fff; margin-top: 12px; border: none; font-weight: bold; }
+  button.alt { background: transparent; color: var(--fg); border: 1px solid var(--line); margin-top: 8px; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  audio { width: 100%; margin-top: 12px; height: 40px; }
   [hidden] { display: none !important; }
-  #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; direction: ltr; pointer-events: none; user-select: none; }
+  #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; direction: ltr; pointer-events: none; user-select: none; z-index: 100; }
 </style>
 </head>
 <body>
 <div id="ver"></div>
 <main>
-  <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة" width="120" height="120">
-  <h1>سجّل حفظك</h1>
-  <label for="name">الاسم</label>
-  <div class="combo">
-    <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
-    <ul id="names" hidden></ul>
-  </div>
-  
-  <label for="category">النوع</label>
-  <select id="category">
-    <option value="مردات">مردات</option>
-    <option value="ألحان">ألحان</option>
-  </select>
-
-  <!-- شريط التقدم -->
-  <div id="progwrap" hidden>
-    <div class="prog-text">
-      <span>نسبة تسميع مردات الهيكل</span>
-      <span id="prog-val">0%</span>
-    </div>
-    <div class="prog-bar-bg">
-      <div id="prog-bar-fill"></div>
+  <!-- Header: Logo, Title, and Progress Bar -->
+  <div class="top-header">
+    <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة">
+    <div class="header-info">
+      <h1>سجّل حفظك</h1>
+      <div id="progwrap" hidden>
+        <div class="prog-text">
+          <span>مردات الهيكل</span>
+          <span id="prog-val">0%</span>
+        </div>
+        <div class="prog-bar-bg">
+          <div id="prog-bar-fill"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- لوحة سجل التسميع -->
+  <!-- Row 1: Name and Category side by side -->
+  <div class="input-row">
+    <div class="combo">
+      <label for="name">الاسم</label>
+      <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
+      <ul id="names" hidden></ul>
+    </div>
+    
+    <div>
+      <label for="category">النوع</label>
+      <select id="category">
+        <option value="مردات">مردات</option>
+        <option value="ألحان">ألحان</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Row 2: Piece and Link Button side by side -->
+  <div>
+    <label for="piece">المحفوظ</label>
+    <div class="piece-row">
+      <select id="piece"><option>جارٍ التحميل...</option></select>
+      <a id="plink" class="plink-btn" target="_blank" rel="noopener" aria-label="رابط المحفوظ" hidden>▶</a>
+    </div>
+  </div>
+
+  <!-- History Panel -->
   <div id="history" hidden>
-    <h3>سجل التسميع</h3>
+    <h3>سجل التسميع السريع</h3>
     <div id="history-list"></div>
   </div>
 
-  <label for="piece">المحفوظ</label>
-  <select id="piece"><option>جارٍ التحميل...</option></select>
-  <a id="plink" class="plink" target="_blank" rel="noopener" hidden>▶ افتح رابط المحفوظ</a>
-
+  <!-- Record Button Area -->
   <div id="recwrap">
     <button id="rec" class="mic" aria-label="تسجيل">
       <svg class="micic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15zm6-3.5a1 1 0 0 0-2 0 4 4 0 0 1-8 0 1 1 0 0 0-2 0 6 6 0 0 0 5 5.9V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.6a6 6 0 0 0 5-5.9z"/></svg>
@@ -142,9 +172,11 @@
     </button>
     <div id="lbl">اضغط للتسجيل</div>
   </div>
+
+  <!-- Post Record Actions -->
   <audio id="preview" controls hidden></audio>
   <div id="after" hidden>
-    <button id="send">إرسال</button>
+    <button id="send" class="send-btn">إرسال</button>
     <button id="redo" class="alt">إعادة التسجيل</button>
   </div>
   <div id="msg" role="status"></div>
@@ -153,7 +185,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v1.6';
+const VERSION = 'v1.60'; // Updated version for the new layout
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -310,7 +342,7 @@ function fetchHistory(name) {
         if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
 
         let html = `<div class="h-title"><span>${item.category} - ${item.piece}</span> <span class="${statusClass}">${statusText}</span></div>`;
-        if (item.comment) html += `<div class="h-comment">تعليق الخادم: ${item.comment}</div>`;
+        if (item.comment) html += `<div class="h-comment">تعليق: ${item.comment}</div>`;
         
         card.innerHTML = html;
         $('history-list').append(card);
