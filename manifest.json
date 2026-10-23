@@ -1,0 +1,22 @@
+{
+  "name": "تسجيل الحفظ - مدرسة القديس استفانوس",
+  "short_name": "تسجيل الحفظ",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#0f2d59",
+  "icons": [
+    {
+      "src": "logo_hifz_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo_hifz_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
