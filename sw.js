@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tasmee3-v1';
+const CACHE_NAME = 'tasmee3-v2';
 const ASSETS = [
   './',
   './index.html',
