@@ -348,7 +348,7 @@ function fetchHistory(name) {
         if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
 
         let html = `<div class="h-title"><span>${item.category} - ${item.piece}</span> <span class="${statusClass}">${statusText}</span></div>`;
-        if (item.comment) html += `<div class="h-comment">تعليق: ${item.comment}</div>`;
+        if (item.comment) html += `<div class="h-comment"> تعليق:  ${item.comment}</div>`;
         
         card.innerHTML = html;
         $('history-list').append(card);
