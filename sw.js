@@ -3,7 +3,7 @@ const ASSETS = [
   './',
   './index.html',
   './logo_hifz_192.png',
-  './logo_hifz_512.png'
+  './logo_hifz_512app.png'
 ];
 
 self.addEventListener('install', event => {
