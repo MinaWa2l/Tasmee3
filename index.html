@@ -6,15 +6,7 @@
 <title>تسجيل الحفظ</title>
 <link rel="apple-touch-icon" href="logo_hifz_192.png">
 <style>
-
-  #history { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 15px; }
-.h-card { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 14px; }
-.h-title { font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; }
-.s-pending { color: #d97706; } /* Orange */
-.s-approved { color: #16a34a; } /* Green */
-.s-rejected { color: #dc2626; } /* Red */
-.h-comment { margin-top: 6px; font-size: 13px; font-style: italic; color: var(--accent); }
-  /* Light Mode (Default) - White/Light gray background with dark text */
+  /* Light Mode (Default) */
   :root { 
     --bg: #f4f6f9; 
     --fg: #111827; 
@@ -24,7 +16,7 @@
     --rec: #c0392b; 
   }
 
-  /* Dark Mode - Deep midnight blue matching the darkest part of the logo */
+  /* Dark Mode */
   @media (prefers-color-scheme: dark) {
     :root { 
       --bg: #020f24;
@@ -61,7 +53,7 @@
   #lbl { margin-top: 10px; font-weight: 600; }
   #msg.box { white-space: pre-line; text-align: center; border-radius: 12px; padding: 14px; line-height: 1.6; }
   #msg.box b { display: block; font-size: 19px; margin-bottom: 4px; }
- #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+  #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
   #msg.err { background: #fbe9e7; color: #8f2a1f; border: 1px solid #c0392b; }
   @media (prefers-color-scheme: dark) {
     #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
@@ -74,16 +66,24 @@
   #msg { margin-top: 12px; min-height: 1.4em; }
   [hidden] { display: none !important; }
 
-  /* مؤشر النسخة */
   #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; direction: ltr; pointer-events: none; user-select: none; }
 
-  /* تنسيقات شريط التقدم */
   #progwrap { margin: 20px 0 10px; }
   .prog-text { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
   .prog-text span:first-child { color: var(--fg); }
   .prog-text span:last-child { font-weight: 900; transition: color 0.8s; }
   .prog-bar-bg { width: 100%; height: 16px; background: var(--line); border-radius: 8px; overflow: hidden; }
   #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s; }
+
+  /* History Panel CSS */
+  #history { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 15px; }
+  #history h3 { margin: 0 0 10px 0; font-size: 16px; }
+  .h-card { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 14px; }
+  .h-title { font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .s-pending { color: #d97706; } 
+  .s-approved { color: #16a34a; } 
+  .s-rejected { color: #dc2626; } 
+  .h-comment { margin-top: 6px; font-size: 13px; font-style: italic; color: var(--accent); }
 </style>
 </head>
 <body>
@@ -105,10 +105,6 @@
 
   <!-- شريط التقدم -->
   <div id="progwrap" hidden>
-    <div id="history" hidden>
-  <h3>سجل التسميع</h3>
-  <div id="history-list"></div>
-</div>
     <div class="prog-text">
       <span>نسبة تسميع مردات الهيكل</span>
       <span id="prog-val">0%</span>
@@ -116,6 +112,12 @@
     <div class="prog-bar-bg">
       <div id="prog-bar-fill"></div>
     </div>
+  </div>
+
+  <!-- لوحة سجل التسميع -->
+  <div id="history" hidden>
+    <h3>سجل التسميع</h3>
+    <div id="history-list"></div>
   </div>
 
   <label for="piece">المحفوظ</label>
@@ -140,7 +142,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v1.55';
+const VERSION = 'v1.54';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -167,7 +169,6 @@ function setRec(on, text) {
 }
 const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 
-// لون التقدم: أحمر (0%) ← أصفر (50%) ← أخضر (100%)
 function progColor(p) {
   return 'hsl(' + Math.round(p * 1.2) + ', 70%, 42%)';
 }
@@ -207,7 +208,6 @@ function updatePieces(name) {
   showLink();
 }
 
-// ===== تحميل القوائم: نسخة محفوظة تظهر فوراً ثم تتحدّث في الخلفية =====
 let listsLoaded = false;
 
 function applyLists(d) {
@@ -222,7 +222,6 @@ function applyLists(d) {
     $('name').placeholder = 'اكتب للبحث عن اسمك...';
   }
 
-  // لو وصلت بيانات جديدة بعد أن اختار الطفل اسمه، حدّث القائمة مع الحفاظ على اختياره
   const typed = $('name').value;
   if (allNames.includes(typed)) {
     const keep = $('piece').value;
@@ -245,7 +244,7 @@ try { cachedLists = JSON.parse(localStorage.getItem('lists_v1')); } catch (e) {}
 if (cachedLists && cachedLists.userPieces) applyLists(cachedLists);
 
 refreshLists().catch(() => {
-  if (listsLoaded) return; // النسخة المحفوظة تكفي للعمل
+  if (listsLoaded) return;
   $('name').placeholder = 'تعذّر التحميل';
   say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.');
 });
@@ -279,6 +278,8 @@ function showNames() {
   $('names').replaceChildren(...items);
   $('names').hidden = false;
 }
+
+// Fetch History Function
 function fetchHistory(name) {
   $('history').hidden = true;
   $('history-list').replaceChildren();
@@ -287,7 +288,7 @@ function fetchHistory(name) {
   fetch(API + '?action=history&name=' + encodeURIComponent(name))
     .then(r => r.json())
     .then(data => {
-      if (!data.length) return;
+      if (!data || !data.length) return;
       
       data.forEach(item => {
         const card = document.createElement('div');
@@ -305,14 +306,15 @@ function fetchHistory(name) {
         $('history-list').append(card);
       });
       $('history').hidden = false;
-    });
+    }).catch(e => console.error(e));
 }
+
 function pickName(n) {
   $('name').value = n;
   $('names').hidden = true;
   $('name').blur();
   updatePieces(n);
-  fetchHistory(n); // ADD THIS LINE
+  fetchHistory(n); // Load history when name is picked
 }
 
 $('name').addEventListener('focus', () => { $('name').select(); showNames(); });
@@ -419,6 +421,7 @@ $('send').onclick = () => {
       setRec(false, 'اضغط لتسجيل آخر');
       $('name').disabled = $('piece').disabled = $('category').disabled = false;
       refreshLists().catch(() => {});
+      fetchHistory($('name').value); // Refresh history after sending
     } catch (e) {
       if (String(e.message).includes('already completed')) {
         say('هذا المحفوظ تم تسميعه مسبقاً', 'err', 'تم تحديث القائمة. اضغط إعادة التسجيل ثم اختر محفوظاً آخر.');
