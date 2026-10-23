@@ -33,56 +33,56 @@
   body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 12px; display: flex; justify-content: center; }
   
   /* 1. App Container */
-  main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); box-sizing: border-box; }
+  main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); box-sizing: border-box; }
   
   /* 2. Header Row (Logo + Title + Progress) */
-  .top-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
-  .logo { width: 76px; height: 76px; border-radius: 12px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .top-header { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .logo { width: 90px; height: 90px; border-radius: 12px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
   .header-info { flex: 1; }
-  h1 { font-size: 20px; margin: 0 0 6px; font-weight: 800; }
+  h1 { font-size: 24px; margin: 0 0 8px; font-weight: 800; }
   
   /* Progress Bar inside Header */
-  #progwrap { margin-top: 4px; }
-  .prog-text { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 4px; color: var(--fg); opacity: 0.9; }
+  #progwrap { margin-top: 6px; }
+  .prog-text { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--fg); opacity: 0.9; }
   .prog-text span:last-child { font-weight: 900; transition: color 0.8s; }
-  .prog-bar-bg { width: 100%; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .prog-bar-bg { width: 100%; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
   #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s; }
 
   /* 3. Inputs & Grids */
-  label { display: block; margin: 0 0 4px; font-weight: 700; font-size: 12px; opacity: 0.8; }
-  select, input, button { width: 100%; font: inherit; padding: 10px 12px; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); box-sizing: border-box; transition: border-color 0.2s; }
+  label { display: block; margin: 0 0 6px; font-weight: 700; font-size: 14px; opacity: 0.8; }
+  select, input, button { width: 100%; font: inherit; padding: 12px 14px; font-size: 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); box-sizing: border-box; transition: border-color 0.2s; }
   select:focus, input:focus { outline: none; border-color: var(--accent); }
   
-  .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .input-row { display: flex; gap: 12px; margin-bottom: 16px; }
   .input-row > div:first-child { flex: 2; }
   .input-row > div:last-child { flex: 1; }
   
   /* Inline Piece & Link */
-  .piece-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .piece-row { display: flex; gap: 10px; margin-bottom: 16px; }
   .piece-row select { flex: 1; }
-  .plink-btn { flex: 0 0 44px; display: flex; align-items: center; justify-content: center; background: var(--accent-light); border: 1px solid var(--accent); color: var(--accent); border-radius: 8px; text-decoration: none; font-size: 16px; transition: all 0.2s; }
+  .plink-btn { flex: 0 0 50px; display: flex; align-items: center; justify-content: center; background: var(--accent-light); border: 1px solid var(--accent); color: var(--accent); border-radius: 10px; text-decoration: none; font-size: 18px; transition: all 0.2s; }
   
   /* Autocomplete Dropdown */
   .combo { position: relative; }
-  #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none; max-height: 160px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.2); z-index: 20; }
-  #names li { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 6px; list-style: none; max-height: 200px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.2); z-index: 20; }
+  #names li { padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 15px; }
   #names li:hover, #names li.hit { background: var(--bg); color: var(--accent); font-weight: bold; }
   #names li.none { color: #7a8a85; cursor: default; }
 
   /* 4. History Panel */
-  #history { margin-bottom: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
-  #history h3 { margin: 0 0 6px 0; font-size: 12px; font-weight: 700; opacity: 0.8; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
-  #history-list { max-height: 110px; overflow-y: auto; padding-left: 4px; }
-  .h-card { padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 12px; }
+  #history { margin-bottom: 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  #history h3 { margin: 0 0 10px 0; font-size: 15px; font-weight: 700; opacity: 0.8; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  #history-list { max-height: 140px; overflow-y: auto; padding-left: 4px; }
+  .h-card { padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
   .h-card:last-child { border-bottom: none; padding-bottom: 0; }
-  .h-title { font-weight: bold; margin-bottom: 2px; display: flex; justify-content: space-between; align-items: center; }
+  .h-title { font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
   .s-pending { color: #d97706; } 
   .s-approved { color: #16a34a; } 
   .s-rejected { color: #dc2626; } 
-  .h-comment { margin-top: 2px; font-size: 11px; font-style: italic; color: var(--accent); opacity: 0.9; }
+  .h-comment { margin-top: 4px; font-size: 13px; font-style: italic; color: var(--accent); opacity: 0.9; }
 
   /* 5. Record Button area */
-  #recwrap { text-align: center; margin-top: 16px; }
+  #recwrap { text-align: center; margin-top: 20px; }
   button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: var(--accent); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
   button.mic svg { width: 36px; height: 36px; fill: #fff; }
   button.mic .stopic { display: none; }
@@ -91,12 +91,12 @@
   button.mic.on .stopic { display: block; }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(192,57,43,.55); } 100% { box-shadow: 0 0 0 22px rgba(192,57,43,0); } }
   
-  #lbl { margin-top: 10px; font-weight: 700; font-size: 14px; }
+  #lbl { margin-top: 12px; font-weight: 700; font-size: 16px; }
   #lbl.on { color: var(--rec); }
   
   /* System Messages & Audio */
-  #msg.box { white-space: pre-line; text-align: center; border-radius: 10px; padding: 10px; line-height: 1.5; font-size: 13px; margin-top: 12px; }
-  #msg.box b { display: block; font-size: 15px; margin-bottom: 2px; }
+  #msg.box { white-space: pre-line; text-align: center; border-radius: 12px; padding: 14px; line-height: 1.5; font-size: 14px; margin-top: 16px; }
+  #msg.box b { display: block; font-size: 16px; margin-bottom: 4px; }
   #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
   #msg.err { background: #fbe9e7; color: #8f2a1f; border: 1px solid #c0392b; }
   @media (prefers-color-scheme: dark) {
@@ -104,10 +104,10 @@
     #msg.err { background: #3d2220; color: #f3c1ba; }
   }
   
-  button.send-btn { background: var(--accent); color: #fff; margin-top: 12px; border: none; font-weight: bold; }
-  button.alt { background: transparent; color: var(--fg); border: 1px solid var(--line); margin-top: 8px; }
+  button.send-btn { background: var(--accent); color: #fff; margin-top: 16px; border: none; font-weight: bold; }
+  button.alt { background: transparent; color: var(--fg); border: 1px solid var(--line); margin-top: 10px; }
   button:disabled { opacity: .5; cursor: not-allowed; }
-  audio { width: 100%; margin-top: 12px; height: 40px; }
+  audio { width: 100%; margin-top: 16px; height: 44px; }
   [hidden] { display: none !important; }
   #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; direction: ltr; pointer-events: none; user-select: none; z-index: 100; }
 </style>
@@ -185,7 +185,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v1.60'; // Updated version for the new layout
+const VERSION = 'v2.0';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
