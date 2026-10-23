@@ -57,11 +57,17 @@
   .input-row > div:first-child { flex: 2; }
   .input-row > div:last-child { flex: 1; }
   
-  /* Inline Piece & Link */
+/* Inline Piece & Link */
   .piece-row { display: flex; gap: 10px; margin-bottom: 16px; }
   .piece-row select { flex: 1; }
-  .plink-btn { flex: 0 0 50px; display: flex; align-items: center; justify-content: center; background: var(--accent-light); border: 1px solid var(--accent); color: var(--accent); border-radius: 10px; text-decoration: none; font-size: 18px; transition: all 0.2s; }
   
+  .plink-btn { flex: 0 0 52px; display: flex; align-items: center; justify-content: center; background: var(--accent); border: none; color: #fff; border-radius: 10px; text-decoration: none; font-size: 20px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; }
+  .plink-btn::after { content: ''; position: absolute; inset: 0; border-radius: 10px; border: 2px solid var(--accent); animation: link-pulse 1.5s infinite; pointer-events: none; }
+  
+  @keyframes link-pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
   /* Autocomplete Dropdown */
   .combo { position: relative; }
   #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 6px; list-style: none; max-height: 200px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.2); z-index: 20; }
@@ -160,7 +166,7 @@
 
   <!-- History Panel -->
   <div id="history" hidden>
-    <h3>سجل التسميع السريع</h3>
+    <h3>سجل التسميع</h3>
     <div id="history-list"></div>
   </div>
 
@@ -185,7 +191,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.0';
+const VERSION = 'v2.1';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
