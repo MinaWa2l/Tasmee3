@@ -6,6 +6,14 @@
 <title>تسجيل الحفظ</title>
 <link rel="apple-touch-icon" href="logo_hifz_192.png">
 <style>
+
+  #history { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 15px; }
+.h-card { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; margin-bottom: 10px; font-size: 14px; }
+.h-title { font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; }
+.s-pending { color: #d97706; } /* Orange */
+.s-approved { color: #16a34a; } /* Green */
+.s-rejected { color: #dc2626; } /* Red */
+.h-comment { margin-top: 6px; font-size: 13px; font-style: italic; color: var(--accent); }
   /* Light Mode (Default) - White/Light gray background with dark text */
   :root { 
     --bg: #f4f6f9; 
@@ -97,6 +105,10 @@
 
   <!-- شريط التقدم -->
   <div id="progwrap" hidden>
+    <div id="history" hidden>
+  <h3>سجل التسميع</h3>
+  <div id="history-list"></div>
+</div>
     <div class="prog-text">
       <span>نسبة تسميع مردات الهيكل</span>
       <span id="prog-val">0%</span>
@@ -128,7 +140,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v1.53';
+const VERSION = 'v1.55';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -267,12 +279,40 @@ function showNames() {
   $('names').replaceChildren(...items);
   $('names').hidden = false;
 }
+function fetchHistory(name) {
+  $('history').hidden = true;
+  $('history-list').replaceChildren();
+  if (!name) return;
+  
+  fetch(API + '?action=history&name=' + encodeURIComponent(name))
+    .then(r => r.json())
+    .then(data => {
+      if (!data.length) return;
+      
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'h-card';
+        
+        let statusText = 'قيد المراجعة 🟡';
+        let statusClass = 's-pending';
+        if (item.status === 'Approved') { statusText = 'مقبول 🟢'; statusClass = 's-approved'; }
+        if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
 
+        let html = `<div class="h-title"><span>${item.category} - ${item.piece}</span> <span class="${statusClass}">${statusText}</span></div>`;
+        if (item.comment) html += `<div class="h-comment">تعليق الخادم: ${item.comment}</div>`;
+        
+        card.innerHTML = html;
+        $('history-list').append(card);
+      });
+      $('history').hidden = false;
+    });
+}
 function pickName(n) {
   $('name').value = n;
   $('names').hidden = true;
   $('name').blur();
   updatePieces(n);
+  fetchHistory(n); // ADD THIS LINE
 }
 
 $('name').addEventListener('focus', () => { $('name').select(); showNames(); });
