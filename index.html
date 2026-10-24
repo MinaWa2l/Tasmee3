@@ -45,6 +45,28 @@
   .logo { width: 90px; height: 90px; border-radius: 12px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
   .header-info { flex: 1; }
   h1 { font-size: 24px; margin: 0 0 8px; font-weight: 800; }
+
+  /* Coupons Box (Gamified) */
+  .coupons-box { 
+    background: linear-gradient(135deg, #ffd700, #ffaa00); 
+    border: 2px solid #e68a00; 
+    border-radius: 12px; 
+    padding: 8px 14px; 
+    text-align: center; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    min-width: 60px; 
+    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.35); 
+    transform: scale(0);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .coupons-box.show { transform: scale(1); }
+  .c-label { font-size: 12px; font-weight: 900; color: #5c3a00; text-shadow: 0 1px 1px rgba(255,255,255,0.4); margin-bottom: 2px; }
+  .c-val { font-size: 24px; font-weight: 900; color: #2e1d00; font-family: monospace; }
+  
+  /* Prevent flex-items from squishing the progress bar */
+  .header-info { flex: 1; min-width: 0; }
   
   /* Progress Bar inside Header */
   #progwrap { margin-top: 6px; }
@@ -139,6 +161,7 @@
 <!-- Header: Logo, Title, and Progress Bar -->
   <div class="top-header">
     <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة">
+    
     <div class="header-info">
       <h1>سجّل حفظك</h1>
       <div id="progwrap" hidden>
@@ -151,9 +174,10 @@
         </div>
       </div>
     </div>
-    <!-- NEW: Coupons Box -->
-    <div class="coupons-box" id="coupons-box" hidden>
-      <span class="c-label">كوبونات</span>
+    
+    <!-- Gamified Coupons Box -->
+    <div class="coupons-box" id="coupons-box">
+      <span class="c-label">كوبونات 🎟️</span>
       <span id="c-val" class="c-val">0</span>
     </div>
   </div>
@@ -217,7 +241,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.4';
+const VERSION = 'v2.5';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -542,16 +566,35 @@ $('send').onclick = () => {
   };
   fr.readAsDataURL(blob);
 };
+// Function to make numbers count up smoothly
+function animateValue(obj, start, end, duration) {
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    // Easing out effect (slows down at the end)
+    const easeOut = 1 - Math.pow(1 - progress, 3);
+    obj.textContent = Math.floor(easeOut * (end - start) + start);
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    } else {
+      obj.textContent = end; // Ensure final number is exact
+    }
+  };
+  window.requestAnimationFrame(step);
+}
+
+// Updated fetchAttendance function
 function fetchAttendance(name) {
   if (!name) {
     $('attendance').hidden = true;
-    $('coupons-box').hidden = true;
+    $('coupons-box').classList.remove('show');
     return;
   }
   
   $('attendance').hidden = false;
   $('attendance-list').replaceChildren();
-  $('coupons-box').hidden = true; // Hide while loading
+  $('coupons-box').classList.remove('show'); 
   
   const loader = document.createElement('div');
   loader.className = 'att-card';
@@ -565,13 +608,12 @@ function fetchAttendance(name) {
     .then(data => {
       $('attendance-list').replaceChildren();
       
-      // Extract records and coupons from the new backend response
       const records = data.records || [];
-      const coupons = data.coupons !== undefined ? data.coupons : 0;
+      const coupons = data.coupons !== undefined ? Number(data.coupons) : 0;
       
-      // Update and show the coupons box
-      $('c-val').textContent = coupons;
-      $('coupons-box').hidden = false;
+      // Pop the box in and animate the counter over 1.5 seconds (1500ms)
+      $('coupons-box').classList.add('show');
+      animateValue($('c-val'), 0, coupons, 1500);
       
       if (!records.length) {
         const empty = document.createElement('div');
@@ -582,6 +624,25 @@ function fetchAttendance(name) {
         $('attendance-list').append(empty);
         return;
       }
+      
+      records.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'att-card';
+        
+        const getTag = (eventName, isPresent) => `<span class="att-tag ${isPresent ? 'att-yes' : 'att-no'}">${eventName}</span>`;
+        
+        card.innerHTML = `
+          <span class="att-date">${item.date}</span>
+          <div class="att-tags">
+            ${getTag('عشية', item.vespers)}
+            ${getTag('ألحان', item.hymns)}
+            ${getTag('قداس', item.liturgy)}
+          </div>
+        `;
+        $('attendance-list').append(card);
+      });
+    }).catch(e => console.error(e));
+}
       
       records.forEach(item => {
         const card = document.createElement('div');
