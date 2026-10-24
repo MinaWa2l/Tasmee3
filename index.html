@@ -196,7 +196,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.1';
+const VERSION = 'v2.2';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -334,15 +334,40 @@ function showNames() {
 }
 
 function fetchHistory(name) {
-  $('history').hidden = true;
+  if (!name) {
+    $('history').hidden = true;
+    return;
+  }
+  
+  // Show the panel immediately and display the loading message
+  $('history').hidden = false;
   $('history-list').replaceChildren();
-  if (!name) return;
+  
+  const loader = document.createElement('div');
+  loader.className = 'h-card';
+  loader.style.textAlign = 'center';
+  loader.style.color = 'var(--accent)';
+  loader.style.fontWeight = 'bold';
+  loader.textContent = '⏳ جارٍ تحميل السجل...';
+  $('history-list').append(loader);
   
   fetch(API + '?action=history&name=' + encodeURIComponent(name))
     .then(r => r.json())
     .then(data => {
-      if (!data || !data.length) return;
+      $('history-list').replaceChildren(); // Clear the loader
       
+      // If the student has no past submissions
+      if (!data || !data.length) {
+        const empty = document.createElement('div');
+        empty.className = 'h-card';
+        empty.style.textAlign = 'center';
+        empty.style.opacity = '0.7';
+        empty.textContent = 'لا يوجد سجل سابق';
+        $('history-list').append(empty);
+        return;
+      }
+      
+      // Populate the actual history
       data.forEach(item => {
         const card = document.createElement('div');
         card.className = 'h-card';
@@ -353,13 +378,21 @@ function fetchHistory(name) {
         if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
 
         let html = `<div class="h-title"><span>${item.category} - ${item.piece}</span> <span class="${statusClass}">${statusText}</span></div>`;
-        if (item.comment) html += `<div class="h-comment"> تعليق:  ${item.comment}</div>`;
+        if (item.comment) html += `<div class="h-comment">تعليق: ${item.comment}</div>`;
         
         card.innerHTML = html;
         $('history-list').append(card);
       });
-      $('history').hidden = false;
-    }).catch(e => console.error(e));
+    }).catch(e => {
+      // Handle network errors
+      $('history-list').replaceChildren();
+      const err = document.createElement('div');
+      err.className = 'h-card s-rejected';
+      err.style.textAlign = 'center';
+      err.textContent = 'حدث خطأ في تحميل السجل';
+      $('history-list').append(err);
+      console.error(e);
+    });
 }
 
 function pickName(n) {
