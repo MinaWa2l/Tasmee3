@@ -40,10 +40,11 @@
   /* 1. App Container */
   main { width: 100%; max-width: 420px; background: var(--bg); padding: 18px 0; box-sizing: border-box; }
   
-  /* --- Header --- */
-  .top-header { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); text-align: center; }
-  .logo { width: 85px; height: 85px; border-radius: 16px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-  h1 { font-size: 24px; margin: 0; font-weight: 800; color: var(--accent); }
+/* --- Header --- */
+  .top-header { display: flex; flex-direction: row; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .logo { width: 72px; height: 72px; border-radius: 14px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex-shrink: 0; }
+  .header-text { flex: 1; text-align: right; }
+  .header-text h1 { font-size: 16px; margin: 0; font-weight: 800; color: var(--accent); line-height: 1.5; word-spacing: 2px; }
 
   /* --- Section Cards --- */
   .section-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
@@ -154,10 +155,12 @@
 <body>
 <div id="ver"></div>
 <main>
-  <!-- Header: Clean and Centered -->
+ <!-- Header: Horizontal with Coptic Text -->
   <div class="top-header">
     <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة">
-    <h1>مدرسة الشمامسة</h1>
+    <div class="header-text">
+      <h1>Ϯⲁⲛⲍⲏⲃ ⲛ̀ⲧⲉ ⲡⲓⲁⲋⲓⲟⲥ<br>ⲥ̀ⲧⲉⲫⲁⲛⲟⲥ ⲛ̀ⲛⲓⲇⲓⲁⲕⲱⲛ</h1>
+    </div>
   </div>
 
   <!-- SECTION 1: Profile & Attendance -->
@@ -171,8 +174,8 @@
         <ul id="names" hidden></ul>
       </div>
       
-      <!-- Coupons next to the name -->
-      <div class="coupons-box" id="coupons-box" hidden>
+      <!-- Coupons Box (hidden tag removed so CSS animation works) -->
+      <div class="coupons-box" id="coupons-box">
         <span class="c-label">كوبونات 🎟️</span>
         <span id="c-val" class="c-val">0</span>
       </div>
