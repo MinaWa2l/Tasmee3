@@ -136,7 +136,7 @@
 <body>
 <div id="ver"></div>
 <main>
-  <!-- Header: Logo, Title, and Progress Bar -->
+<!-- Header: Logo, Title, and Progress Bar -->
   <div class="top-header">
     <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة">
     <div class="header-info">
@@ -150,6 +150,11 @@
           <div id="prog-bar-fill"></div>
         </div>
       </div>
+    </div>
+    <!-- NEW: Coupons Box -->
+    <div class="coupons-box" id="coupons-box" hidden>
+      <span class="c-label">كوبونات</span>
+      <span id="c-val" class="c-val">0</span>
     </div>
   </div>
 
@@ -212,7 +217,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.3';
+const VERSION = 'v2.4';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -537,20 +542,22 @@ $('send').onclick = () => {
   };
   fr.readAsDataURL(blob);
 };
-  function fetchAttendance(name) {
+function fetchAttendance(name) {
   if (!name) {
     $('attendance').hidden = true;
+    $('coupons-box').hidden = true;
     return;
   }
   
   $('attendance').hidden = false;
   $('attendance-list').replaceChildren();
+  $('coupons-box').hidden = true; // Hide while loading
   
   const loader = document.createElement('div');
   loader.className = 'att-card';
   loader.style.justifyContent = 'center';
   loader.style.color = 'var(--accent)';
-  loader.textContent = '⏳ جارٍ تحميل الحضور...';
+  loader.textContent = '⏳ جارٍ تحميل البيانات...';
   $('attendance-list').append(loader);
   
   fetch(API + '?action=attendance&name=' + encodeURIComponent(name))
@@ -558,7 +565,15 @@ $('send').onclick = () => {
     .then(data => {
       $('attendance-list').replaceChildren();
       
-      if (!data || !data.length) {
+      // Extract records and coupons from the new backend response
+      const records = data.records || [];
+      const coupons = data.coupons !== undefined ? data.coupons : 0;
+      
+      // Update and show the coupons box
+      $('c-val').textContent = coupons;
+      $('coupons-box').hidden = false;
+      
+      if (!records.length) {
         const empty = document.createElement('div');
         empty.className = 'att-card';
         empty.style.justifyContent = 'center';
@@ -568,7 +583,7 @@ $('send').onclick = () => {
         return;
       }
       
-      data.forEach(item => {
+      records.forEach(item => {
         const card = document.createElement('div');
         card.className = 'att-card';
         
