@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>تسجيل الحفظ</title>
+<title>مدرسة الشمامسة</title>
   <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f2d59">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="تسجيل الحفظ">
+<meta name="apple-mobile-web-app-title" content="مدرسة الشمامسة">
 <link rel="apple-touch-icon" href="logo_hifz_192.png">
 <style>
   /* Light Mode */
@@ -38,53 +38,46 @@
   body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 12px; display: flex; justify-content: center; }
   
   /* 1. App Container */
-  main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); box-sizing: border-box; }
+  main { width: 100%; max-width: 420px; background: var(--bg); padding: 18px 0; box-sizing: border-box; }
   
-/* 2. Header & Stats Row */
-  .top-header { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
-  .logo { width: 85px; height: 85px; border-radius: 12px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  .header-info { flex: 1; }
-  h1 { font-size: 24px; margin: 0; font-weight: 800; line-height: 1.2; }
+  /* --- Header --- */
+  .top-header { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); text-align: center; }
+  .logo { width: 85px; height: 85px; border-radius: 16px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  h1 { font-size: 24px; margin: 0; font-weight: 800; color: var(--accent); }
 
-  .stats-row { display: flex; gap: 12px; align-items: stretch; justify-content: flex-end; margin-bottom: 18px; }
+  /* --- Section Cards --- */
+  .section-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+  .section-title { font-size: 15px; font-weight: 800; margin: 0 0 12px 0; color: var(--accent); display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
   
-  /* Progress Bar Container */
-  #progwrap { flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; }
-  .prog-text { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--fg); opacity: 0.9; }
-  .prog-text span:last-child { font-weight: 900; transition: color 0.8s; }
-  .prog-bar-bg { width: 100%; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
-  #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s; }
-
-  /* Coupons Box (Gamified) */
+  /* --- Profile & Coupons Row --- */
+  .profile-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 12px; }
+  .profile-row .combo { flex: 1; }
+  
   .coupons-box { 
-    flex: 0 0 auto;
     background: linear-gradient(135deg, #ffd700, #ffaa00); 
     border: 2px solid #e68a00; 
-    border-radius: 12px; 
-    padding: 10px 16px; 
+    border-radius: 10px; 
+    padding: 8px 12px; 
     text-align: center; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: center; 
-    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.35); 
-    transform: scale(0);
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex; flex-direction: column; justify-content: center; 
+    min-width: 60px; height: 46px; /* Matches input height */
+    box-shadow: 0 4px 12px rgba(255, 170, 0, 0.3); 
+    transform: scale(0); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   .coupons-box.show { transform: scale(1); }
-  .c-label { font-size: 11px; font-weight: 900; color: #5c3a00; text-shadow: 0 1px 1px rgba(255,255,255,0.4); margin-bottom: 4px; }
-  .c-val { font-size: 22px; font-weight: 900; color: #2e1d00; font-family: monospace; }
+  .c-label { font-size: 10px; font-weight: 900; color: #5c3a00; margin-bottom: 2px; }
+  .c-val { font-size: 18px; font-weight: 900; color: #2e1d00; font-family: monospace; line-height: 1; }
 
-  /* 3. Inputs & Grids */
-  label { display: block; margin: 0 0 6px; font-weight: 700; font-size: 14px; opacity: 0.8; }
-  select, input, button { width: 100%; font: inherit; padding: 12px 14px; font-size: 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); box-sizing: border-box; transition: border-color 0.2s; }
+  /* --- Inputs (1/3 and 2/3 Split) --- */
+  label { display: block; margin: 0 0 6px; font-weight: 700; font-size: 13px; opacity: 0.8; }
+  select, input, button { width: 100%; font: inherit; padding: 12px; font-size: 15px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); box-sizing: border-box; transition: border-color 0.2s; }
   select:focus, input:focus { outline: none; border-color: var(--accent); }
   
-  .input-row { display: flex; gap: 12px; margin-bottom: 16px; }
-  .input-row > div:first-child { flex: 2; }
-  .input-row > div:last-child { flex: 1; }
-  
-/* Inline Piece & Link */
-  .piece-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .input-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .input-row > div:first-child { flex: 1; } /* 1/3 space */
+  .input-row > div:last-child { flex: 2; } /* 2/3 space */
+
+  .piece-row { display: flex; gap: 10px; }
   .piece-row select { flex: 1; }
   
   .plink-btn { flex: 0 0 52px; display: flex; align-items: center; justify-content: center; background: var(--accent); border: none; color: #fff; border-radius: 10px; text-decoration: none; font-size: 20px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; }
@@ -94,6 +87,7 @@
     0% { transform: scale(1); opacity: 0.8; }
     100% { transform: scale(1.35); opacity: 0; }
   }
+  
   /* Autocomplete Dropdown */
   .combo { position: relative; }
   #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 6px; list-style: none; max-height: 200px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.2); z-index: 20; }
@@ -101,9 +95,14 @@
   #names li:hover, #names li.hit { background: var(--bg); color: var(--accent); font-weight: bold; }
   #names li.none { color: #7a8a85; cursor: default; }
 
-  /* 4. History Panel */
-  #history { margin-bottom: 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
-  #history h3 { margin: 0 0 10px 0; font-size: 15px; font-weight: 700; opacity: 0.8; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  /* --- Progress Bar --- */
+  #progwrap { margin-bottom: 16px; background: var(--bg); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); }
+  .prog-text { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+  .prog-text span:last-child { font-weight: 900; transition: color 0.8s; }
+  .prog-bar-bg { width: 100%; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s; }
+
+  /* --- Lists (History & Attendance) --- */
   #history-list { max-height: 140px; overflow-y: auto; padding-left: 4px; }
   .h-card { padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
   .h-card:last-child { border-bottom: none; padding-bottom: 0; }
@@ -113,9 +112,6 @@
   .s-rejected { color: #dc2626; } 
   .h-comment { margin-top: 4px; font-size: 13px; font-style: italic; color: var(--accent); opacity: 0.9; }
 
-  /* 4.5 Attendance Panel */
-  #attendance { margin-bottom: 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
-  #attendance h3 { margin: 0 0 10px 0; font-size: 15px; font-weight: 700; opacity: 0.8; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
   .att-card { padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
   .att-card:last-child { border-bottom: none; padding-bottom: 0; }
   .att-date { font-weight: bold; font-size: 13px; }
@@ -123,7 +119,8 @@
   .att-tag { padding: 4px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #fff; }
   .att-yes { background: #16a34a; } 
   .att-no { background: #dc2626; opacity: 0.8; }
-  /* 5. Record Button area */
+
+  /* --- Record Button Area --- */
   #recwrap { text-align: center; margin-top: 20px; }
   button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: var(--accent); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
   button.mic svg { width: 36px; height: 36px; fill: #fff; }
@@ -136,7 +133,7 @@
   #lbl { margin-top: 12px; font-weight: 700; font-size: 16px; }
   #lbl.on { color: var(--rec); }
   
-  /* System Messages & Audio */
+  /* --- System Messages & Audio --- */
   #msg.box { white-space: pre-line; text-align: center; border-radius: 12px; padding: 14px; line-height: 1.5; font-size: 14px; margin-top: 16px; }
   #msg.box b { display: block; font-size: 16px; margin-bottom: 4px; }
   #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
@@ -157,17 +154,39 @@
 <body>
 <div id="ver"></div>
 <main>
-<!-- Header: Logo, Title, and Progress Bar -->
-<!-- Header: Logo and Title -->
+  <!-- Header: Clean and Centered -->
   <div class="top-header">
     <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة">
-    <div class="header-info">
-      <h1>مدرسة الشمامسة</h1>
+    <h1>مدرسة الشمامسة</h1>
+  </div>
+
+  <!-- SECTION 1: Profile & Attendance -->
+  <div class="section-card">
+    <div class="section-title">👤 بيانات الشماس</div>
+    
+    <div class="profile-row">
+      <div class="combo">
+        <label for="name">الاسم</label>
+        <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
+        <ul id="names" hidden></ul>
+      </div>
+      
+      <!-- Coupons next to the name -->
+      <div class="coupons-box" id="coupons-box" hidden>
+        <span class="c-label">كوبونات 🎟️</span>
+        <span id="c-val" class="c-val">0</span>
+      </div>
+    </div>
+
+    <div id="attendance" hidden>
+      <div id="attendance-list"></div>
     </div>
   </div>
 
-  <!-- Stats Row: Progress Bar and Coupons -->
-  <div class="stats-row">
+  <!-- SECTION 2: Recording Actions -->
+  <div class="section-card">
+    <div class="section-title">🎙️ التسجيل</div>
+    
     <div id="progwrap" hidden>
       <div class="prog-text">
         <span>مردات الهيكل</span>
@@ -177,73 +196,54 @@
         <div id="prog-bar-fill"></div>
       </div>
     </div>
+
+    <!-- 1/3 and 2/3 Split Row -->
+    <div class="input-row">
+      <div>
+        <label for="category">النوع</label>
+        <select id="category">
+          <option value="مردات">مردات</option>
+          <option value="ألحان">ألحان</option>
+        </select>
+      </div>
+      
+      <div>
+        <label for="piece">المحفوظ</label>
+        <div class="piece-row">
+          <select id="piece"><option>جارٍ التحميل...</option></select>
+          <a id="plink" class="plink-btn" target="_blank" rel="noopener" aria-label="رابط المحفوظ" hidden>▶</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="recwrap">
+      <button id="rec" class="mic" aria-label="تسجيل">
+        <svg class="micic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15zm6-3.5a1 1 0 0 0-2 0 4 4 0 0 1-8 0 1 1 0 0 0-2 0 6 6 0 0 0 5 5.9V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.6a6 6 0 0 0 5-5.9z"/></svg>
+        <svg class="stopic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+      </button>
+      <div id="lbl">اضغط للتسجيل</div>
+    </div>
     
-    <div class="coupons-box" id="coupons-box">
-      <span class="c-label">كوبونات 🎟️</span>
-      <span id="c-val" class="c-val">0</span>
+    <!-- Audio & Send Buttons -->
+    <audio id="preview" controls hidden></audio>
+    <div id="after" hidden>
+      <button id="send" class="send-btn">إرسال</button>
+      <button id="redo" class="alt">إعادة التسجيل</button>
     </div>
+    <div id="msg" role="status"></div>
   </div>
 
-  <!-- Row 1: Name and Category side by side -->
-  <div class="input-row">
-    <div class="combo">
-      <label for="name">الاسم</label>
-      <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
-      <ul id="names" hidden></ul>
-    </div>
-    
-    <div>
-      <label for="category">النوع</label>
-      <select id="category">
-        <option value="مردات">مردات</option>
-        <option value="ألحان">ألحان</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Row 2: Piece and Link Button side by side -->
-  <div>
-    <label for="piece">المحفوظ</label>
-    <div class="piece-row">
-      <select id="piece"><option>جارٍ التحميل...</option></select>
-      <a id="plink" class="plink-btn" target="_blank" rel="noopener" aria-label="رابط المحفوظ" hidden>▶</a>
-    </div>
-  </div>
-
-  <!-- History Panel -->
-  <div id="history" hidden>
-    <h3>سجل التسميع</h3>
+  <!-- SECTION 3: History -->
+  <div class="section-card" id="history" hidden>
+    <div class="section-title">📝 سجل التسميع</div>
     <div id="history-list"></div>
   </div>
-
-  <!-- Attendance Panel -->
-  <div id="attendance" hidden>
-    <h3>آخر 3 أسابيع حضور</h3>
-    <div id="attendance-list"></div>
-  </div>
-
-  <!-- Record Button Area -->
-  <div id="recwrap">
-    <button id="rec" class="mic" aria-label="تسجيل">
-      <svg class="micic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15zm6-3.5a1 1 0 0 0-2 0 4 4 0 0 1-8 0 1 1 0 0 0-2 0 6 6 0 0 0 5 5.9V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.6a6 6 0 0 0 5-5.9z"/></svg>
-      <svg class="stopic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-    </button>
-    <div id="lbl">اضغط للتسجيل</div>
-  </div>
-
-  <!-- Post Record Actions -->
-  <audio id="preview" controls hidden></audio>
-  <div id="after" hidden>
-    <button id="send" class="send-btn">إرسال</button>
-    <button id="redo" class="alt">إعادة التسجيل</button>
-  </div>
-  <div id="msg" role="status"></div>
 </main>
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.52';
+const VERSION = 'v2.60'; // Version bumped to ensure devices fetch the new layout
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -303,7 +303,7 @@ function updatePieces(name) {
     if (pieces.length > 0) {
       fill($('piece'), pieces);
     } else {
-      $('piece').replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', ''));
+      $('piece').replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', ''));
     }
   }
   showLink();
@@ -386,7 +386,6 @@ function fetchHistory(name) {
     return;
   }
   
-  // Show the panel immediately and display the loading message
   $('history').hidden = false;
   $('history-list').replaceChildren();
   
@@ -401,9 +400,8 @@ function fetchHistory(name) {
   fetch(API + '?action=history&name=' + encodeURIComponent(name))
     .then(r => r.json())
     .then(data => {
-      $('history-list').replaceChildren(); // Clear the loader
+      $('history-list').replaceChildren();
       
-      // If the student has no past submissions
       if (!data || !data.length) {
         const empty = document.createElement('div');
         empty.className = 'h-card';
@@ -414,7 +412,6 @@ function fetchHistory(name) {
         return;
       }
       
-      // Populate the actual history
       data.forEach(item => {
         const card = document.createElement('div');
         card.className = 'h-card';
@@ -431,7 +428,6 @@ function fetchHistory(name) {
         $('history-list').append(card);
       });
     }).catch(e => {
-      // Handle network errors
       $('history-list').replaceChildren();
       const err = document.createElement('div');
       err.className = 'h-card s-rejected';
@@ -568,25 +564,23 @@ $('send').onclick = () => {
   };
   fr.readAsDataURL(blob);
 };
-// Function to make numbers count up smoothly
+
 function animateValue(obj, start, end, duration) {
   let startTimestamp = null;
   const step = (timestamp) => {
     if (!startTimestamp) startTimestamp = timestamp;
     const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-    // Easing out effect (slows down at the end)
     const easeOut = 1 - Math.pow(1 - progress, 3);
     obj.textContent = Math.floor(easeOut * (end - start) + start);
     if (progress < 1) {
       window.requestAnimationFrame(step);
     } else {
-      obj.textContent = end; // Ensure final number is exact
+      obj.textContent = end;
     }
   };
   window.requestAnimationFrame(step);
 }
 
-// Updated fetchAttendance function
 function fetchAttendance(name) {
   if (!name) {
     $('attendance').hidden = true;
@@ -613,7 +607,6 @@ function fetchAttendance(name) {
       const records = data.records || [];
       const coupons = data.coupons !== undefined ? Number(data.coupons) : 0;
       
-      // Pop the box in and animate the counter over 1.5 seconds (1500ms)
       $('coupons-box').classList.add('show');
       animateValue($('c-val'), 0, coupons, 1500);
       
@@ -626,8 +619,6 @@ function fetchAttendance(name) {
         $('attendance-list').append(empty);
         return;
       }
-      
-
       
       records.forEach(item => {
         const card = document.createElement('div');
@@ -647,7 +638,8 @@ function fetchAttendance(name) {
       });
     }).catch(e => console.error(e));
 }
-  // Register Service Worker for PWA install
+
+// Register Service Worker for PWA install
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
