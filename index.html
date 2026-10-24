@@ -241,7 +241,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.5';
+const VERSION = 'v2.51';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -625,24 +625,7 @@ function fetchAttendance(name) {
         return;
       }
       
-      records.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'att-card';
-        
-        const getTag = (eventName, isPresent) => `<span class="att-tag ${isPresent ? 'att-yes' : 'att-no'}">${eventName}</span>`;
-        
-        card.innerHTML = `
-          <span class="att-date">${item.date}</span>
-          <div class="att-tags">
-            ${getTag('عشية', item.vespers)}
-            ${getTag('ألحان', item.hymns)}
-            ${getTag('قداس', item.liturgy)}
-          </div>
-        `;
-        $('attendance-list').append(card);
-      });
-    }).catch(e => console.error(e));
-}
+
       
       records.forEach(item => {
         const card = document.createElement('div');
