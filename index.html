@@ -40,40 +40,39 @@
   /* 1. App Container */
   main { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); box-sizing: border-box; }
   
-  /* 2. Header Row (Logo + Title + Progress) */
-  .top-header { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
-  .logo { width: 90px; height: 90px; border-radius: 12px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  .header-info { flex: 1; }
-  h1 { font-size: 24px; margin: 0 0 8px; font-weight: 800; }
+  /* 2. Header Row - Compact 3-Column Layout */
+  .top-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .logo { width: 72px; height: 72px; border-radius: 12px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-shrink: 0; }
+  
+  .header-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+  h1 { font-size: 20px; margin: 0 0 6px 0; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  
+  /* Progress Bar */
+  #progwrap { width: 100%; }
+  .prog-text { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 4px; color: var(--fg); opacity: 0.9; }
+  .prog-text span:last-child { font-weight: 900; transition: color 0.8s; }
+  .prog-bar-bg { width: 100%; height: 6px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s, background-color 0.8s; }
 
   /* Coupons Box (Gamified) */
   .coupons-box { 
+    flex-shrink: 0;
     background: linear-gradient(135deg, #ffd700, #ffaa00); 
     border: 2px solid #e68a00; 
-    border-radius: 12px; 
-    padding: 8px 14px; 
+    border-radius: 10px; 
+    padding: 6px 10px; 
     text-align: center; 
     display: flex; 
     flex-direction: column; 
     justify-content: center; 
-    min-width: 60px; 
-    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.35); 
+    min-width: 55px;
+    box-shadow: 0 4px 12px rgba(255, 170, 0, 0.3); 
     transform: scale(0);
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   .coupons-box.show { transform: scale(1); }
-  .c-label { font-size: 12px; font-weight: 900; color: #5c3a00; text-shadow: 0 1px 1px rgba(255,255,255,0.4); margin-bottom: 2px; }
-  .c-val { font-size: 24px; font-weight: 900; color: #2e1d00; font-family: monospace; }
-  
-  /* Prevent flex-items from squishing the progress bar */
-  .header-info { flex: 1; min-width: 0; }
-  
-  /* Progress Bar inside Header */
-  #progwrap { margin-top: 6px; }
-  .prog-text { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--fg); opacity: 0.9; }
-  .prog-text span:last-child { font-weight: 900; transition: color 0.8s; }
-  .prog-bar-bg { width: 100%; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
-  #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s; }
+  .c-label { font-size: 10px; font-weight: 900; color: #5c3a00; text-shadow: 0 1px 1px rgba(255,255,255,0.4); margin-bottom: 2px; }
+  .c-val { font-size: 18px; font-weight: 900; color: #2e1d00; font-family: monospace; }
 
   /* 3. Inputs & Grids */
   label { display: block; margin: 0 0 6px; font-weight: 700; font-size: 14px; opacity: 0.8; }
@@ -159,11 +158,12 @@
 <div id="ver"></div>
 <main>
 <!-- Header: Logo, Title, and Progress Bar -->
+<!-- Header: Compact 3-Column -->
   <div class="top-header">
     <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة">
     
     <div class="header-info">
-      <h1>مدرسة الشمامسة</h1>
+      <h1>سجّل حفظك</h1>
       <div id="progwrap" hidden>
         <div class="prog-text">
           <span>مردات الهيكل</span>
@@ -175,7 +175,6 @@
       </div>
     </div>
     
-    <!-- Gamified Coupons Box -->
     <div class="coupons-box" id="coupons-box">
       <span class="c-label">كوبونات 🎟️</span>
       <span id="c-val" class="c-val">0</span>
