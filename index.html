@@ -92,6 +92,16 @@
   .s-rejected { color: #dc2626; } 
   .h-comment { margin-top: 4px; font-size: 13px; font-style: italic; color: var(--accent); opacity: 0.9; }
 
+  /* 4.5 Attendance Panel */
+  #attendance { margin-bottom: 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  #attendance h3 { margin: 0 0 10px 0; font-size: 15px; font-weight: 700; opacity: 0.8; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  .att-card { padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .att-card:last-child { border-bottom: none; padding-bottom: 0; }
+  .att-date { font-weight: bold; font-size: 13px; }
+  .att-tags { display: flex; gap: 6px; }
+  .att-tag { padding: 4px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #fff; }
+  .att-yes { background: #16a34a; } 
+  .att-no { background: #dc2626; opacity: 0.8; }
   /* 5. Record Button area */
   #recwrap { text-align: center; margin-top: 20px; }
   button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: var(--accent); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
@@ -175,6 +185,12 @@
     <div id="history-list"></div>
   </div>
 
+  <!-- Attendance Panel -->
+  <div id="attendance" hidden>
+    <h3>أحدث 3 أسابيع حضور</h3>
+    <div id="attendance-list"></div>
+  </div>
+
   <!-- Record Button Area -->
   <div id="recwrap">
     <button id="rec" class="mic" aria-label="تسجيل">
@@ -196,7 +212,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.2';
+const VERSION = 'v2.3';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -401,6 +417,7 @@ function pickName(n) {
   $('name').blur();
   updatePieces(n);
   fetchHistory(n);
+  fetchAttendance(n);
 }
 
 $('name').addEventListener('focus', () => { $('name').select(); showNames(); });
@@ -520,6 +537,55 @@ $('send').onclick = () => {
   };
   fr.readAsDataURL(blob);
 };
+  function fetchAttendance(name) {
+  if (!name) {
+    $('attendance').hidden = true;
+    return;
+  }
+  
+  $('attendance').hidden = false;
+  $('attendance-list').replaceChildren();
+  
+  const loader = document.createElement('div');
+  loader.className = 'att-card';
+  loader.style.justifyContent = 'center';
+  loader.style.color = 'var(--accent)';
+  loader.textContent = '⏳ جارٍ تحميل الحضور...';
+  $('attendance-list').append(loader);
+  
+  fetch(API + '?action=attendance&name=' + encodeURIComponent(name))
+    .then(r => r.json())
+    .then(data => {
+      $('attendance-list').replaceChildren();
+      
+      if (!data || !data.length) {
+        const empty = document.createElement('div');
+        empty.className = 'att-card';
+        empty.style.justifyContent = 'center';
+        empty.style.opacity = '0.7';
+        empty.textContent = 'لا توجد بيانات حضور';
+        $('attendance-list').append(empty);
+        return;
+      }
+      
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'att-card';
+        
+        const getTag = (eventName, isPresent) => `<span class="att-tag ${isPresent ? 'att-yes' : 'att-no'}">${eventName}</span>`;
+        
+        card.innerHTML = `
+          <span class="att-date">${item.date}</span>
+          <div class="att-tags">
+            ${getTag('عشية', item.vespers)}
+            ${getTag('ألحان', item.hymns)}
+            ${getTag('قداس', item.liturgy)}
+          </div>
+        `;
+        $('attendance-list').append(card);
+      });
+    }).catch(e => console.error(e));
+}
   // Register Service Worker for PWA install
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
