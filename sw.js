@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tasmee3-v6'; // Update this number on every new deployment
+const CACHE_NAME = 'tasmee3-v7'; // Update this number on every new deployment
 const ASSETS = [
   './',
   './index.html',
