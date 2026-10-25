@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>مدرسة الشمامسة</title>
@@ -241,6 +243,12 @@
     <div class="section-title">📝 سجل التسميع</div>
     <div id="history-list"></div>
   </div>
+    <!-- SECTION 4: Attendance Graph -->
+  <div class="section-card" id="graph-section" hidden>
+    <div class="section-title">📈 مؤشر الحضور</div>
+    <canvas id="attendanceChart"></canvas>
+  </div>
+
 </main>
 
 <script>
@@ -583,6 +591,56 @@ function animateValue(obj, start, end, duration) {
   };
   window.requestAnimationFrame(step);
 }
+let attChart = null;
+
+function updateChart(records) {
+  // Reverse records so the graph reads chronologically from left (oldest) to right (newest)
+  const chronological = [...records].reverse();
+  
+  const labels = chronological.map(r => r.date);
+  
+  let vScore = 0, hScore = 0, lScore = 0;
+  const vData = [], hData = [], lData = [];
+  
+  // Calculate trend: +1 for attending, -1 for missing
+  chronological.forEach(r => {
+    vScore += r.vespers ? 1 : -1;
+    hScore += r.hymns ? 1 : -1;
+    lScore += r.liturgy ? 1 : -1;
+    vData.push(vScore);
+    hData.push(hScore);
+    lData.push(lScore);
+  });
+  
+  const ctx = document.getElementById('attendanceChart').getContext('2d');
+  
+  // Destroy old chart if it exists so we can draw a new one
+  if (attChart) {
+    attChart.destroy();
+  }
+  
+  // Create the new 3-line chart
+  attChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2 },
+        { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2 },
+        { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { font: { family: 'system-ui' } } }
+      },
+      scales: {
+        x: { ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+}
 
 function fetchAttendance(name) {
   if (!name) {
@@ -594,7 +652,6 @@ function fetchAttendance(name) {
   $('attendance').hidden = false;
   $('attendance-list').replaceChildren();
   $('coupons-box').classList.remove('show'); 
-  
   const loader = document.createElement('div');
   loader.className = 'att-card';
   loader.style.justifyContent = 'center';
@@ -620,9 +677,12 @@ function fetchAttendance(name) {
         empty.style.opacity = '0.7';
         empty.textContent = 'لا توجد بيانات حضور';
         $('attendance-list').append(empty);
+        $('graph-section').hidden = true; 
         return;
       }
-      
+
+       $('graph-section').hidden = false;
+      updateChart(records);
       records.forEach(item => {
         const card = document.createElement('div');
         card.className = 'att-card';
