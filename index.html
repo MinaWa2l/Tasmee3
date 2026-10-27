@@ -133,7 +133,9 @@
   .att-tag { padding: 4px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #fff; }
   .att-yes { background: #16a34a; } 
   .att-no { background: #dc2626; opacity: 0.8; }
-
+/* --- Mini Audio Player --- */
+  .mini-play { background: none; border: none; color: var(--accent); padding: 0 0 0 6px; margin: 0; font-size: 15px; cursor: pointer; line-height: 1; transition: transform 0.2s; }
+  .mini-play:hover { transform: scale(1.2); }
   /* --- Record Button Area --- */
   #recwrap { text-align: center; margin-top: 20px; }
   button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: var(--accent); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
@@ -285,7 +287,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.7'; 
+const VERSION = 'v2.8'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -500,7 +502,14 @@ function fetchHistory(name) {
         if (item.status === 'Approved') { statusText = 'مقبول 🟢'; statusClass = 's-approved'; }
         if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
 
-        let html = `<div class="h-title"><span>${item.category} - ${item.piece}</span> <span class="${statusClass}">${statusText}</span></div>`;
+        // Inject the mini play button if an audio URL is provided by the backend
+        const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">▶</button>` : '';
+
+        let html = `<div class="h-title">
+          <span style="display: flex; align-items: center;">${playBtn} ${item.category} - ${item.piece}</span> 
+          <span class="${statusClass}">${statusText}</span>
+        </div>`;
+        
         if (item.comment) html += `<div class="h-comment">تعليق: ${item.comment}</div>`;
         
         card.innerHTML = html;
@@ -777,7 +786,49 @@ function fetchAttendance(name) {
       });
     }).catch(e => console.error(e));
 }
+// Mini Audio Player Logic
+let currentAudio = null;
+let currentPlayBtn = null;
 
+$('history-list').addEventListener('click', e => {
+  const btn = e.target.closest('.mini-play');
+  if (!btn) return;
+  
+  const url = btn.dataset.url;
+  
+  // Pause if clicking the currently playing track
+  if (currentAudio && currentPlayBtn === btn) {
+    if (!currentAudio.paused) {
+      currentAudio.pause();
+      btn.textContent = '▶';
+    } else {
+      currentAudio.play();
+      btn.textContent = '⏸';
+    }
+    return;
+  }
+  
+  // Stop previous track if switching
+  if (currentAudio) {
+    currentAudio.pause();
+    if (currentPlayBtn) currentPlayBtn.textContent = '▶';
+  }
+  
+  // Play new track
+  currentAudio = new Audio(url);
+  currentPlayBtn = btn;
+  btn.textContent = '⏳'; // Loading indicator
+  
+  currentAudio.play().then(() => {
+    btn.textContent = '⏸';
+  }).catch(() => {
+    btn.textContent = '❌'; // Error if link is broken
+  });
+  
+  currentAudio.onended = () => {
+    btn.textContent = '▶';
+  };
+});
 // Register Service Worker for PWA install
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
