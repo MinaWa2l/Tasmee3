@@ -327,6 +327,7 @@ function updatePieces(name) {
   const cat = $('category').value;
   const catLabel = document.querySelector('label[for="category"]');
   
+  // 1. Progress Bar Logic (Only for مردات)
   if (name && cat === 'مردات' && progressMap[name] !== undefined) {
     const pVal = Math.max(0, Math.min(100, Number(progressMap[name]) || 0));
     const color = progColor(pVal);
@@ -339,16 +340,17 @@ function updatePieces(name) {
     $('progwrap').hidden = true;
   }
 
+  // 2. Category Tab Alerts & Glow Logic
   const catSelect = $('category');
   if (name && userPiecesMap && userPiecesMap[name]) {
     const mList = userPiecesMap[name]['مردات'] || [];
     const aList = userPiecesMap[name]['ألحان'] || [];
     
-    // 1. Keep the dots inside the dropdown
+    // Add dots inside the dropdown options
     catSelect.options[0].textContent = 'مردات ' + (mList.length > 0 ? '🔴' : '✅');
     catSelect.options[1].textContent = 'ألحان ' + (aList.length > 0 ? '🔴' : '✅');
     
-// 2. Show a visible alert and make the box GLOW for the OTHER category
+    // Show text alert and make the category box glow if the OTHER tab has pending items
     if (cat === 'مردات' && aList.length > 0) {
       catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px; white-space: nowrap;">(ألحان متبقية 🔴)</span>';
       catSelect.classList.add('needs-attention');
@@ -356,26 +358,33 @@ function updatePieces(name) {
       catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px; white-space: nowrap;">(مردات متبقية 🔴)</span>';
       catSelect.classList.add('needs-attention');
     } else {
-      catLabel.textContent = 'النوع'; // Clear if nothing is pending
+      catLabel.textContent = 'النوع'; 
       catSelect.classList.remove('needs-attention');
     }
   } else {
+    // Reset category text if no valid name
     catSelect.options[0].textContent = 'مردات';
     catSelect.options[1].textContent = 'ألحان';
     catLabel.textContent = 'النوع';
     catSelect.classList.remove('needs-attention');
   }
 
+  // 3. Piece (المحفوظ) Dropdown & Glow Logic
+  const pieceSelect = $('piece');
   if (!name) {
-    $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
+    pieceSelect.replaceChildren(new Option('اختر الاسم أولاً', ''));
+    pieceSelect.classList.remove('needs-attention');
   } else if (userPiecesMap && userPiecesMap[name]) {
     const pieces = userPiecesMap[name][cat] || [];
     if (pieces.length > 0) {
-      fill($('piece'), pieces);
+      fill(pieceSelect, pieces);
+      pieceSelect.classList.add('needs-attention'); // Glow when there's stuff to record
     } else {
-      $('piece').replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', ''));
+      pieceSelect.replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', ''));
+      pieceSelect.classList.remove('needs-attention'); // Remove glow when finished
     }
   }
+  
   showLink();
 }
 
