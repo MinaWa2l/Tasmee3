@@ -348,12 +348,12 @@ function updatePieces(name) {
     catSelect.options[0].textContent = 'مردات ' + (mList.length > 0 ? '🔴' : '✅');
     catSelect.options[1].textContent = 'ألحان ' + (aList.length > 0 ? '🔴' : '✅');
     
-    // 2. Show a visible alert and make the box GLOW for the OTHER category
+// 2. Show a visible alert and make the box GLOW for the OTHER category
     if (cat === 'مردات' && aList.length > 0) {
-      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 4px;">(يوجد ألحان متبقية 🔴)</span>';
+      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px; white-space: nowrap;">(ألحان متبقية 🔴)</span>';
       catSelect.classList.add('needs-attention');
     } else if (cat === 'ألحان' && mList.length > 0) {
-      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 4px;">(يوجد مردات متبقية 🔴)</span>';
+      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px; white-space: nowrap;">(مردات متبقية 🔴)</span>';
       catSelect.classList.add('needs-attention');
     } else {
       catLabel.textContent = 'النوع'; // Clear if nothing is pending
