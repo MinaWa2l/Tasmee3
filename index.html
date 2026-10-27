@@ -803,9 +803,6 @@ $('history-list').addEventListener('click', e => {
   const idMatch = rawUrl.match(/[-\w]{25,}/);
   if (!idMatch) return;
   
-  // 1. Remove export=download so Google Drive streams it instead of forcing a file download
-  const streamUrl = 'https://drive.google.com/uc?id=' + idMatch[0];
-  
   if (currentPlayBtn === btn && !sharedAudio.paused) {
     sharedAudio.pause();
     btn.textContent = '▶';
@@ -819,18 +816,24 @@ $('history-list').addEventListener('click', e => {
   currentPlayBtn = btn;
   btn.textContent = '⏳'; 
   
-  sharedAudio.src = streamUrl;
-  
-  // 2. CRITICAL FIX: Tell the mobile browser to fetch the new headers before playing
-  sharedAudio.load(); 
-  
-  sharedAudio.play().then(() => {
-    btn.textContent = '⏸';
-  }).catch((err) => {
-    console.error("Playback failed:", err);
-    btn.textContent = '❌'; 
-  });
-  
+  // Fetch raw audio data directly from your backend to bypass Google Drive's blocks
+  fetch(API + '?action=play&id=' + idMatch[0])
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) throw new Error('Audio not found');
+      // Convert raw data into a playable format that mobile browsers never block
+      sharedAudio.src = 'data:' + d.mime + ';base64,' + d.data;
+      sharedAudio.load();
+      return sharedAudio.play();
+    })
+    .then(() => {
+      btn.textContent = '⏸';
+    })
+    .catch((err) => {
+      console.error("Playback failed:", err);
+      btn.textContent = '❌'; 
+    });
+    
   sharedAudio.onended = () => {
     btn.textContent = '▶';
   };
