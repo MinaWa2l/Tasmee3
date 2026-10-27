@@ -627,14 +627,14 @@ function updateChart(records) {
     data: {
       labels: labels,
       datasets: [
-        // Solid line
-        { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2 },
+        // Solid line - order: 3 pushes it to the very bottom
+        { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2, order: 3 },
         
-        // Dashed line
-        { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2, borderDash: [8, 6] },
+        // Dashed line - order: 2 puts it in the middle
+        { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2, borderDash: [8, 6], order: 2 },
         
-        // Dotted line
-        { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2, borderDash: [2, 4] }
+        // Dotted line - order: 1 pulls it to the very top
+        { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2, borderDash: [2, 4], order: 1 }
       ]
     },
     options: {
