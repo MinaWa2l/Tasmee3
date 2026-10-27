@@ -627,8 +627,13 @@ function updateChart(records) {
     data: {
       labels: labels,
       datasets: [
-        { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2 },
-        { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2 },
+        // Bottom layer: Thickest line (6px)
+        { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 6 },
+        
+        // Middle layer: Medium line (4px)
+        { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 4 },
+        
+        // Top layer: Thinnest line (2px)
         { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2 }
       ]
     },
