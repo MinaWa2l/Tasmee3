@@ -134,7 +134,7 @@
   .att-yes { background: #16a34a; } 
   .att-no { background: #dc2626; opacity: 0.8; }
 /* --- Mini Audio Player --- */
-  .mini-play { background: none; border: none; color: var(--accent); padding: 0 0 0 6px; margin: 0; font-size: 15px; cursor: pointer; line-height: 1; transition: transform 0.2s; }
+  .mini-play { width: auto !important; min-width: 0 !important; background: transparent !important; border: none !important; color: var(--accent); padding: 0 4px !important; margin: 0; font-size: 16px; cursor: pointer; line-height: 1; transition: transform 0.2s; display: inline-flex; align-items: center; justify-content: center; }
   .mini-play:hover { transform: scale(1.2); }
   /* --- Record Button Area --- */
   #recwrap { text-align: center; margin-top: 20px; }
@@ -493,7 +493,7 @@ function fetchHistory(name) {
         return;
       }
       
-     data.forEach(item => {
+data.forEach(item => {
         const card = document.createElement('div');
         card.className = 'h-card';
         
@@ -505,11 +505,11 @@ function fetchHistory(name) {
         // Inject the mini play button
         const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">▶</button>` : '';
 
-        // Wrap the text and button in a flex group with a small gap to keep them attached
+        // Keep the button and text tightly grouped
         let html = `<div class="h-title">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span>${item.category} - ${item.piece}</span>
+          <div style="display: flex; align-items: center; gap: 4px;">
             ${playBtn}
+            <span>${item.category} - ${item.piece}</span>
           </div>
           <span class="${statusClass}">${statusText}</span>
         </div>`;
