@@ -136,6 +136,10 @@
 /* --- Mini Audio Player --- */
   .mini-play { width: auto !important; min-width: 0 !important; background: transparent !important; border: none !important; color: var(--accent); padding: 0 4px !important; margin: 0; font-size: 16px; cursor: pointer; line-height: 1; transition: transform 0.2s; display: inline-flex; align-items: center; justify-content: center; }
   .mini-play:hover { transform: scale(1.2); }
+  /* --- SVG Icons --- */
+  .mini-play svg { width: 16px; height: 16px; fill: currentColor; display: block; }
+  @keyframes icon-spin { 100% { transform: rotate(360deg); } }
+  .spin-icon { animation: icon-spin 1s linear infinite; }
   /* --- Record Button Area --- */
   #recwrap { text-align: center; margin-top: 20px; }
   button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: var(--accent); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
@@ -287,7 +291,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.8'; 
+const VERSION = 'v2.9'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -461,6 +465,12 @@ function showNames() {
   $('names').hidden = false;
 }
 
+// --- SVG Icons for Mini Player ---
+const iconPlay = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+const iconPause = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+const iconLoad = `<svg viewBox="0 0 24 24" class="spin-icon"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg>`;
+const iconErr = `<svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+
 function fetchHistory(name) {
   if (!name) {
     $('history').hidden = true;
@@ -493,7 +503,7 @@ function fetchHistory(name) {
         return;
       }
       
-data.forEach(item => {
+      data.forEach(item => {
         const card = document.createElement('div');
         card.className = 'h-card';
         
@@ -502,10 +512,10 @@ data.forEach(item => {
         if (item.status === 'Approved') { statusText = 'مقبول 🟢'; statusClass = 's-approved'; }
         if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
 
-        // Inject the mini play button
-        const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">▶</button>` : '';
+        // Inject the mini play button using the SVG icon
+        const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
 
-        // Keep the button and text tightly grouped
+        // Keep the button and text tightly grouped using flexbox
         let html = `<div class="h-title">
           <div style="display: flex; align-items: center; gap: 4px;">
             ${playBtn}
@@ -805,37 +815,35 @@ $('history-list').addEventListener('click', e => {
   
   if (currentPlayBtn === btn && !sharedAudio.paused) {
     sharedAudio.pause();
-    btn.textContent = '▶';
+    btn.innerHTML = iconPlay;
     return;
   }
   
   if (currentPlayBtn && currentPlayBtn !== btn) {
-    currentPlayBtn.textContent = '▶';
+    currentPlayBtn.innerHTML = iconPlay;
   }
   
   currentPlayBtn = btn;
-  btn.textContent = '⏳'; 
+  btn.innerHTML = iconLoad; 
   
-  // Fetch raw audio data directly from your backend to bypass Google Drive's blocks
   fetch(API + '?action=play&id=' + idMatch[0])
     .then(r => r.json())
     .then(d => {
       if (!d.ok) throw new Error('Audio not found');
-      // Convert raw data into a playable format that mobile browsers never block
       sharedAudio.src = 'data:' + d.mime + ';base64,' + d.data;
       sharedAudio.load();
       return sharedAudio.play();
     })
     .then(() => {
-      btn.textContent = '⏸';
+      btn.innerHTML = iconPause;
     })
     .catch((err) => {
       console.error("Playback failed:", err);
-      btn.textContent = '❌'; 
+      btn.innerHTML = iconErr; 
     });
     
   sharedAudio.onended = () => {
-    btn.textContent = '▶';
+    btn.innerHTML = iconPlay;
   };
 });
 // Register Service Worker for PWA install
