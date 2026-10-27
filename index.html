@@ -605,27 +605,6 @@ function updateChart(records) {
   const vData = [], hData = [], lData = [];
   
   // Calculate trend: +1 for attending, -1 for missing
-// Calculate trend: +1 for attending, -1 for missing
-  chronological.forEach(r => {
-    vScore += r.vespers ? 1 : -1;
-    hScore += r.hymns ? 1 : -1;
-    lScore += r.liturgy ? 1 : -1;
-    
-    // Add tiny offsets to create parallel lines when scores are identical
-    lData.push(lScore);           // Base line
-    hData.push(hScore + 0.15);    // Shifted slightly up
-    vData.push(vScore - 0.15);    // Shifted slightly down
-  });
-  
-  const ctx = document.getElementById('attendanceChart').getContext('2d');
-  
-  // Destroy old chart if it exists so we can draw a new one
-  if (attChart) {
-    attChart.destroy();
-  }
-  
-  // Create the new 3-line chart
-// Calculate trend: +1 for attending, -1 for missing
   chronological.forEach(r => {
     vScore += r.vespers ? 1 : -1;
     hScore += r.hymns ? 1 : -1;
