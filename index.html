@@ -791,48 +791,47 @@ function fetchAttendance(name) {
     }).catch(e => console.error(e));
 }
 // Mini Audio Player Logic
-let currentAudio = null;
+// Mini Audio Player Logic
 let currentPlayBtn = null;
+const sharedAudio = $('preview'); 
 
 $('history-list').addEventListener('click', e => {
   const btn = e.target.closest('.mini-play');
   if (!btn) return;
   
-  let url = btn.dataset.url;
+  const rawUrl = btn.dataset.url;
+  const idMatch = rawUrl.match(/[-\w]{25,}/);
+  if (!idMatch) return;
   
-  // Convert Google Drive viewer link into a direct streaming link
-  const idMatch = url.match(/[-\w]{25,}/);
-  if (idMatch) {
-    url = 'https://drive.google.com/uc?export=download&id=' + idMatch[0];
-  }
+  // 1. Remove export=download so Google Drive streams it instead of forcing a file download
+  const streamUrl = 'https://drive.google.com/uc?id=' + idMatch[0];
   
-  if (currentAudio && currentPlayBtn === btn) {
-    if (!currentAudio.paused) {
-      currentAudio.pause();
-      btn.textContent = '▶';
-    } else {
-      currentAudio.play();
-      btn.textContent = '⏸';
-    }
+  if (currentPlayBtn === btn && !sharedAudio.paused) {
+    sharedAudio.pause();
+    btn.textContent = '▶';
     return;
   }
   
-  if (currentAudio) {
-    currentAudio.pause();
-    if (currentPlayBtn) currentPlayBtn.textContent = '▶';
+  if (currentPlayBtn && currentPlayBtn !== btn) {
+    currentPlayBtn.textContent = '▶';
   }
   
-  currentAudio = new Audio(url);
   currentPlayBtn = btn;
   btn.textContent = '⏳'; 
   
-  currentAudio.play().then(() => {
+  sharedAudio.src = streamUrl;
+  
+  // 2. CRITICAL FIX: Tell the mobile browser to fetch the new headers before playing
+  sharedAudio.load(); 
+  
+  sharedAudio.play().then(() => {
     btn.textContent = '⏸';
-  }).catch(() => {
+  }).catch((err) => {
+    console.error("Playback failed:", err);
     btn.textContent = '❌'; 
   });
   
-  currentAudio.onended = () => {
+  sharedAudio.onended = () => {
     btn.textContent = '▶';
   };
 });
