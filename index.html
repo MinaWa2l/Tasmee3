@@ -605,13 +605,16 @@ function updateChart(records) {
   const vData = [], hData = [], lData = [];
   
   // Calculate trend: +1 for attending, -1 for missing
+// Calculate trend: +1 for attending, -1 for missing
   chronological.forEach(r => {
     vScore += r.vespers ? 1 : -1;
     hScore += r.hymns ? 1 : -1;
     lScore += r.liturgy ? 1 : -1;
-    vData.push(vScore);
-    hData.push(hScore);
-    lData.push(lScore);
+    
+    // Add tiny offsets to create parallel lines when scores are identical
+    lData.push(lScore);           // Base line
+    hData.push(hScore + 0.15);    // Shifted slightly up
+    vData.push(vScore - 0.15);    // Shifted slightly down
   });
   
   const ctx = document.getElementById('attendanceChart').getContext('2d');
@@ -622,19 +625,14 @@ function updateChart(records) {
   }
   
   // Create the new 3-line chart
-  attChart = new Chart(ctx, {
+attChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
       datasets: [
-        // Solid line - order: 3 pushes it to the very bottom
-        { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2, order: 3 },
-        
-        // Dashed line - order: 2 puts it in the middle
-        { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2, borderDash: [8, 6], order: 2 },
-        
-        // Dotted line - order: 1 pulls it to the very top
-        { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2, borderDash: [2, 4], order: 1 }
+        { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2, pointRadius: 3 },
+        { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2, pointRadius: 3 },
+        { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2, pointRadius: 3 }
       ]
     },
     options: {
@@ -643,6 +641,12 @@ function updateChart(records) {
         legend: { labels: { font: { family: 'system-ui' } } }
       },
       scales: {
+        y: { 
+          ticks: { 
+            stepSize: 1, 
+            precision: 0 // Prevents the chart from printing decimals like 1.15 on the side
+          } 
+        },
         x: { ticks: { font: { size: 10 } } }
       }
     }
