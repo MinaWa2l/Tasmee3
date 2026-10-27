@@ -493,7 +493,7 @@ function fetchHistory(name) {
         return;
       }
       
-      data.forEach(item => {
+     data.forEach(item => {
         const card = document.createElement('div');
         card.className = 'h-card';
         
@@ -502,11 +502,15 @@ function fetchHistory(name) {
         if (item.status === 'Approved') { statusText = 'مقبول 🟢'; statusClass = 's-approved'; }
         if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
 
-        // Inject the mini play button if an audio URL is provided by the backend
+        // Inject the mini play button
         const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">▶</button>` : '';
 
+        // Wrap the text and button in a flex group with a small gap to keep them attached
         let html = `<div class="h-title">
-          <span style="display: flex; align-items: center;">${playBtn} ${item.category} - ${item.piece}</span> 
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span>${item.category} - ${item.piece}</span>
+            ${playBtn}
+          </div>
           <span class="${statusClass}">${statusText}</span>
         </div>`;
         
@@ -794,9 +798,14 @@ $('history-list').addEventListener('click', e => {
   const btn = e.target.closest('.mini-play');
   if (!btn) return;
   
-  const url = btn.dataset.url;
+  let url = btn.dataset.url;
   
-  // Pause if clicking the currently playing track
+  // Convert Google Drive viewer link into a direct streaming link
+  const idMatch = url.match(/[-\w]{25,}/);
+  if (idMatch) {
+    url = 'https://drive.google.com/uc?export=download&id=' + idMatch[0];
+  }
+  
   if (currentAudio && currentPlayBtn === btn) {
     if (!currentAudio.paused) {
       currentAudio.pause();
@@ -808,21 +817,19 @@ $('history-list').addEventListener('click', e => {
     return;
   }
   
-  // Stop previous track if switching
   if (currentAudio) {
     currentAudio.pause();
     if (currentPlayBtn) currentPlayBtn.textContent = '▶';
   }
   
-  // Play new track
   currentAudio = new Audio(url);
   currentPlayBtn = btn;
-  btn.textContent = '⏳'; // Loading indicator
+  btn.textContent = '⏳'; 
   
   currentAudio.play().then(() => {
     btn.textContent = '⏸';
   }).catch(() => {
-    btn.textContent = '❌'; // Error if link is broken
+    btn.textContent = '❌'; 
   });
   
   currentAudio.onended = () => {
