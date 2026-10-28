@@ -91,7 +91,7 @@
     0% { transform: scale(1); opacity: 0.8; }
     100% { transform: scale(1.35); opacity: 0; }
   }
-  
+  option.closed-opt { font-size: 11px; color: #7a8a85; }
   /* Autocomplete Dropdown */
   .combo { position: relative; }
   #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 6px; list-style: none; max-height: 200px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.2); z-index: 20; }
@@ -305,7 +305,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.10'; 
+const VERSION = 'v2.11'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -315,6 +315,7 @@ let userPiecesMap = {};
 let allNames = [];
 let linksMap = {};
 let progressMap = {}; 
+let closedMap = {};
 
 function showLink() {
   const cat = $('category').value;
@@ -366,11 +367,9 @@ function updatePieces(name) {
     const mList = userPiecesMap[name]['مردات'] || [];
     const aList = userPiecesMap[name]['ألحان'] || [];
     
-    // Add dots inside the dropdown options
     catSelect.options[0].textContent = 'مردات ' + (mList.length > 0 ? '🔴' : '✅');
     catSelect.options[1].textContent = 'ألحان ' + (aList.length > 0 ? '🔴' : '✅');
     
-    // Show text alert and make the category box glow if the OTHER tab has pending items
     if (cat === 'مردات' && aList.length > 0) {
       catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px; white-space: nowrap;">(ألحان متبقية 🔴)</span>';
       catSelect.classList.add('needs-attention');
@@ -382,7 +381,6 @@ function updatePieces(name) {
       catSelect.classList.remove('needs-attention');
     }
   } else {
-    // Reset category text if no valid name
     catSelect.options[0].textContent = 'مردات';
     catSelect.options[1].textContent = 'ألحان';
     catLabel.textContent = 'النوع';
@@ -396,12 +394,18 @@ function updatePieces(name) {
     pieceSelect.classList.remove('needs-attention');
   } else if (userPiecesMap && userPiecesMap[name]) {
     const pieces = userPiecesMap[name][cat] || [];
+    const closed = (closedMap[name] && closedMap[name][cat]) || [];
     if (pieces.length > 0) {
-      fill(pieceSelect, pieces);
-      pieceSelect.classList.add('needs-attention'); // Glow when there's stuff to record
+      fill(pieceSelect, pieces, closed);
+      pieceSelect.classList.add('needs-attention');
+    } else if (closed.length > 0) {
+      // nothing left to record, but some pieces are closed: show them greyed out
+      fill(pieceSelect, [], closed);
+      pieceSelect.options[0].textContent = 'لا توجد محفوظات متاحة الآن';
+      pieceSelect.classList.remove('needs-attention');
     } else {
       pieceSelect.replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', ''));
-      pieceSelect.classList.remove('needs-attention'); // Remove glow when finished
+      pieceSelect.classList.remove('needs-attention');
     }
   }
   
@@ -414,6 +418,7 @@ function applyLists(d) {
   userPiecesMap = d.userPieces;
   allNames = d.names;
   progressMap = d.progress || {};
+  closedMap = d.closedPieces || {};
 
   if (!listsLoaded) {
     listsLoaded = true;
@@ -580,8 +585,18 @@ $('names').addEventListener('click', e => {
 });
 document.addEventListener('click', e => { if (!e.target.closest('.combo')) $('names').hidden = true; });
 
-function fill(sel, items) {
-  sel.replaceChildren(new Option('اختر...', ''), ...items.map(x => new Option(x, x)));
+function fill(sel, items, closed = []) {
+  const closedOpts = closed.map(x => {
+    const o = new Option(x + ' — انتهت فترة التسميع', '');
+    o.disabled = true;
+    o.className = 'closed-opt';
+    return o;
+  });
+  sel.replaceChildren(
+    new Option('اختر...', ''),
+    ...items.map(x => new Option(x, x)),
+    ...closedOpts
+  );
 }
 
 function say(t, kind, sub) {
