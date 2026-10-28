@@ -134,6 +134,7 @@
   .att-tag { padding: 4px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #fff; }
   .att-yes { background: #16a34a; } 
   .att-no { background: #dc2626; opacity: 0.8; }
+  .att-na { background: transparent; color: var(--fg); opacity: .45; border: 1px dashed var(--fg); padding: 3px 5px; }
 /* --- Mini Audio Player --- */
   .mini-play { width: auto !important; min-width: 0 !important; background: transparent !important; border: none !important; color: var(--accent); padding: 0 4px !important; margin: 0; font-size: 16px; cursor: pointer; line-height: 1; transition: transform 0.2s; display: inline-flex; align-items: center; justify-content: center; }
   .mini-play:hover { transform: scale(1.2); }
@@ -304,7 +305,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.9'; 
+const VERSION = 'v2.10'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -698,56 +699,43 @@ function animateValue(obj, start, end, duration) {
 let attChart = null;
 
 function updateChart(records) {
-  // Reverse records so the graph reads chronologically from left (oldest) to right (newest)
   const chronological = [...records].reverse();
-  
   const labels = chronological.map(r => r.date);
   
   let vScore = 0, hScore = 0, lScore = 0;
   const vData = [], hData = [], lData = [];
   
-  // Calculate trend: +1 for attending, -1 for missing
+  // +1 attended, -1 missed, 0 if the session wasn't held at all
+  const step = (present, held) => held === false ? 0 : (present ? 1 : -1);
+  
   chronological.forEach(r => {
-    vScore += r.vespers ? 1 : -1;
-    hScore += r.hymns ? 1 : -1;
-    lScore += r.liturgy ? 1 : -1;
+    vScore += step(r.vespers, r.vespersHeld);
+    hScore += step(r.hymns, r.hymnsHeld);
+    lScore += step(r.liturgy, r.liturgyHeld);
     
-    // Tiny offsets so they don't perfectly overlap
-    lData.push(lScore);           // Base line
-    hData.push(hScore + 0.15);    // Shifted slightly up
-    vData.push(vScore - 0.15);    // Shifted slightly down
+    lData.push(lScore);
+    hData.push(hScore + 0.15);
+    vData.push(vScore - 0.15);
   });
   
   const ctx = document.getElementById('attendanceChart').getContext('2d');
-  
-  if (attChart) {
-    attChart.destroy();
-  }
+  if (attChart) attChart.destroy();
   
   attChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
       datasets: [
-        // Solid line 
         { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2, pointRadius: 3, order: 3 },
-        
-        // Dashed line 
         { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [8, 6], order: 2 },
-        
-        // Dotted line 
         { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [2, 4], order: 1 }
       ]
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: { labels: { font: { family: 'system-ui' } } }
-      },
+      plugins: { legend: { labels: { font: { family: 'system-ui' } } } },
       scales: {
-        y: { 
-          ticks: { stepSize: 1, precision: 0 } 
-        },
+        y: { ticks: { stepSize: 1, precision: 0 } },
         x: { ticks: { font: { size: 10 } } }
       }
     }
@@ -793,20 +781,24 @@ function fetchAttendance(name) {
         return;
       }
 
-       $('graph-section').hidden = false;
+      $('graph-section').hidden = false;
       updateChart(records);
       records.forEach(item => {
         const card = document.createElement('div');
         card.className = 'att-card';
         
-        const getTag = (eventName, isPresent) => `<span class="att-tag ${isPresent ? 'att-yes' : 'att-no'}">${eventName}</span>`;
+        // held === false -> nobody attended -> session didn't happen -> dashed
+        const getTag = (eventName, isPresent, held) => {
+          const cls = held === false ? 'att-na' : (isPresent ? 'att-yes' : 'att-no');
+          return `<span class="att-tag ${cls}">${eventName}</span>`;
+        };
         
         card.innerHTML = `
           <span class="att-date">${item.date}</span>
           <div class="att-tags">
-            ${getTag('عشية', item.vespers)}
-            ${getTag('ألحان', item.hymns)}
-            ${getTag('قداس', item.liturgy)}
+            ${getTag('عشية', item.vespers, item.vespersHeld)}
+            ${getTag('ألحان', item.hymns, item.hymnsHeld)}
+            ${getTag('قداس', item.liturgy, item.liturgyHeld)}
           </div>
         `;
         $('attendance-list').append(card);
