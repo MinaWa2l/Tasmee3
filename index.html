@@ -191,6 +191,56 @@
     }
 
   }
+
+/* --------- Compact notifications: zero additional page height --------- */
+.profile-card { position: relative; z-index: 5; }
+.profile-card .section-title { position: relative; padding-inline-end: 36px; }
+.notice-bell {
+  position: absolute; top: -4px; inset-inline-end: 0;
+  width: 30px; height: 30px; padding: 4px; margin: 0;
+  border: 0; border-radius: 50%; background: transparent;
+  color: var(--accent); display: grid; place-items: center; cursor: pointer;
+}
+.notice-bell:hover, .notice-bell[aria-expanded="true"] { background: var(--accent-light); }
+.notice-bell svg { width: 21px; height: 21px; stroke: currentColor; stroke-width: 2; fill: none; }
+.notice-count {
+  position: absolute; top: -5px; inset-inline-end: -5px;
+  min-width: 15px; height: 15px; padding: 1px 3px;
+  border-radius: 999px; background: #d9483b; color: white;
+  font-size: 9px; font-weight: 900; display: grid; place-items: center;
+  border: 2px solid var(--card); line-height: 1;
+}
+.notice-panel {
+  position: absolute; z-index: 100; top: 49px; inset-inline-end: 12px;
+  width: calc(100% - 24px); max-width: 350px;
+  max-height: min(55dvh, 380px); overflow-y: auto;
+  border: 1px solid var(--line); border-radius: 12px;
+  margin: 0; background: var(--card);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, .24);
+}
+.notice-panel-title {
+  position: sticky; top: 0; z-index: 1;
+  padding: 11px 13px; background: var(--accent-light);
+  display: flex; justify-content: space-between; align-items: center;
+  color: var(--accent); font-weight: 800; font-size: 13px;
+}
+.notice-entry { padding: 10px 13px; border-bottom: 1px dashed var(--line); font-size: 13px; line-height: 1.5; }
+.notice-entry:last-child { border-bottom: 0; }
+.notice-entry.unread { background: var(--accent-light); }
+.notice-entry-main { display: flex; gap: 7px; align-items: flex-start; font-weight: 750; }
+.notice-entry-main .notice-icon { font-size: 16px; }
+.notice-entry-comment { font-size: 12px; opacity: .82; margin-top: 4px; padding-inline-start: 23px; }
+.notice-entry-date { font-size: 10px; opacity: .55; margin-top: 4px; padding-inline-start: 23px; }
+/* A short optional overlay appears only when a result changes while the page is open. */
+.notice-toast {
+  position: fixed; z-index: 150; top: max(12px, env(safe-area-inset-top));
+  left: 50%; transform: translateX(-50%);
+  width: max-content; max-width: calc(100vw - 28px); box-sizing: border-box;
+  background: var(--accent); color: white; border: none; border-radius: 999px;
+  padding: 9px 16px; font-size: 12px; font-weight: 750;
+  box-shadow: 0 6px 24px rgba(0,0,0,.22); cursor: pointer; text-align: center;
+}
+
 </style>
 </head>
 <body>
@@ -205,10 +255,14 @@
   </div>
 
   <!-- SECTION 1: Profile & Attendance -->
-  <div class="section-card">
+  <div class="section-card profile-card">
     <div class="section-title">
     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
     بيانات الشماس
+    <button id="notice-bell" type="button" class="notice-bell" aria-label="إشعارات التسميع" aria-expanded="false" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9z"/><path d="M10 21h4"/></svg>
+      <span id="notice-count" class="notice-count" hidden>0</span>
+    </button>
   </div>
     
     <div class="profile-row">
@@ -223,6 +277,13 @@
         <span class="c-label">كوبونات 🎟️</span>
         <span id="c-val" class="c-val">0</span>
       </div>
+    </div>
+
+    <!-- Displays only while this page is open; reuses existing history endpoint. -->
+    <div id="notice-toast" class="notice-toast" role="status" hidden></div>
+    <div id="notice-panel" class="notice-panel" hidden>
+      <div class="notice-panel-title">🔔 إشعارات التسميع <span id="notice-total"></span></div>
+      <div id="notice-items"></div>
     </div>
 
     <div id="attendance" hidden>
@@ -309,6 +370,136 @@ const VERSION = 'v2.11';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
+
+/* --------- Student notification bell, no push or new server endpoints --------- */
+const NOTICE_STORAGE = 'diaconate_read_notifications_v1';
+let noticeName = '';
+let noticeFeed = [];
+let announcedNotices = new Set();
+let noticeToastTimer;
+let noticeHasBaseline = false;
+
+function noticeKey(item) {
+  return JSON.stringify([item.time, item.category, item.piece, item.status]);
+}
+function readNoticeMap() {
+  try { return JSON.parse(localStorage.getItem(NOTICE_STORAGE)) || {}; }
+  catch (_) { return {}; }
+}
+function readIdsFor(name) { return new Set(readNoticeMap()[name] || []); }
+function markNoticesRead() {
+  if (!noticeName) return;
+  const all = readNoticeMap();
+  const seen = readIdsFor(noticeName);
+  noticeFeed.forEach(item => seen.add(noticeKey(item)));
+  all[noticeName] = [...seen].slice(-200);
+  try { localStorage.setItem(NOTICE_STORAGE, JSON.stringify(all)); } catch (_) {}
+  renderNotices();
+}
+function clearNoticeToast() {
+  clearTimeout(noticeToastTimer);
+  $('notice-toast').hidden = true;
+}
+function showNoticeToast(count) {
+  const toast = $('notice-toast');
+  toast.textContent = `🔔 عندك ${count === 1 ? 'تحديث جديد للتسميع' : count + ' تحديثات جديدة للتسميع'} — اضغط هنا لعرضها`;
+  toast.hidden = false;
+  clearTimeout(noticeToastTimer);
+  noticeToastTimer = setTimeout(() => { toast.hidden = true; }, 6500);
+}
+function resetNotices(name) {
+  noticeName = name;
+  noticeFeed = [];
+  noticeHasBaseline = false;
+  announcedNotices = new Set();
+  $('notice-bell').hidden = !name;
+  $('notice-panel').hidden = true;
+  $('notice-bell').setAttribute('aria-expanded', 'false');
+  clearNoticeToast();
+  renderNotices();
+}
+function renderNotices() {
+  const seen = readIdsFor(noticeName);
+  const unread = noticeFeed.filter(item => !seen.has(noticeKey(item)));
+  $('notice-count').hidden = unread.length === 0;
+  $('notice-count').textContent = unread.length > 9 ? '9+' : String(unread.length);
+  $('notice-total').textContent = noticeFeed.length ? `(${noticeFeed.length})` : '';
+
+  const container = $('notice-items');
+  container.replaceChildren();
+  if (!noticeFeed.length) {
+    const empty = document.createElement('div');
+    empty.className = 'notice-entry';
+    empty.textContent = 'لا توجد تسجيلات لعرضها حتى الآن.';
+    container.append(empty);
+    return;
+  }
+  for (const item of noticeFeed) {
+    const entry = document.createElement('div');
+    entry.className = 'notice-entry' + (seen.has(noticeKey(item)) ? '' : ' unread');
+    const line = document.createElement('div');
+    line.className = 'notice-entry-main';
+    const ico = document.createElement('span');
+    ico.className = 'notice-icon';
+    ico.textContent = item.status === 'Approved' ? '✅' : item.status === 'Rejected' ? '🔁' : '🟡';
+    const title = document.createElement('span');
+    const statusLabel = item.status === 'Approved' ? 'تم قبول' : item.status === 'Rejected' ? 'محتاج إعادة' : 'قيد المراجعة';
+    title.textContent = `${statusLabel}: ${item.piece}`;
+    line.append(ico, title);
+    entry.append(line);
+    if (item.comment) {
+      const comment = document.createElement('div');
+      comment.className = 'notice-entry-comment';
+      comment.textContent = 'تعليق الخادم: ' + item.comment;
+      entry.append(comment);
+    }
+    if (item.time) {
+      const date = document.createElement('div');
+      date.className = 'notice-entry-date';
+      date.textContent = item.time;
+      entry.append(date);
+    }
+    container.append(entry);
+  }
+}
+function receiveHistoryForNotices(name, history) {
+  if (name !== noticeName || $('name').value !== name || !Array.isArray(history)) return;
+  const initialLookup = !noticeHasBaseline;
+  noticeHasBaseline = true;
+  noticeFeed = history.filter(item => ['Pending', 'Approved', 'Rejected'].includes(item.status)).slice(0, 6);
+  const read = readIdsFor(name);
+  const unannounced = noticeFeed.filter(item => !read.has(noticeKey(item)) && !announcedNotices.has(noticeKey(item)));
+  unannounced.forEach(item => announcedNotices.add(noticeKey(item)));
+  renderNotices();
+  if (!initialLookup && unannounced.length && $('notice-panel').hidden) showNoticeToast(unannounced.length);
+}
+$('notice-bell').addEventListener('click', () => {
+  if (!noticeName) return;
+  const opening = $('notice-panel').hidden;
+  $('notice-panel').hidden = !opening;
+  $('notice-bell').setAttribute('aria-expanded', String(opening));
+  clearNoticeToast();
+  if (opening) markNoticesRead();
+});
+$('notice-toast').addEventListener('click', () => $('notice-bell').click());
+document.addEventListener('click', e => {
+  if (!$('notice-panel').hidden &&
+      !e.target.closest('#notice-panel') &&
+      !e.target.closest('#notice-bell') &&
+      !e.target.closest('#notice-toast')) {
+    $('notice-panel').hidden = true;
+    $('notice-bell').setAttribute('aria-expanded', 'false');
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('notice-panel').hidden) {
+    $('notice-panel').hidden = true;
+    $('notice-bell').setAttribute('aria-expanded', 'false');
+    $('notice-bell').focus();
+  }
+});
+
+
 
 let recorder, chunks = [], blob, mime, timer, secs = 0;
 let userPiecesMap = {};
@@ -490,14 +681,14 @@ const iconPause = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5
 const iconLoad = `<svg viewBox="0 0 24 24" class="spin-icon"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg>`;
 const iconErr = `<svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
 
-function fetchHistory(name) {
+function fetchHistory(name, quiet = false) {
   if (!name) {
     $('history').hidden = true;
     return;
   }
   
   $('history').hidden = false;
-  $('history-list').replaceChildren();
+  if (!quiet) $('history-list').replaceChildren();
   
   const loader = document.createElement('div');
   loader.className = 'h-card';
@@ -505,11 +696,13 @@ function fetchHistory(name) {
   loader.style.color = 'var(--accent)';
   loader.style.fontWeight = 'bold';
   loader.textContent = '⏳ جارٍ تحميل السجل...';
-  $('history-list').append(loader);
+  if (!quiet) $('history-list').append(loader);
   
-  fetch(API + '?action=history&name=' + encodeURIComponent(name))
+  fetch(API + '?action=history&name=' + encodeURIComponent(name) + '&t=' + Date.now())
     .then(r => r.json())
     .then(data => {
+      if ($('name').value !== name || noticeName !== name) return;
+      receiveHistoryForNotices(name, data);
       $('history-list').replaceChildren();
       
       if (!data || !data.length) {
@@ -560,6 +753,7 @@ function fetchHistory(name) {
 }
 
 function pickName(n) {
+  if (noticeName !== n) resetNotices(n);
   $('name').value = n;
   $('names').hidden = true;
   $('name').blur();
@@ -570,6 +764,7 @@ function pickName(n) {
 
 $('name').addEventListener('focus', () => { $('name').select(); showNames(); });
 $('name').addEventListener('input', () => {
+  if (noticeName && $('name').value !== noticeName) resetNotices('');
   updatePieces(allNames.includes($('name').value) ? $('name').value : '');
   showNames();
 });
@@ -577,8 +772,15 @@ $('name').addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   e.preventDefault();
   const first = matches()[0];
-  if (first && !allNames.includes($('name').value)) pickName(first);
+  if (first) pickName(allNames.includes($('name').value) ? $('name').value : first);
 });
+setInterval(() => {
+  if (noticeName && document.visibilityState === 'visible') fetchHistory(noticeName, true);
+}, 60000);
+document.addEventListener('visibilitychange', () => {
+  if (noticeName && document.visibilityState === 'visible') fetchHistory(noticeName, true);
+});
+
 $('names').addEventListener('click', e => {
   const li = e.target.closest('li');
   if (li && !li.classList.contains('none')) pickName(li.textContent);
