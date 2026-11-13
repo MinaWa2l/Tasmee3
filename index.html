@@ -550,10 +550,14 @@ function loadChallenge(name) {
     .then(r => r.json())
     .then(d => {
       if(!d.active) return;
-      if(d.status === 'None') { $('chal-content').hidden = false; }
-      else if(d.status === 'Pending') { applyChalState(d); }
-      else if(d.status === 'Submitted') { $('chal-msg').textContent = '✅ بانتظار تقييم تحدي الأسبوع!'; $('chal-msg').hidden = false; }
-      else if(d.status === 'Approved') { $('chal-msg').textContent = '🎉 لقد نجحت في تحدي هذا الأسبوع!'; $('chal-msg').hidden = false; }
+      
+      if(d.status === 'None') { 
+        $('chal-content').hidden = false; 
+        $('chal-open').textContent = 'افتح الصندوق الآن!';
+      }
+      else if(d.status === 'Pending') { 
+        applyChalState(d); 
+      }
     });
 }
 
