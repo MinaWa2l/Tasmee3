@@ -2,76 +2,118 @@
 <html dir="rtl" lang="ar">
 <head>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>مدرسة الشمامسة</title>
   <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f2d59">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مدرسة الشمامسة">
+<link rel="apple-touch-icon" href="logo_hifz_192.png">
 <style>
+  /* Light Mode */
   :root { 
-    --bg: #f4f6f9; --fg: #111827; --card: #ffffff; --line: #cbd5e1; 
-    --accent: #0f2d59; --accent-light: #e6edf8; --rec: #c0392b; 
+    --bg: #f4f6f9; 
+    --fg: #111827; 
+    --card: #ffffff; 
+    --line: #cbd5e1; 
+    --accent: #0f2d59; 
+    --accent-light: #e6edf8;
+    --rec: #c0392b; 
   }
+
+  /* Dark Mode */
   @media (prefers-color-scheme: dark) {
     :root { 
-      --bg: #020f24; --fg: #f8fafc; --card: #0a1d3b; --line: #1c365e; 
-      --accent: #3b82f6; --accent-light: #172a4f; --rec: #ef4444; 
+      --bg: #020f24;
+      --fg: #f8fafc; 
+      --card: #0a1d3b;
+      --line: #1c365e; 
+      --accent: #3b82f6; 
+      --accent-light: #172a4f;
+      --rec: #ef4444; 
     }
   }
-  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 12px; display: flex; justify-content: center; }
-  main { width: 100%; max-width: 420px; padding: 18px 0; box-sizing: border-box; }
   
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 12px; display: flex; justify-content: center; }
+  
+  /* 1. App Container */
+  main { width: 100%; max-width: 420px; background: var(--bg); padding: 18px 0; box-sizing: border-box; }
+  
+/* --- Header --- */
   .top-header { display: flex; flex-direction: row; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
   .logo { width: 80px; height: 80px; border-radius: 14px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex-shrink: 0; }
   .header-text { flex: 1; text-align: center; }
   .header-text h1 { font-size: 22px; margin: 0; font-weight: 800; color: var(--accent); line-height: 1.4; word-spacing: 2px; }
   
+  /* --- Section Cards --- */
   .section-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
   .section-title { font-size: 15px; font-weight: 800; margin: 0 0 12px 0; color: var(--accent); display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
   .section-title svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
   
+  /* --- Profile & Coupons Row --- */
   .profile-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 12px; }
   .profile-row .combo { flex: 1; }
   
   .coupons-box { 
-    background: linear-gradient(135deg, #ffd700, #ffaa00); border: 2px solid #e68a00; border-radius: 10px; 
-    padding: 8px 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; 
-    min-width: 60px; height: 46px; box-shadow: 0 4px 12px rgba(255, 170, 0, 0.3); 
+    background: linear-gradient(135deg, #ffd700, #ffaa00); 
+    border: 2px solid #e68a00; 
+    border-radius: 10px; 
+    padding: 8px 12px; 
+    text-align: center; 
+    display: flex; flex-direction: column; justify-content: center; 
+    min-width: 60px; height: 46px; /* Matches input height */
+    box-shadow: 0 4px 12px rgba(255, 170, 0, 0.3); 
     transform: scale(0); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   .coupons-box.show { transform: scale(1); }
   .c-label { font-size: 10px; font-weight: 900; color: #5c3a00; margin-bottom: 2px; }
   .c-val { font-size: 18px; font-weight: 900; color: #2e1d00; font-family: monospace; line-height: 1; }
 
+  /* --- Inputs (1/3 and 2/3 Split) --- */
   label { display: block; margin: 0 0 6px; font-weight: 700; font-size: 13px; opacity: 0.8; }
   select, input, button { width: 100%; font: inherit; padding: 12px; font-size: 15px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); box-sizing: border-box; transition: border-color 0.2s; }
   select:focus, input:focus { outline: none; border-color: var(--accent); }
   
   .input-row { display: flex; gap: 10px; margin-bottom: 16px; }
-  .input-row > div:first-child { flex: 1; } 
-  .input-row > div:last-child { flex: 2; } 
+  .input-row > div:first-child { flex: 1; } /* 1/3 space */
+  .input-row > div:last-child { flex: 2; } /* 2/3 space */
+
   .piece-row { display: flex; gap: 10px; }
   .piece-row select { flex: 1; }
   
   .plink-btn { flex: 0 0 52px; display: flex; align-items: center; justify-content: center; background: var(--accent); border: none; color: #fff; border-radius: 10px; text-decoration: none; font-size: 20px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; }
   .plink-btn::after { content: ''; position: absolute; inset: 0; border-radius: 10px; border: 2px solid var(--accent); animation: link-pulse 1.5s infinite; pointer-events: none; }
-  @keyframes link-pulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.35); opacity: 0; } }
+  
+  @keyframes link-pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
   option.closed-opt { font-size: 11px; color: #7a8a85; }
-
+  /* Autocomplete Dropdown */
   .combo { position: relative; }
   #names { position: absolute; inset-inline: 0; top: 100%; margin: 4px 0 0; padding: 6px; list-style: none; max-height: 200px; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.2); z-index: 20; }
   #names li { padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 15px; }
   #names li:hover, #names li.hit { background: var(--bg); color: var(--accent); font-weight: bold; }
   #names li.none { color: #7a8a85; cursor: default; }
 
+  /* --- Progress Bar --- */
   #progwrap { margin-bottom: 16px; background: var(--bg); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); }
   .prog-text { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 6px; }
   .prog-text span:last-child { font-weight: 900; transition: color 0.8s; }
   .prog-bar-bg { width: 100%; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
-  #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s, background-color 0.8s; }
-  @keyframes alert-glow { 0% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.3); border-color: rgba(220, 38, 38, 0.5); } 50% { box-shadow: 0 0 12px rgba(220, 38, 38, 0.8); border-color: #dc2626; } 100% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.3); border-color: rgba(220, 38, 38, 0.5); } }
-  .needs-attention { animation: alert-glow 1.5s infinite; }
+  #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s; }
+
+  @keyframes alert-glow {
+    0% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.3); border-color: rgba(220, 38, 38, 0.5); }
+    50% { box-shadow: 0 0 12px rgba(220, 38, 38, 0.8); border-color: #dc2626; }
+    100% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.3); border-color: rgba(220, 38, 38, 0.5); }
+  }
+  .needs-attention {
+    animation: alert-glow 1.5s infinite;
+  }
 
   /* --- Challenge Section UI --- */
   .challenge-trigger { background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; color: white; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 12px; box-shadow: 0 8px 16px rgba(139,92,246,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; animation: chal-pulse 2s infinite; margin-bottom: 16px; }
@@ -85,25 +127,37 @@
   .chal-btn { background: #10b981; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 48%; }
   .chal-reroll { background: #f59e0b; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 48%; }
   .chal-reroll:disabled { background: #4b5563; color: #9ca3af; }
-  
-  .h-card, .att-card { padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
-  .h-card:last-child, .att-card:last-child { border-bottom: none; }
+
+  /* --- Lists (History & Attendance) --- */
+  #history-list { max-height: 140px; overflow-y: auto; padding-left: 4px; }
+  .h-card { padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+  .h-card:last-child { border-bottom: none; padding-bottom: 0; }
   .h-title { font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-  .s-pending { color: #d97706; } .s-approved { color: #16a34a; } .s-rejected { color: #dc2626; } 
+  .s-pending { color: #d97706; } 
+  .s-approved { color: #16a34a; } 
+  .s-rejected { color: #dc2626; } 
   .h-comment { margin-top: 4px; font-size: 13px; font-style: italic; color: var(--accent); opacity: 0.9; }
 
-  .att-card { display: flex; justify-content: space-between; align-items: center; }
+  #attendance-list { max-height: 140px; overflow-y: auto; padding-left: 4px; }
+
+  .att-card { padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .att-card:last-child { border-bottom: none; padding-bottom: 0; }
   .att-date { font-weight: bold; font-size: 13px; }
   .att-tags { display: flex; gap: 6px; }
   .att-tag { padding: 4px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #fff; }
-  .att-yes { background: #16a34a; } .att-no { background: #dc2626; opacity: 0.8; }
+  .att-yes { background: #16a34a; } 
+  .att-no { background: #dc2626; opacity: 0.8; }
   .att-na { background: transparent; color: var(--fg); opacity: .45; border: 1px dashed var(--fg); padding: 3px 5px; }
 
-  .mini-play { width: auto !important; min-width: 0 !important; background: transparent !important; border: none !important; color: var(--accent); padding: 0 4px !important; margin: 0; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
-  .mini-play svg { width: 16px; height: 16px; fill: currentColor; }
-  .spin-icon { animation: icon-spin 1s linear infinite; }
+  /* --- Mini Audio Player --- */
+  .mini-play { width: auto !important; min-width: 0 !important; background: transparent !important; border: none !important; color: var(--accent); padding: 0 4px !important; margin: 0; font-size: 16px; cursor: pointer; line-height: 1; transition: transform 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+  .mini-play:hover { transform: scale(1.2); }
+  /* --- SVG Icons --- */
+  .mini-play svg { width: 16px; height: 16px; fill: currentColor; display: block; }
   @keyframes icon-spin { 100% { transform: rotate(360deg); } }
-
+  .spin-icon { animation: icon-spin 1s linear infinite; }
+  
+  /* --- Record Button Area --- */
   #recwrap { text-align: center; margin-top: 20px; }
   button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: var(--accent); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
   button.mic svg { width: 36px; height: 36px; fill: #fff; }
@@ -116,11 +170,13 @@
   #lbl { margin-top: 12px; font-weight: 700; font-size: 16px; }
   #lbl.on { color: var(--rec); }
   
+  /* --- System Messages & Audio --- */
   #msg.box { white-space: pre-line; text-align: center; border-radius: 12px; padding: 14px; line-height: 1.5; font-size: 14px; margin-top: 16px; }
   #msg.box b { display: block; font-size: 16px; margin-bottom: 4px; }
   #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
   #msg.err { background: #fbe9e7; color: #8f2a1f; border: 1px solid #c0392b; }
   @media (prefers-color-scheme: dark) {
+    #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
     #msg.err { background: #3d2220; color: #f3c1ba; }
   }
   
@@ -129,37 +185,67 @@
   button:disabled { opacity: .5; cursor: not-allowed; }
   audio { width: 100%; margin-top: 16px; height: 44px; }
   [hidden] { display: none !important; }
-  #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; pointer-events: none; z-index: 100; }
+  #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; direction: ltr; pointer-events: none; user-select: none; z-index: 100; }
+  
+/* --- Desktop & Tablet Scaling --- */
+  @media (min-width: 768px) {
+    main { 
+      max-width: 900px; 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 20px; 
+      align-items: start; 
+    }
+    .top-header { 
+      grid-column: 1 / -1; 
+      margin-bottom: 0; 
+    }
+    .section-card { 
+      margin-bottom: 0; 
+      height: 100%; 
+      box-sizing: border-box; 
+    }
+  }
 </style>
 </head>
 <body>
 <div id="ver"></div>
 <main>
+ <!-- Header: Horizontal with Coptic Text -->
   <div class="top-header">
-    <img class="logo" src="logo_hifz_512.png" alt="مدرسة الشمامسة">
+    <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة">
     <div class="header-text">
       <h1>Ϯⲁⲛⲍⲏⲃ ⲛ̀ⲧⲉ ⲡⲓⲁⲋⲓⲟⲥ<br>ⲥ̀ⲧⲉⲫⲁⲛⲟⲥ ⲡⲓⲁⲣⲭⲓⲇⲓⲁⲕⲱⲛ</h1>
     </div>
   </div>
 
+  <!-- SECTION 1: Profile & Attendance -->
   <div class="section-card">
     <div class="section-title">
     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
     بيانات الشماس
   </div>
+    
     <div class="profile-row">
       <div class="combo">
         <label for="name">الاسم</label>
         <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
         <ul id="names" hidden></ul>
       </div>
+      
+      <!-- Coupons Box -->
       <div class="coupons-box" id="coupons-box">
         <span class="c-label">كوبونات 🎟️</span>
         <span id="c-val" class="c-val">0</span>
       </div>
     </div>
+
+    <div id="attendance" hidden>
+      <div id="attendance-list"></div>
+    </div>
   </div>
 
+  <!-- SECTION 2: Recording Actions -->
   <div class="section-card">
     <div class="section-title">
     <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
@@ -176,7 +262,7 @@
       </div>
     </div>
 
-    <!-- CHALLENGE TRIGGER -->
+    <!-- CHALLENGE TRIGGER BUTTON -->
     <button id="chal-trig" class="challenge-trigger" hidden>🎁 صندوق التحدي الأسبوعي</button>
 
     <!-- CHALLENGE CARD -->
@@ -197,7 +283,9 @@
       <div id="chal-msg" style="font-size:16px; font-weight:bold; margin-top:16px; color:#a7f3d0;" hidden></div>
     </div>
 
+    <!-- REGULAR INPUTS -->
     <div id="regular-inputs">
+      <!-- 1/3 and 2/3 Split Row -->
       <div class="input-row">
         <div>
           <label for="category">النوع</label>
@@ -206,11 +294,12 @@
             <option value="ألحان">ألحان</option>
           </select>
         </div>
+        
         <div>
           <label for="piece">المحفوظ</label>
           <div class="piece-row">
             <select id="piece"><option>جارٍ التحميل...</option></select>
-            <a id="plink" class="plink-btn" target="_blank" rel="noopener" hidden>▶</a>
+            <a id="plink" class="plink-btn" target="_blank" rel="noopener" aria-label="رابط المحفوظ" hidden>▶</a>
           </div>
         </div>
       </div>
@@ -218,12 +307,13 @@
 
     <div id="recwrap">
       <button id="rec" class="mic" aria-label="تسجيل">
-        <svg class="micic" viewBox="0 0 24 24"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15zm6-3.5a1 1 0 0 0-2 0 4 4 0 0 1-8 0 1 1 0 0 0-2 0 6 6 0 0 0 5 5.9V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.6a6 6 0 0 0 5-5.9z"/></svg>
-        <svg class="stopic" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        <svg class="micic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15zm6-3.5a1 1 0 0 0-2 0 4 4 0 0 1-8 0 1 1 0 0 0-2 0 6 6 0 0 0 5 5.9V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.6a6 6 0 0 0 5-5.9z"/></svg>
+        <svg class="stopic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
       </button>
       <div id="lbl">اضغط للتسجيل</div>
     </div>
     
+    <!-- Audio & Send Buttons -->
     <audio id="preview" controls hidden></audio>
     <div id="after" hidden>
       <button id="send" class="send-btn">إرسال</button>
@@ -232,6 +322,7 @@
     <div id="msg" role="status"></div>
   </div>
 
+  <!-- SECTION 3: History -->
   <div class="section-card" id="history" hidden>
     <div class="section-title">
     <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
@@ -239,7 +330,8 @@
   </div>
     <div id="history-list"></div>
   </div>
-
+  
+  <!-- SECTION 4: Attendance Graph -->
   <div class="section-card" id="graph-section" hidden>
     <div class="section-title">
     <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/></svg>
@@ -247,19 +339,25 @@
   </div>
     <canvas id="attendanceChart"></canvas>
   </div>
+
 </main>
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.12 (Challenge Engine)'; 
+const VERSION = 'v2.13'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
 
 let recorder, chunks = [], blob, mime, timer, secs = 0;
-let userPiecesMap = {}, allNames = [], linksMap = {}, progressMap = {}, closedMap = {};
-let isChallengeRec = false, chalPiece = null;
+let userPiecesMap = {};
+let allNames = [];
+let linksMap = {};
+let progressMap = {}; 
+let closedMap = {};
+let isChallengeRec = false;
+let chalPiece = null;
 
 function showLink() {
   const cat = $('category').value;
@@ -276,14 +374,24 @@ function setRec(on, text) {
   $('lbl').textContent = text;
 }
 const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-function progColor(p) { return 'hsl(' + Math.round(p * 1.2) + ', 70%, 42%)'; }
-const norm = s => String(s).toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/ڤ/g, 'ف').replace(/چ/g, 'ج').replace(/\s+/g, ' ').trim();
+
+function progColor(p) {
+  return 'hsl(' + Math.round(p * 1.2) + ', 70%, 42%)';
+}
+
+const norm = s => String(s).toLowerCase()
+  .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+  .replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+  .replace(/ڤ/g, 'ف')
+  .replace(/چ/g, 'ج')
+  .replace(/\s+/g, ' ').trim();
 
 function updatePieces(name) {
   const cat = $('category').value;
   const catLabel = document.querySelector('label[for="category"]');
   
-  if (name && progressMap[name] !== undefined) {
+  // 1. Progress Bar Logic (Only for مردات)
+  if (name && cat === 'مردات' && progressMap[name] !== undefined) {
     const pVal = Math.max(0, Math.min(100, Number(progressMap[name]) || 0));
     const color = progColor(pVal);
     $('prog-val').textContent = pVal + '%';
@@ -291,50 +399,85 @@ function updatePieces(name) {
     $('prog-bar-fill').style.width = pVal + '%';
     $('prog-bar-fill').style.backgroundColor = color;
     $('progwrap').hidden = false;
-    
-    // Unlock Challenge
-    if (pVal === 100) $('chal-trig').hidden = false;
-    else { $('chal-trig').hidden = true; $('chal-card').hidden = true; }
+
+    // Challenge Lock Logic
+    if (pVal === 100) {
+      $('chal-trig').hidden = false;
+    } else {
+      $('chal-trig').hidden = true;
+      $('chal-card').hidden = true;
+    }
   } else {
     $('progwrap').hidden = true;
     $('chal-trig').hidden = true;
     $('chal-card').hidden = true;
   }
 
+  // 2. Category Tab Alerts & Glow Logic
   const catSelect = $('category');
   if (name && userPiecesMap && userPiecesMap[name]) {
     const mList = userPiecesMap[name]['مردات'] || [];
     const aList = userPiecesMap[name]['ألحان'] || [];
+    
     catSelect.options[0].textContent = 'مردات ' + (mList.length > 0 ? '🔴' : '✅');
     catSelect.options[1].textContent = 'ألحان ' + (aList.length > 0 ? '🔴' : '✅');
+    
     if (cat === 'مردات' && aList.length > 0) {
-      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px;">(ألحان متبقية 🔴)</span>';
+      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px; white-space: nowrap;">(ألحان متبقية 🔴)</span>';
       catSelect.classList.add('needs-attention');
     } else if (cat === 'ألحان' && mList.length > 0) {
-      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px;">(مردات متبقية 🔴)</span>';
+      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px; white-space: nowrap;">(مردات متبقية 🔴)</span>';
       catSelect.classList.add('needs-attention');
-    } else { catLabel.textContent = 'النوع'; catSelect.classList.remove('needs-attention'); }
+    } else {
+      catLabel.textContent = 'النوع'; 
+      catSelect.classList.remove('needs-attention');
+    }
   } else {
-    catSelect.options[0].textContent = 'مردات'; catSelect.options[1].textContent = 'ألحان';
-    catLabel.textContent = 'النوع'; catSelect.classList.remove('needs-attention');
+    catSelect.options[0].textContent = 'مردات';
+    catSelect.options[1].textContent = 'ألحان';
+    catLabel.textContent = 'النوع';
+    catSelect.classList.remove('needs-attention');
   }
 
+  // 3. Piece (المحفوظ) Dropdown & Glow Logic
   const pieceSelect = $('piece');
-  if (!name) { pieceSelect.replaceChildren(new Option('اختر الاسم أولاً', '')); pieceSelect.classList.remove('needs-attention'); }
-  else if (userPiecesMap && userPiecesMap[name]) {
+  if (!name) {
+    pieceSelect.replaceChildren(new Option('اختر الاسم أولاً', ''));
+    pieceSelect.classList.remove('needs-attention');
+  } else if (userPiecesMap && userPiecesMap[name]) {
     const pieces = userPiecesMap[name][cat] || [];
     const closed = (closedMap[name] && closedMap[name][cat]) || [];
-    if (pieces.length > 0) { fill(pieceSelect, pieces, closed); pieceSelect.classList.add('needs-attention'); }
-    else if (closed.length > 0) { fill(pieceSelect, [], closed); pieceSelect.options[0].textContent = 'لا توجد محفوظات متاحة الآن'; pieceSelect.classList.remove('needs-attention'); }
-    else { pieceSelect.replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', '')); pieceSelect.classList.remove('needs-attention'); }
+    if (pieces.length > 0) {
+      fill(pieceSelect, pieces, closed);
+      pieceSelect.classList.add('needs-attention');
+    } else if (closed.length > 0) {
+      fill(pieceSelect, [], closed);
+      pieceSelect.options[0].textContent = 'لا توجد محفوظات متاحة الآن';
+      pieceSelect.classList.remove('needs-attention');
+    } else {
+      pieceSelect.replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', ''));
+      pieceSelect.classList.remove('needs-attention');
+    }
   }
+  
   showLink();
 }
 
 let listsLoaded = false;
+
 function applyLists(d) {
-  userPiecesMap = d.userPieces; allNames = d.names; progressMap = d.progress || {}; closedMap = d.closedPieces || {};
-  if (!listsLoaded) { listsLoaded = true; $('piece').replaceChildren(new Option('اختر الاسم أولاً', '')); $('name').disabled = false; $('name').placeholder = 'اكتب للبحث عن اسمك...'; }
+  userPiecesMap = d.userPieces;
+  allNames = d.names;
+  progressMap = d.progress || {};
+  closedMap = d.closedPieces || {};
+
+  if (!listsLoaded) {
+    listsLoaded = true;
+    $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
+    $('name').disabled = false;
+    $('name').placeholder = 'اكتب للبحث عن اسمك...';
+  }
+
   const typed = $('name').value;
   if (allNames.includes(typed)) {
     const keep = $('piece').value;
@@ -352,13 +495,27 @@ function refreshLists() {
   });
 }
 
-try { const c = JSON.parse(localStorage.getItem('lists_v1')); if(c) applyLists(c); } catch (e) {}
-refreshLists().catch(() => { if (!listsLoaded) { $('name').placeholder = 'تعذّر التحميل'; say('تعذّر تحميل القوائم', 'err'); } });
+let cachedLists = null;
+try { cachedLists = JSON.parse(localStorage.getItem('lists_v1')); } catch (e) {}
+if (cachedLists && cachedLists.userPieces) applyLists(cachedLists);
+
+refreshLists().catch(() => {
+  if (listsLoaded) return;
+  $('name').placeholder = 'تعذّر التحميل';
+  say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.');
+});
 
 try { linksMap = JSON.parse(localStorage.getItem('links_v1')) || {}; } catch (e) {}
-fetch(API + '?action=links&t=' + Date.now()).then(r => r.json()).then(l => { linksMap = l || {}; try { localStorage.setItem('links_v1', JSON.stringify(linksMap)); } catch(e){} showLink(); }).catch(()=>{});
+fetch(API + '?action=links&t=' + Date.now()).then(r => r.json()).then(l => {
+  linksMap = l || {};
+  try { localStorage.setItem('links_v1', JSON.stringify(linksMap)); } catch (e) {}
+  showLink();
+}).catch(() => {});
 
-$('category').addEventListener('change', () => { updatePieces(allNames.includes($('name').value) ? $('name').value : ''); });
+$('category').addEventListener('change', () => {
+  updatePieces(allNames.includes($('name').value) ? $('name').value : '');
+});
+
 $('piece').addEventListener('change', showLink);
 
 function matches() {
@@ -371,72 +528,33 @@ function matches() {
 function showNames() {
   if (!allNames.length) return;
   const found = matches();
-  const items = found.length ? found.map(n => Object.assign(document.createElement('li'), { textContent: n })) : [Object.assign(document.createElement('li'), { className: 'none', textContent: 'لا يوجد اسم مطابق' })];
-  $('names').replaceChildren(...items); $('names').hidden = false;
-}
-
-const iconPlay = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-const iconPause = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-const iconLoad = `<svg viewBox="0 0 24 24" class="spin-icon"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg>`;
-const iconErr = `<svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
-
-function fetchHistory(name) {
-  if (!name) { $('history').hidden = true; return; }
-  $('history').hidden = false;
-  $('history-list').replaceChildren();
-  const loader = document.createElement('div'); loader.className = 'h-card'; loader.style.textAlign = 'center'; loader.textContent = '⏳ جارٍ تحميل السجل...';
-  $('history-list').append(loader);
-  
-  fetch(API + '?action=history&name=' + encodeURIComponent(name)).then(r => r.json()).then(data => {
-    $('history-list').replaceChildren();
-    if (!data || !data.length) { const empty = document.createElement('div'); empty.className = 'h-card'; empty.style.textAlign = 'center'; empty.textContent = 'لا يوجد سجل سابق'; $('history-list').append(empty); return; }
-    data.forEach(item => {
-      const card = document.createElement('div'); card.className = 'h-card';
-      let statusText = 'قيد المراجعة 🟡'; let statusClass = 's-pending';
-      if (item.status === 'Approved') { statusText = 'مقبول 🟢'; statusClass = 's-approved'; }
-      if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
-      const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
-      let html = `<div class="h-title"><div style="display:flex; align-items:center; gap:4px;">${playBtn}<span>${item.category} - ${item.piece}</span></div><span class="${statusClass}">${statusText}</span></div>`;
-      if (item.comment) html += `<div class="h-comment">تعليق: ${item.comment}</div>`;
-      card.innerHTML = html; $('history-list').append(card);
-    });
-  }).catch(e => {
-    $('history-list').replaceChildren(); const err = document.createElement('div'); err.className = 'h-card s-rejected'; err.style.textAlign = 'center'; err.textContent = 'خطأ في تحميل السجل'; $('history-list').append(err);
-  });
-}
-
-function pickName(n) { $('name').value = n; $('names').hidden = true; $('name').blur(); updatePieces(n); fetchHistory(n); fetchAttendance(n); loadChallenge(n); }
-
-$('name').addEventListener('focus', () => { $('name').select(); showNames(); });
-$('name').addEventListener('input', () => { updatePieces(allNames.includes($('name').value) ? $('name').value : ''); showNames(); });
-$('name').addEventListener('keydown', e => { if (e.key !== 'Enter') return; e.preventDefault(); const first = matches()[0]; if (first && !allNames.includes($('name').value)) pickName(first); });
-$('names').addEventListener('click', e => { const li = e.target.closest('li'); if (li && !li.classList.contains('none')) pickName(li.textContent); });
-document.addEventListener('click', e => { if (!e.target.closest('.combo')) $('names').hidden = true; });
-
-function fill(sel, items, closed = []) {
-  const closedOpts = closed.map(x => { const o = new Option(x + ' — انتهت فترة التسميع', ''); o.disabled = true; o.className = 'closed-opt'; return o; });
-  sel.replaceChildren(new Option('اختر...', ''), ...items.map(x => new Option(x, x)), ...closedOpts);
-}
-
-function say(t, kind, sub) {
-  const m = $('msg'); m.replaceChildren(); m.className = kind ? 'box ' + kind : '';
-  if (!kind) { m.textContent = t; return; }
-  const b = document.createElement('b'); b.textContent = t; m.append(b); if (sub) m.append(sub);
-  m.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const items = found.length
+    ? found.map(n => Object.assign(document.createElement('li'), { textContent: n }))
+    : [Object.assign(document.createElement('li'), { className: 'none', textContent: 'لا يوجد اسم مطابق' })];
+  $('names').replaceChildren(...items);
+  $('names').hidden = false;
 }
 
 // --- Challenge Logic ---
-$('chal-trig').onclick = () => { $('chal-card').hidden = false; $('chal-trig').hidden = true; };
+$('chal-trig').onclick = () => { 
+  $('chal-card').hidden = false; 
+  $('chal-trig').hidden = true; 
+};
 
 function loadChallenge(name) {
-  $('chal-content').hidden = true; $('chal-play').hidden = true; $('chal-msg').hidden = true;
-  fetch(API + '?action=getChallenge&name=' + encodeURIComponent(name)).then(r => r.json()).then(d => {
-    if(!d.active) return;
-    if(d.status === 'None') { $('chal-content').hidden = false; }
-    else if(d.status === 'Pending') { applyChalState(d); }
-    else if(d.status === 'Submitted') { $('chal-msg').textContent = '✅ بانتظار تقييم تحدي الأسبوع!'; $('chal-msg').hidden = false; }
-    else if(d.status === 'Approved') { $('chal-msg').textContent = '🎉 لقد نجحت في تحدي هذا الأسبوع!'; $('chal-msg').hidden = false; }
-  });
+  $('chal-content').hidden = true; 
+  $('chal-play').hidden = true; 
+  $('chal-msg').hidden = true;
+  
+  fetch(API + '?action=getChallenge&name=' + encodeURIComponent(name))
+    .then(r => r.json())
+    .then(d => {
+      if(!d.active) return;
+      if(d.status === 'None') { $('chal-content').hidden = false; }
+      else if(d.status === 'Pending') { applyChalState(d); }
+      else if(d.status === 'Submitted') { $('chal-msg').textContent = '✅ بانتظار تقييم تحدي الأسبوع!'; $('chal-msg').hidden = false; }
+      else if(d.status === 'Approved') { $('chal-msg').textContent = '🎉 لقد نجحت في تحدي هذا الأسبوع!'; $('chal-msg').hidden = false; }
+    });
 }
 
 function applyChalState(d) {
@@ -470,39 +588,187 @@ $('chal-rec-btn').onclick = () => {
   say('تحدي الأسبوع: ' + chalPiece, 'ok', 'اضغط على الميكروفون للتسجيل.');
 };
 
-// --- Record Logic ---
+// --- SVG Icons for Mini Player ---
+const iconPlay = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+const iconPause = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+const iconLoad = `<svg viewBox="0 0 24 24" class="spin-icon"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg>`;
+const iconErr = `<svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+
+function fetchHistory(name) {
+  if (!name) {
+    $('history').hidden = true;
+    return;
+  }
+  
+  $('history').hidden = false;
+  $('history-list').replaceChildren();
+  
+  const loader = document.createElement('div');
+  loader.className = 'h-card';
+  loader.style.textAlign = 'center';
+  loader.style.color = 'var(--accent)';
+  loader.style.fontWeight = 'bold';
+  loader.textContent = '⏳ جارٍ تحميل السجل...';
+  $('history-list').append(loader);
+  
+  fetch(API + '?action=history&name=' + encodeURIComponent(name))
+    .then(r => r.json())
+    .then(data => {
+      $('history-list').replaceChildren();
+      
+      if (!data || !data.length) {
+        const empty = document.createElement('div');
+        empty.className = 'h-card';
+        empty.style.textAlign = 'center';
+        empty.style.opacity = '0.7';
+        empty.textContent = 'لا يوجد سجل سابق';
+        $('history-list').append(empty);
+        return;
+      }
+      
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'h-card';
+        
+        let statusText = 'قيد المراجعة 🟡';
+        let statusClass = 's-pending';
+        if (item.status === 'Approved') { statusText = 'مقبول 🟢'; statusClass = 's-approved'; }
+        if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
+
+        // Inject the mini play button using the SVG icon
+        const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
+
+        // Keep the button and text tightly grouped using flexbox
+        let html = `<div class="h-title">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            ${playBtn}
+            <span>${item.category} - ${item.piece}</span>
+          </div>
+          <span class="${statusClass}">${statusText}</span>
+        </div>`;
+        
+        if (item.comment) html += `<div class="h-comment">تعليق: ${item.comment}</div>`;
+        
+        card.innerHTML = html;
+        $('history-list').append(card);
+      });
+    }).catch(e => {
+      $('history-list').replaceChildren();
+      const err = document.createElement('div');
+      err.className = 'h-card s-rejected';
+      err.style.textAlign = 'center';
+      err.textContent = 'حدث خطأ في تحميل السجل';
+      $('history-list').append(err);
+      console.error(e);
+    });
+}
+
+function pickName(n) {
+  $('name').value = n;
+  $('names').hidden = true;
+  $('name').blur();
+  updatePieces(n);
+  fetchHistory(n);
+  fetchAttendance(n);
+  loadChallenge(n);
+}
+
+$('name').addEventListener('focus', () => { $('name').select(); showNames(); });
+$('name').addEventListener('input', () => {
+  updatePieces(allNames.includes($('name').value) ? $('name').value : '');
+  showNames();
+});
+$('name').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const first = matches()[0];
+  if (first && !allNames.includes($('name').value)) pickName(first);
+});
+$('names').addEventListener('click', e => {
+  const li = e.target.closest('li');
+  if (li && !li.classList.contains('none')) pickName(li.textContent);
+});
+document.addEventListener('click', e => { if (!e.target.closest('.combo')) $('names').hidden = true; });
+
+function fill(sel, items, closed = []) {
+  const closedOpts = closed.map(x => {
+    const o = new Option(x + ' — انتهت فترة التسميع', '');
+    o.disabled = true;
+    o.className = 'closed-opt';
+    return o;
+  });
+  sel.replaceChildren(
+    new Option('اختر...', ''),
+    ...items.map(x => new Option(x, x)),
+    ...closedOpts
+  );
+}
+
+function say(t, kind, sub) {
+  const m = $('msg');
+  m.replaceChildren();
+  m.className = kind ? 'box ' + kind : '';
+  if (!kind) { m.textContent = t; return; }
+  const b = document.createElement('b'); b.textContent = t; m.append(b);
+  if (sub) m.append(sub);
+  m.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 let starting = false;
 $('rec').onclick = async () => {
   if (recorder && recorder.state === 'recording') return recorder.stop();
   if (starting) return;
-  if (!isChallengeRec && (!$('name').value || !$('piece').value)) return say('اختر الاسم والمحفوظ أولاً', 'err');
+  
+  if (!isChallengeRec && (!$('name').value || !$('piece').value)) {
+    return say('اختر الاسم والمحفوظ أولاً', 'err');
+  }
 
-  starting = true; $('lbl').textContent = 'جارٍ تشغيل الميكروفون...';
-  let stream; try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch (e) { starting = false; $('lbl').textContent = 'اضغط للتسجيل'; return say('لم يتم السماح بالميكروفون', 'err'); }
+  starting = true;
+  $('lbl').textContent = 'جارٍ تشغيل الميكروفون...';
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    starting = false;
+    $('lbl').textContent = 'اضغط للتسجيل';
+    return say('لم يتم السماح بالميكروفون', 'err', 'اسمح بالميكروفون من إعدادات المتصفح ثم حاول مرة أخرى.');
+  }
+
   mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
   const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
-  recorder = rec; chunks = [];
+  recorder = rec;
+  chunks = [];
   rec.ondataavailable = e => chunks.push(e.data);
   rec.onstop = () => {
-    clearInterval(timer); stream.getTracks().forEach(t => t.stop());
-    blob = new Blob(chunks, { type: rec.mimeType }); mime = rec.mimeType;
+    clearInterval(timer);
+    stream.getTracks().forEach(t => t.stop());
+    blob = new Blob(chunks, { type: rec.mimeType });
+    mime = rec.mimeType;
     $('preview').src = URL.createObjectURL(blob);
     $('preview').hidden = false; $('after').hidden = false; $('recwrap').hidden = true;
     $('name').disabled = $('piece').disabled = $('category').disabled = true;
-    setRec(false, 'اضغط للتسجيل'); say('استمع للتسجيل ثم اضغط إرسال.');
+    setRec(false, 'اضغط للتسجيل');
+    say('استمع للتسجيل ثم اضغط إرسال.');
   };
-  rec.start(); starting = false; clearInterval(timer); secs = 0;
-  setRec(true, 'جارٍ التسجيل 0:00 — اضغط للإيقاف'); say('');
+
+  rec.start();
+  starting = false;
+  clearInterval(timer);
+  secs = 0;
+  setRec(true, 'جارٍ التسجيل 0:00 — اضغط للإيقاف');
+  say('');
   timer = setInterval(() => {
     if (rec.state !== 'recording') return clearInterval(timer);
-    secs++; $('lbl').textContent = 'جارٍ التسجيل ' + fmt(secs) + ' — اضغط للإيقاف';
+    secs++;
+    $('lbl').textContent = 'جارٍ التسجيل ' + fmt(secs) + ' — اضغط للإيقاف';
     if (secs >= MAX_SECONDS) rec.stop();
   }, 1000);
 };
 
 $('redo').onclick = () => {
   $('preview').hidden = $('after').hidden = true; $('recwrap').hidden = false;
-  setRec(false, 'اضغط للتسجيل'); $('name').disabled = $('piece').disabled = $('category').disabled = false; say('');
+  setRec(false, 'اضغط للتسجيل');
+  $('name').disabled = $('piece').disabled = $('category').disabled = false; say('');
 };
 
 $('send').onclick = () => {
@@ -521,65 +787,211 @@ $('send').onclick = () => {
       const res = await fetch(API, { method: 'POST', body: JSON.stringify(payload) });
       const d = await res.json();
       if (!d.ok) throw new Error(d.error);
-      say('✓ تم الإرسال بنجاح', 'ok', isChallengeRec ? 'تحدي الأسبوع محفوظ بأمان' : payload.category + ' (' + payload.piece + ')');
+      say('✓ تم إرسال تسجيلك بنجاح', 'ok', isChallengeRec ? 'بانتظار تقييم الخادم لتحدي الأسبوع.' : payload.category + ' (' + payload.piece + ')\nسيستمع إليه الخادم ويوافق عليه قريباً.');
       
       $('after').hidden = $('preview').hidden = true; $('recwrap').hidden = false;
       setRec(false, 'اضغط لتسجيل آخر');
       $('name').disabled = $('piece').disabled = $('category').disabled = false;
       
       if(isChallengeRec) {
-        isChallengeRec = false; $('regular-inputs').hidden = false;
+        isChallengeRec = false; 
+        $('regular-inputs').hidden = false;
         $('chal-card').style.border = '2px solid #4f46e5';
         loadChallenge($('name').value); 
       } else {
-        refreshLists().catch(() => {}); fetchHistory($('name').value);
+        refreshLists().catch(() => {}); 
+        fetchHistory($('name').value);
       }
     } catch (e) {
-      if (String(e.message).includes('already')) say('تم تسميعه مسبقاً', 'err');
-      else say('لم يتم الإرسال', 'err', 'تأكد من الإنترنت. تسجيلك ما زال هنا.');
+      if (String(e.message).includes('already completed')) {
+        say('هذا المحفوظ تم تسميعه مسبقاً', 'err', 'تم تحديث القائمة. اضغط إعادة التسجيل ثم اختر محفوظاً آخر.');
+        refreshLists().catch(() => {});
+      } else {
+        say('لم يتم الإرسال', 'err', 'تأكد من الإنترنت ثم اضغط إرسال مرة أخرى. تسجيلك ما زال محفوظاً هنا.');
+      }
     }
     $('send').disabled = $('redo').disabled = false;
   };
   fr.readAsDataURL(blob);
 };
 
-// ... Chart & Mini Player code remains unchanged (kept concise for brevity) ...
-function animateValue(obj, start, end, duration) { let startTimestamp = null; const step = (timestamp) => { if (!startTimestamp) startTimestamp = timestamp; const progress = Math.min((timestamp - startTimestamp) / duration, 1); const easeOut = 1 - Math.pow(1 - progress, 3); obj.textContent = Math.floor(easeOut * (end - start) + start); if (progress < 1) window.requestAnimationFrame(step); else obj.textContent = end; }; window.requestAnimationFrame(step); }
+function animateValue(obj, start, end, duration) {
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    const easeOut = 1 - Math.pow(1 - progress, 3);
+    obj.textContent = Math.floor(easeOut * (end - start) + start);
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    } else {
+      obj.textContent = end;
+    }
+  };
+  window.requestAnimationFrame(step);
+}
 let attChart = null;
+
 function updateChart(records) {
-  const chronological = [...records].reverse(); const labels = chronological.map(r => r.date);
-  let vScore = 0, hScore = 0, lScore = 0; const vData = [], hData = [], lData = [];
+  const chronological = [...records].reverse();
+  const labels = chronological.map(r => r.date);
+  
+  let vScore = 0, hScore = 0, lScore = 0;
+  const vData = [], hData = [], lData = [];
+  
+  // +1 attended, -1 missed, 0 if the session wasn't held at all
   const step = (present, held) => held === false ? 0 : (present ? 1 : -1);
-  chronological.forEach(r => { vScore += step(r.vespers, r.vespersHeld); hScore += step(r.hymns, r.hymnsHeld); lScore += step(r.liturgy, r.liturgyHeld); lData.push(lScore); hData.push(hScore + 0.15); vData.push(vScore - 0.15); });
-  const ctx = document.getElementById('attendanceChart').getContext('2d'); if (attChart) attChart.destroy();
-  attChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2, pointRadius: 3, order: 3 }, { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [8, 6], order: 2 }, { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [2, 4], order: 1 } ] }, options: { responsive: true, plugins: { legend: { labels: { font: { family: 'system-ui' } } } }, scales: { y: { ticks: { stepSize: 1, precision: 0 } }, x: { ticks: { font: { size: 10 } } } } } });
+  
+  chronological.forEach(r => {
+    vScore += step(r.vespers, r.vespersHeld);
+    hScore += step(r.hymns, r.hymnsHeld);
+    lScore += step(r.liturgy, r.liturgyHeld);
+    
+    lData.push(lScore);
+    hData.push(hScore + 0.15);
+    vData.push(vScore - 0.15);
+  });
+  
+  const ctx = document.getElementById('attendanceChart').getContext('2d');
+  if (attChart) attChart.destroy();
+  
+  attChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2, pointRadius: 3, order: 3 },
+        { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [8, 6], order: 2 },
+        { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [2, 4], order: 1 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { font: { family: 'system-ui' } } } },
+      scales: {
+        y: { ticks: { stepSize: 1, precision: 0 } },
+        x: { ticks: { font: { size: 10 } } }
+      }
+    }
+  });
 }
 
 function fetchAttendance(name) {
-  if (!name) { $('attendance').hidden = true; $('coupons-box').classList.remove('show'); return; }
-  $('attendance').hidden = false; $('attendance-list').replaceChildren(); $('coupons-box').classList.remove('show');
-  fetch(API + '?action=attendance&name=' + encodeURIComponent(name)).then(r => r.json()).then(data => {
-    $('attendance-list').replaceChildren();
-    const records = data.records || []; const coupons = data.coupons !== undefined ? Number(data.coupons) : 0;
-    $('coupons-box').classList.add('show'); animateValue($('c-val'), 0, coupons, 1500);
-    if (!records.length) { const empty = document.createElement('div'); empty.className = 'att-card'; empty.style.justifyContent = 'center'; empty.textContent = 'لا توجد بيانات'; $('attendance-list').append(empty); $('graph-section').hidden = true; return; }
-    $('graph-section').hidden = false; updateChart(records);
-    records.forEach(item => { const card = document.createElement('div'); card.className = 'att-card'; const getTag = (eventName, isPresent, held) => { const cls = held === false ? 'att-na' : (isPresent ? 'att-yes' : 'att-no'); return `<span class="att-tag ${cls}">${eventName}</span>`; }; card.innerHTML = ` <span class="att-date">${item.date}</span> <div class="att-tags"> ${getTag('عشية', item.vespers, item.vespersHeld)} ${getTag('ألحان', item.hymns, item.hymnsHeld)} ${getTag('قداس', item.liturgy, item.liturgyHeld)} </div> `; $('attendance-list').append(card); });
-  }).catch(e => console.error(e));
+  if (!name) {
+    $('attendance').hidden = true;
+    $('coupons-box').classList.remove('show');
+    return;
+  }
+  
+  $('attendance').hidden = false;
+  $('attendance-list').replaceChildren();
+  $('coupons-box').classList.remove('show'); 
+  const loader = document.createElement('div');
+  loader.className = 'att-card';
+  loader.style.justifyContent = 'center';
+  loader.style.color = 'var(--accent)';
+  loader.textContent = '⏳ جارٍ تحميل البيانات...';
+  $('attendance-list').append(loader);
+  
+  fetch(API + '?action=attendance&name=' + encodeURIComponent(name))
+    .then(r => r.json())
+    .then(data => {
+      $('attendance-list').replaceChildren();
+      
+      const records = data.records || [];
+      const coupons = data.coupons !== undefined ? Number(data.coupons) : 0;
+      
+      $('coupons-box').classList.add('show');
+      animateValue($('c-val'), 0, coupons, 1500);
+      
+      if (!records.length) {
+        const empty = document.createElement('div');
+        empty.className = 'att-card';
+        empty.style.justifyContent = 'center';
+        empty.style.opacity = '0.7';
+        empty.textContent = 'لا توجد بيانات حضور';
+        $('attendance-list').append(empty);
+        $('graph-section').hidden = true; 
+        return;
+      }
+
+      $('graph-section').hidden = false;
+      updateChart(records);
+      records.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'att-card';
+        
+        // held === false -> nobody attended -> session didn't happen -> dashed
+        const getTag = (eventName, isPresent, held) => {
+          const cls = held === false ? 'att-na' : (isPresent ? 'att-yes' : 'att-no');
+          return `<span class="att-tag ${cls}">${eventName}</span>`;
+        };
+        
+        card.innerHTML = `
+          <span class="att-date">${item.date}</span>
+          <div class="att-tags">
+            ${getTag('عشية', item.vespers, item.vespersHeld)}
+            ${getTag('ألحان', item.hymns, item.hymnsHeld)}
+            ${getTag('قداس', item.liturgy, item.liturgyHeld)}
+          </div>
+        `;
+        $('attendance-list').append(card);
+      });
+    }).catch(e => console.error(e));
 }
 
-let currentPlayBtn = null; const sharedAudio = $('preview');
+// Mini Audio Player Logic
+let currentPlayBtn = null;
+const sharedAudio = $('preview'); 
+
 $('history-list').addEventListener('click', e => {
-  const btn = e.target.closest('.mini-play'); if (!btn) return;
-  const rawUrl = btn.dataset.url; const idMatch = rawUrl.match(/[-\w]{25,}/); if (!idMatch) return;
-  if (currentPlayBtn === btn && !sharedAudio.paused) { sharedAudio.pause(); btn.innerHTML = iconPlay; return; }
-  if (currentPlayBtn && currentPlayBtn !== btn) { currentPlayBtn.innerHTML = iconPlay; }
-  currentPlayBtn = btn; btn.innerHTML = iconLoad; 
-  fetch(API + '?action=play&id=' + idMatch[0]).then(r => r.json()).then(d => { if (!d.ok) throw new Error('Audio not found'); sharedAudio.src = 'data:' + d.mime + ';base64,' + d.data; sharedAudio.load(); return sharedAudio.play(); }).then(() => { btn.innerHTML = iconPause; }).catch((err) => { console.error("Playback failed:", err); btn.innerHTML = iconErr; });
-  sharedAudio.onended = () => { btn.innerHTML = iconPlay; };
+  const btn = e.target.closest('.mini-play');
+  if (!btn) return;
+  
+  const rawUrl = btn.dataset.url;
+  const idMatch = rawUrl.match(/[-\w]{25,}/);
+  if (!idMatch) return;
+  
+  if (currentPlayBtn === btn && !sharedAudio.paused) {
+    sharedAudio.pause();
+    btn.innerHTML = iconPlay;
+    return;
+  }
+  
+  if (currentPlayBtn && currentPlayBtn !== btn) {
+    currentPlayBtn.innerHTML = iconPlay;
+  }
+  
+  currentPlayBtn = btn;
+  btn.innerHTML = iconLoad; 
+  
+  fetch(API + '?action=play&id=' + idMatch[0])
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) throw new Error('Audio not found');
+      sharedAudio.src = 'data:' + d.mime + ';base64,' + d.data;
+      sharedAudio.load();
+      return sharedAudio.play();
+    })
+    .then(() => {
+      btn.innerHTML = iconPause;
+    })
+    .catch((err) => {
+      console.error("Playback failed:", err);
+      btn.innerHTML = iconErr; 
+    });
+    
+  sharedAudio.onended = () => {
+    btn.innerHTML = iconPlay;
+  };
 });
 
-if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); }); }
+// Register Service Worker for PWA install
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
