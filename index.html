@@ -828,7 +828,10 @@ function fetchHistory(name) {
         let statusText = 'قيد المراجعة 🟡';
         let statusClass = 's-pending';
         if (item.status === 'Approved') { statusText = 'مقبول 🟢'; statusClass = 's-approved'; }
-        if (item.status === 'Rejected') { statusText = 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
+        if (item.status === 'Rejected') { 
+          statusText = (item.category === 'تحدي المردات') ? 'محاولة خاسرة 🔴' : 'يحتاج إعادة 🔴'; 
+          statusClass = 's-rejected'; 
+        }
 
         const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
 
