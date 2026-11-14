@@ -528,42 +528,92 @@ function loadChallenge(name) {
     });
 }
 
-function applyChalState(d) {
-  chalPiece = d.piece;
-  $('chal-pname').textContent = d.piece;
-  $('chal-cval').textContent = d.coupons;
-  const rem = 2 - d.rolls;
-  $('chal-rem').textContent = rem;
-  $('chal-reroll').disabled = (rem <= 0);
-  $('chal-content').hidden = true;
-  $('chal-play').hidden = false;
-}
-
-$('chal-open').onclick = () => doRoll();
-$('chal-reroll').onclick = () => doRoll();
-
 function doRoll() {
   const btn = $('chal-reroll'); 
   btn.disabled = true;
-  $('chal-open').textContent = 'جارٍ السحب...';
+  $('chal-open').textContent = 'جارٍ سحب المرد...';
   
+  // تجهيز أسماء الألحان للفة (بيسحبها من قايمة الألحان المتاحة عشان تلف في العجلة)
+  let allOptions = Array.from($('piece').options).map(o => o.value).filter(v => v && !v.includes('انتهت') && !v.includes('تحميل') && !v.includes('اختر'));
+  if(allOptions.length === 0) allOptions = ['لحن غريغوري', 'طاي شوري', 'أجيوس', 'مرد الإنجيل', 'اسجدوا لله']; 
+  
+  // إخفاء الزراير والمكافأة مؤقتاً أثناء اللف للتشويق
+  $('chal-content').hidden = true;
+  $('chal-play').hidden = false;
+  $('chal-rec-btn').hidden = true; 
+  btn.hidden = true; 
+  const rewBox = document.querySelector('.chal-rew');
+  rewBox.style.opacity = '0'; 
+  
+  const pName = $('chal-pname');
+  pName.style.color = '#fff';
+  pName.style.transform = 'scale(1)';
+  
+  // 🎡 مؤثر العجلة: تغيير الكلمات بسرعة جداً
+  let spinInterval = setInterval(() => {
+    pName.textContent = allOptions[Math.floor(Math.random() * allOptions.length)];
+  }, 70); // سرعة تغيير الكلمات
+
   fetch(API, { method:'POST', body: JSON.stringify({action:'rollChallenge', name:$('name').value}) })
   .then(r => r.json())
   .then(d => {
     if(d.error) { 
+      clearInterval(spinInterval);
       alert(d.error); 
       $('chal-open').textContent = 'افتح الصندوق الآن!';
+      $('chal-content').hidden = false;
+      $('chal-play').hidden = true;
       btn.disabled = false;
       return; 
     }
-    applyChalState(d.state);
+    
+    // الخادم اختار المرد خلاص.. هنخلي العجلة تكمل لف 1.5 ثانية للتشويق قبل ما تقف
+    setTimeout(() => {
+      clearInterval(spinInterval);
+      applyChalState(d.state, true); // إظهار النتيجة النهائية
+    }, 1500); 
   })
   .catch(e => {
+    clearInterval(spinInterval);
     alert('حدث خطأ في السحب، تأكد من جودة الإنترنت.');
     $('chal-open').textContent = 'افتح الصندوق الآن!';
     btn.disabled = false;
   });
 }
+
+function applyChalState(d, fromSpin = false) {
+  chalPiece = d.piece;
+  const pName = $('chal-pname');
+  pName.textContent = d.piece;
+  
+  $('chal-cval').textContent = d.coupons;
+  const rem = 2 - d.rolls;
+  $('chal-rem').textContent = rem;
+  
+  const btn = $('chal-reroll');
+  btn.disabled = (rem <= 0);
+  
+  $('chal-content').hidden = true;
+  $('chal-play').hidden = false;
+  
+  // إظهار الزراير والمكافأة
+  $('chal-rec-btn').hidden = false; 
+  btn.hidden = false;
+  const rewBox = document.querySelector('.chal-rew');
+  rewBox.style.transition = 'opacity 0.8s';
+  rewBox.style.opacity = '1';
+  
+  if (fromSpin) {
+    // 🎉 أنيميشن احتفال خفيف (تكبير المرد وتلوينه بالذهبي) لما العجلة تقف
+    pName.style.color = '#fbbf24'; 
+    pName.style.transform = 'scale(1.15)';
+    pName.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+    setTimeout(() => { pName.style.transform = 'scale(1)'; }, 400);
+  } else {
+    pName.style.color = '#ffffff';
+  }
+}
+
 
 $('chal-rec-btn').onclick = () => {
   isChallengeRec = true;
