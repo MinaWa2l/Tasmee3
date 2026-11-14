@@ -598,21 +598,20 @@ function doRoll() {
   const rewBox = document.querySelector('.chal-rew');
   rewBox.style.opacity = '0';
   
-  // 🎯 استخراج المردات المتبقية للشماس ده تحديداً من قاعدة البيانات بشكل مباشر
-  const name = $('name').value;
-  let pool = [];
-  if (userPiecesMap[name] && userPiecesMap[name]['مردات']) {
-      pool = [...userPiecesMap[name]['مردات']];
+  // 🎯 التصليح هنا: هنجمع أسماء المردات من الروابط (عشان دايما مليانة) ولو النت بطيء هنحط قائمة احتياطية حقيقية
+  let pool = ['اسجدوا لله بخوف', 'أجيوس', 'طاي شوري', 'مرد الإنجيل', 'تين أوأوشت', 'أوؤن نياتو', 'آمين آمين', 'تين أوين إينثوك', 'شيرى نى ماريا'];
+  if (linksMap && linksMap['مردات']) {
+      const keys = Object.keys(linksMap['مردات']);
+      if(keys.length > 0) pool = keys;
   }
-  if(pool.length === 0) pool = ['ألحان التحدي']; 
   
-  // 🎰 تجهيز مسار العجلة الرأسية (بناء الكلمات المكررة لتأثير السحب)
+  // 🎰 تجهيز مسار العجلة الرأسية
   const track = $('spinner-track');
   track.style.transition = 'none'; 
   track.style.transform = 'translateY(0px)';
   track.innerHTML = '';
   
-  const spinCount = 40; // عدد الكلمات اللي هتلف
+  const spinCount = 40; 
   for(let i=0; i<spinCount; i++) {
       const div = document.createElement('div');
       div.className = 'spinner-item';
@@ -622,7 +621,7 @@ function doRoll() {
   
   $('spinner-window').hidden = false;
 
-  fetch(API, { method:'POST', body: JSON.stringify({action:'rollChallenge', name:name}) })
+  fetch(API, { method:'POST', body: JSON.stringify({action:'rollChallenge', name:$('name').value}) })
   .then(r => r.json())
   .then(d => {
     if(d.error) { 
@@ -639,15 +638,14 @@ function doRoll() {
     const itemHeight = 60;
     const targetIndex = spinCount - 3; 
     track.children[targetIndex].textContent = d.state.piece;
-    track.children[targetIndex].style.color = '#fbbf24';
+    track.children[targetIndex].style.color = '#fbbf24'; // تلوين المرد الكسبان بالذهبي
     
-    void track.offsetWidth; // إجبار المتصفح على قراءة التعديل قبل اللف
+    void track.offsetWidth; 
     
-    // تشغيل الأنيميشن بتاع العجلة
     track.style.transition = 'transform 3.5s cubic-bezier(0.15, 0.85, 0.15, 1)';
     track.style.transform = `translateY(-${targetIndex * itemHeight}px)`;
     
-    // بعد ما العجلة تقف (3.5 ثانية) نظهر النتيجة الأساسية
+    // إظهار النتيجة الأساسية
     setTimeout(() => {
         $('spinner-window').hidden = true;
         $('chal-pname').hidden = false;
