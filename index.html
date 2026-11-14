@@ -118,6 +118,53 @@
   
   .chal-piece { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 28px; font-weight: 900; color: #ffffff; margin: 10px 0 24px 0; padding: 16px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.4); box-shadow: inset 0 0 15px rgba(0,0,0,0.2); text-shadow: 0 2px 6px rgba(0,0,0,0.8); line-height: 1.4; letter-spacing: 0.5px; }
   
+  /* --- Spinner Wheel CSS --- */
+  .spinner-window {
+      height: 60px;
+      overflow: hidden;
+      position: relative;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 12px;
+      border: 2px solid #fde68a;
+      margin: 16px 0 24px 0;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
+  }
+  .spinner-track {
+      display: flex;
+      flex-direction: column;
+      transition: transform 3.5s cubic-bezier(0.15, 0.85, 0.15, 1); /* حركة دوران الكازينو */
+  }
+  .spinner-item {
+      height: 60px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: #e2e8f0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+  .spinner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(30,27,75,1) 0%, rgba(30,27,75,0) 30%, rgba(30,27,75,0) 70%, rgba(30,27,75,1) 100%);
+      pointer-events: none;
+  }
+  .spinner-target {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 60px;
+      transform: translateY(-50%);
+      border-top: 2px solid rgba(251, 191, 36, 0.7);
+      border-bottom: 2px solid rgba(251, 191, 36, 0.7);
+      background: rgba(255, 255, 255, 0.05);
+      pointer-events: none;
+  }
+
   .chal-btn { background: #10b981; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 48%; }
   .chal-reroll { background: #f59e0b; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 48%; }
   .chal-reroll:disabled { background: #4b5563; color: #9ca3af; }
@@ -244,8 +291,18 @@
       </div>
       <div id="chal-play" hidden>
         <div class="chal-rew">المكافأة: <span id="chal-cval"></span> 🎟️</div>
+        
+        <!-- النتيجة النهائية الثابتة -->
         <div id="chal-pname" class="chal-piece"></div>
-        <div style="display:flex; justify-content:space-between; gap:10px;">
+        
+        <!-- 🎰 عجلة الحظ الدوارة -->
+        <div id="spinner-window" class="spinner-window" hidden>
+            <div id="spinner-track" class="spinner-track"></div>
+            <div class="spinner-overlay"></div>
+            <div class="spinner-target"></div>
+        </div>
+
+        <div id="chal-actions" style="display:flex; justify-content:space-between; gap:10px;">
           <button id="chal-rec-btn" class="chal-btn">بدء التسجيل</button>
           <button id="chal-reroll" class="chal-reroll">تغيير (يتبقى <span id="chal-rem"></span>)</button>
         </div>
@@ -308,7 +365,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.15'; 
+const VERSION = 'v2.16'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -531,53 +588,78 @@ function loadChallenge(name) {
 function doRoll() {
   const btn = $('chal-reroll'); 
   btn.disabled = true;
-  $('chal-open').textContent = 'جارٍ سحب المرد...';
+  $('chal-open').textContent = 'جارٍ تشغيل العجلة...';
   
-  // تجهيز أسماء الألحان للفة (بيسحبها من قايمة الألحان المتاحة عشان تلف في العجلة)
-  let allOptions = Array.from($('piece').options).map(o => o.value).filter(v => v && !v.includes('انتهت') && !v.includes('تحميل') && !v.includes('اختر'));
-  if(allOptions.length === 0) allOptions = ['لحن غريغوري', 'طاي شوري', 'أجيوس', 'مرد الإنجيل', 'اسجدوا لله']; 
-  
-  // إخفاء الزراير والمكافأة مؤقتاً أثناء اللف للتشويق
   $('chal-content').hidden = true;
   $('chal-play').hidden = false;
-  $('chal-rec-btn').hidden = true; 
-  btn.hidden = true; 
+  $('chal-actions').hidden = true;
+  $('chal-pname').hidden = true;
+  
   const rewBox = document.querySelector('.chal-rew');
-  rewBox.style.opacity = '0'; 
+  rewBox.style.opacity = '0';
   
-  const pName = $('chal-pname');
-  pName.style.color = '#fff';
-  pName.style.transform = 'scale(1)';
+  // 🎯 استخراج المردات المتبقية للشماس ده تحديداً من قاعدة البيانات بشكل مباشر
+  const name = $('name').value;
+  let pool = [];
+  if (userPiecesMap[name] && userPiecesMap[name]['مردات']) {
+      pool = [...userPiecesMap[name]['مردات']];
+  }
+  if(pool.length === 0) pool = ['ألحان التحدي']; 
   
-  // 🎡 مؤثر العجلة: تغيير الكلمات بسرعة جداً
-  let spinInterval = setInterval(() => {
-    pName.textContent = allOptions[Math.floor(Math.random() * allOptions.length)];
-  }, 70); // سرعة تغيير الكلمات
+  // 🎰 تجهيز مسار العجلة الرأسية (بناء الكلمات المكررة لتأثير السحب)
+  const track = $('spinner-track');
+  track.style.transition = 'none'; 
+  track.style.transform = 'translateY(0px)';
+  track.innerHTML = '';
+  
+  const spinCount = 40; // عدد الكلمات اللي هتلف
+  for(let i=0; i<spinCount; i++) {
+      const div = document.createElement('div');
+      div.className = 'spinner-item';
+      div.textContent = pool[Math.floor(Math.random() * pool.length)];
+      track.appendChild(div);
+  }
+  
+  $('spinner-window').hidden = false;
 
-  fetch(API, { method:'POST', body: JSON.stringify({action:'rollChallenge', name:$('name').value}) })
+  fetch(API, { method:'POST', body: JSON.stringify({action:'rollChallenge', name:name}) })
   .then(r => r.json())
   .then(d => {
     if(d.error) { 
-      clearInterval(spinInterval);
       alert(d.error); 
       $('chal-open').textContent = 'افتح الصندوق الآن!';
       $('chal-content').hidden = false;
       $('chal-play').hidden = true;
       btn.disabled = false;
+      $('spinner-window').hidden = true;
       return; 
     }
     
-    // الخادم اختار المرد خلاص.. هنخلي العجلة تكمل لف 1.5 ثانية للتشويق قبل ما تقف
+    // وضع النتيجة النهائية (الكسبانة) اللي اختارها السيرفر في آخر العجلة
+    const itemHeight = 60;
+    const targetIndex = spinCount - 3; 
+    track.children[targetIndex].textContent = d.state.piece;
+    track.children[targetIndex].style.color = '#fbbf24';
+    
+    void track.offsetWidth; // إجبار المتصفح على قراءة التعديل قبل اللف
+    
+    // تشغيل الأنيميشن بتاع العجلة
+    track.style.transition = 'transform 3.5s cubic-bezier(0.15, 0.85, 0.15, 1)';
+    track.style.transform = `translateY(-${targetIndex * itemHeight}px)`;
+    
+    // بعد ما العجلة تقف (3.5 ثانية) نظهر النتيجة الأساسية
     setTimeout(() => {
-      clearInterval(spinInterval);
-      applyChalState(d.state, true); // إظهار النتيجة النهائية
-    }, 1500); 
+        $('spinner-window').hidden = true;
+        $('chal-pname').hidden = false;
+        applyChalState(d.state, true);
+    }, 3800);
+    
   })
   .catch(e => {
-    clearInterval(spinInterval);
     alert('حدث خطأ في السحب، تأكد من جودة الإنترنت.');
     $('chal-open').textContent = 'افتح الصندوق الآن!';
     btn.disabled = false;
+    $('spinner-window').hidden = true;
   });
 }
 
@@ -596,15 +678,18 @@ function applyChalState(d, fromSpin = false) {
   $('chal-content').hidden = true;
   $('chal-play').hidden = false;
   
-  // إظهار الزراير والمكافأة
-  $('chal-rec-btn').hidden = false; 
-  btn.hidden = false;
+  if (!fromSpin) {
+      $('spinner-window').hidden = true;
+      pName.hidden = false;
+  }
+  
+  $('chal-actions').hidden = false;
+  
   const rewBox = document.querySelector('.chal-rew');
   rewBox.style.transition = 'opacity 0.8s';
   rewBox.style.opacity = '1';
   
   if (fromSpin) {
-    // 🎉 أنيميشن احتفال خفيف (تكبير المرد وتلوينه بالذهبي) لما العجلة تقف
     pName.style.color = '#fbbf24'; 
     pName.style.transform = 'scale(1.15)';
     pName.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
@@ -614,10 +699,8 @@ function applyChalState(d, fromSpin = false) {
   }
 }
 
-// ======== السطرين اللي كانوا ناقصين لربط الزراير بالكود ========
 $('chal-open').onclick = () => doRoll();
 $('chal-reroll').onclick = () => doRoll();
-// ===============================================================
 
 $('chal-rec-btn').onclick = () => {
   isChallengeRec = true;
