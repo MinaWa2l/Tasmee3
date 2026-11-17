@@ -436,7 +436,8 @@
         
         
 <button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة ✔️</button>
-<button id="g-retry-btn" class="action-btn" style="background:#f59e0b; margin-top:10px;" hidden>حاول مرة تانية 🔄</button>
+      <button id="g-retry-btn" class="action-btn" style="background:#f59e0b; margin-top:10px;" hidden>حاول مرة تانية 🔄</button>
+      <button id="g-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد 🆕</button>
 
         <div id="g-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 18px;"></div>
       </div>
@@ -459,7 +460,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.18 (Games)'; 
+const VERSION = 'v2.19'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -709,7 +710,7 @@ function switchTab(tabId) {
   }
 }
 
-/* --- لعبة ترتيب الكلمات --- */
+/* --- Word Game Logic --- */
 let currentGameTarget = "";
 let currentWords = [];
 let remainingGameTries = 2;
@@ -717,7 +718,6 @@ let gameSubmitting = false;
 let gameFinished = false;
 
 function normGameText(txt) {
-    // Normalize whitespace and Unicode without removing Coptic accents or Arabic letters.
     return String(txt ?? '')
         .normalize('NFC')
         .replace(/[\u200E\u200F\u061C\u202A-\u202E\u2066-\u2069\uFEFF]/g, '')
@@ -734,8 +734,11 @@ $('btn-load-game').onclick = () => {
    .then(r => r.json())
    .then(d => {
       if (d.error) {
-         $('game-setup').querySelector('p').textContent = d.error;
-         $('game-setup').querySelector('p').style.color = '#dc2626';
+         // نرجع لواجهة البداية لو مفيش ألحان تاني
+         $('game-setup').hidden = false;
+         $('game-board-wrap').hidden = true;
+         $('g-setup-msg').textContent = d.error;
+         $('g-setup-msg').style.color = '#dc2626';
          $('btn-load-game').hidden = true;
          return;
       }
@@ -764,7 +767,6 @@ function setupGameBoard(game) {
         ? words.length
         : 5 + Math.floor(Math.random() * (Math.min(10, words.length) - 4));
 
-    // Random groups, with a reasonably balanced number of words per group.
     const sizes = Array(partsCount).fill(Math.floor(words.length / partsCount));
     for (let i = 0; i < words.length % partsCount; i++) sizes[i]++;
     for (let i = sizes.length - 1; i > 0; i--) {
@@ -779,7 +781,6 @@ function setupGameBoard(game) {
         return part;
     });
 
-    // Save the original position so right/wrong isn't affected by RTL/LTR display.
     const shuffled = currentWords.map((text, index) => ({ text, index }));
     for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -801,6 +802,7 @@ function setupGameBoard(game) {
     $('g-check-btn').disabled = false;
     $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
     $('g-retry-btn').hidden = true;
+    $('g-next-game-btn').hidden = true;
 
     if (!shuffled.length) {
         $('g-msg').textContent = 'لا يوجد نص للحن في الجدول.';
@@ -812,7 +814,6 @@ function setupGameBoard(game) {
     });
 }
 
-// Each puzzle piece carries its exact source text and original index.
 function createGamePart(text, index) {
     const item = document.createElement('div');
     item.className = 'game-part';
@@ -823,8 +824,6 @@ function createGamePart(text, index) {
     up.type = 'button';
     up.className = 'move-arrow';
     up.textContent = '↑';
-    up.title = 'حرك لفوق';
-    up.setAttribute('aria-label', 'حرك المقطع لفوق');
     up.onclick = () => shiftGamePart(item, -1);
 
     const word = document.createElement('button');
@@ -838,15 +837,12 @@ function createGamePart(text, index) {
     down.type = 'button';
     down.className = 'move-arrow';
     down.textContent = '↓';
-    down.title = 'حرك لتحت';
-    down.setAttribute('aria-label', 'حرك المقطع لتحت');
     down.onclick = () => shiftGamePart(item, 1);
 
     item.append(up, word, down);
     return item;
 }
 
-// Tap a piece to move it between the available groups and the answer.
 function moveWord(item) {
     if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
     initAudio();
@@ -860,7 +856,6 @@ function moveWord(item) {
     updateGameCheckButton();
 }
 
-// Visually the answer goes from top to bottom for both Arabic and Coptic.
 function shiftGamePart(item, direction) {
     if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
     const ans = $('g-answer-area');
@@ -888,6 +883,7 @@ function updateGameCheckButton() {
         $('g-words-area').children.length > 0 ||
         $('g-answer-area').children.length !== currentWords.length ||
         !$('g-retry-btn').hidden ||
+        !$('g-next-game-btn').hidden ||
         remainingGameTries <= 0 ||
         gameSubmitting || gameFinished;
 }
@@ -900,7 +896,6 @@ $('g-check-btn').onclick = () => {
 
     const userSentence = answerParts.map(part => part.dataset.text).join(' ');
     const correctOrder = answerParts.every((part, i) => Number(part.dataset.index) === i);
-    // Identical phrases can be swapped without changing the actual hymn.
     const correctText = normGameText(userSentence) === currentGameTarget;
     const isWin = correctOrder || correctText;
 
@@ -946,8 +941,7 @@ $('g-check-btn').onclick = () => {
                 $('game-setup').hidden = false;
                 $('game-board-wrap').hidden = true;
                 $('btn-load-game').disabled = false;
-                $('game-setup').querySelector('p').textContent =
-                    'ممتاز! اختار لحن كمان لو حابب تلعب.';
+                $('game-setup').querySelector('p').textContent = 'ممتاز! اختار لحن كمان لو حابب تلعب.';
                 $('game-setup').querySelector('p').style.color = 'var(--fg)';
                 $('btn-load-game').textContent = 'العب لحن جديد 🔥';
             }, 3000);
@@ -962,8 +956,11 @@ $('g-check-btn').onclick = () => {
                 $('g-retry-btn').hidden = false;
             } else {
                 gameFinished = true;
-                msg.textContent = 'إجابة خاطئة ❌ انتهت المحاولتان.';
+                msg.textContent = 'إجابة خاطئة ❌ انتهت محاولاتك في اللحن ده.';
                 $('g-retry-btn').hidden = true;
+                
+                // إظهار زرار "جرب لحن جديد"
+                $('g-next-game-btn').hidden = false;
             }
 
             setTimeout(() => ansBox.classList.remove('wrong-anim'), 1000);
@@ -978,7 +975,6 @@ $('g-check-btn').onclick = () => {
     });
 };
 
-// Retry: keep the existing arrangement, then allow a second check.
 $('g-retry-btn').onclick = () => {
     if (gameFinished || gameSubmitting || remainingGameTries <= 0) return;
     $('g-retry-btn').hidden = true;
@@ -986,6 +982,12 @@ $('g-retry-btn').onclick = () => {
     $('g-msg').textContent = 'عدّل ترتيب القطع باستخدام الأسهم ثم تحقق من الإجابة.';
     $('g-msg').style.color = 'var(--fg)';
     updateGameCheckButton();
+};
+
+// برمجة زرار اللحن الجديد
+$('g-next-game-btn').onclick = () => {
+    $('g-next-game-btn').hidden = true;
+    $('btn-load-game').click();
 };
 
 /* --- دوال Challenge State الخاصة بتحدي المردات القديم --- */
