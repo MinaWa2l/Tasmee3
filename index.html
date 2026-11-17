@@ -151,13 +151,73 @@
   [hidden] { display: none !important; }
   #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; pointer-events: none; z-index: 100; }
   
-  /* --- iOS Style Bottom Bar --- */
-  .ios-bottom-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(15, 45, 89, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 40px; display: flex; padding: 10px 30px; gap: 50px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); z-index: 1000; }
-  @media (prefers-color-scheme: dark) { .ios-bottom-bar { background: rgba(10, 29, 59, 0.85); } }
-  .tab-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; cursor: pointer; transition: 0.3s; width: 60px; }
-  .tab-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px; transition: 0.3s; }
-  .tab-item span { font-size: 11px; font-weight: bold; }
-  .tab-item.active { color: #3b82f6; transform: translateY(-3px); }
+/* --- iOS 26 Liquid Glass Bottom Bar --- */
+.ios-bottom-bar { 
+  position: fixed; 
+  bottom: 20px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  background: rgba(15, 45, 89, 0.72); 
+  backdrop-filter: blur(22px) saturate(180%); 
+  -webkit-backdrop-filter: blur(22px) saturate(180%); 
+  border: 1px solid rgba(255, 255, 255, 0.16); 
+  border-radius: 50px; 
+  display: flex; 
+  padding: 6px; 
+  gap: 8px; 
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2); 
+  z-index: 1000; 
+}
+
+@media (prefers-color-scheme: dark) { 
+  .ios-bottom-bar { 
+    background: rgba(10, 29, 59, 0.75); 
+    border-color: rgba(59, 130, 246, 0.25);
+  } 
+}
+
+.tab-item { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center;
+  color: #94a3b8; 
+  cursor: pointer; 
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1); 
+  width: 82px; 
+  padding: 8px 12px;
+  border-radius: 40px;
+  border: 1px solid transparent;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-item svg { 
+  width: 22px; 
+  height: 22px; 
+  fill: currentColor; 
+  margin-bottom: 3px; 
+  transition: transform 0.3s ease; 
+}
+
+.tab-item span { 
+  font-size: 11px; 
+  font-weight: 800; 
+}
+
+/* كبسولة الهايلايت للتاب النشطة (Liquid Glass Pill) */
+.tab-item.active { 
+  color: #ffffff; 
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.45) 0%, rgba(37, 99, 235, 0.28) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transform: scale(1.02);
+}
+
+.tab-item.active svg {
+  transform: scale(1.1);
+  filter: drop-shadow(0 2px 6px rgba(59, 130, 246, 0.6));
+}
   
   /* --- Word Game Styles --- */
   .area-box { min-height: 80px; background: rgba(0,0,0,0.05); border: 2px dashed var(--line); border-radius: 12px; margin-bottom: 16px; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
