@@ -205,7 +205,6 @@
   font-weight: 800; 
 }
 
-/* كبسولة الهايلايت للتاب النشطة (Liquid Glass Pill) */
 .tab-item.active { 
   color: #ffffff; 
   background: linear-gradient(180deg, rgba(59, 130, 246, 0.45) 0%, rgba(37, 99, 235, 0.28) 100%);
@@ -229,7 +228,6 @@
   .wrong-anim { background-color: rgba(239, 68, 68, 0.2) !important; border-color: #ef4444 !important; animation: shake 0.4s; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
   
-/* Puzzle pieces: top-to-bottom order for Arabic and Coptic */
 #g-answer-area,
 #g-words-area {
     display: flex;
@@ -288,12 +286,101 @@
     opacity: 0.25;
     cursor: default;
 }
+
 /* --- Quiz Styles --- */
   .quiz-choice { background: var(--bg); border: 2px solid var(--line); color: var(--fg); padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; text-align: right; font-family: inherit; margin-bottom: 8px; }
   .quiz-choice:hover { border-color: #8b5cf6; }
   .quiz-choice.correct { background: rgba(16, 185, 129, 0.15) !important; border-color: #10b981 !important; color: #10b981 !important; }
   .quiz-choice.wrong { background: rgba(239, 68, 68, 0.15) !important; border-color: #ef4444 !important; color: #ef4444 !important; animation: shake 0.4s; }
   .quiz-correct-ans { border-color: #10b981 !important; color: #10b981 !important; }
+
+/* --- Game Arena Enhancements (New Cards) --- */
+.game-mode-card {
+    background: var(--card);
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: right;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    color: var(--fg);
+    box-sizing: border-box;
+}
+.game-mode-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.game-mode-card:active {
+    transform: scale(0.97);
+}
+.game-mode-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: white;
+}
+.game-mode-icon svg {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+}
+.game-mode-details {
+    flex: 1;
+}
+.game-mode-title {
+    font-size: 17px;
+    font-weight: 900;
+    margin: 0 0 4px 0;
+}
+.game-mode-desc {
+    font-size: 12px;
+    opacity: 0.7;
+    margin: 0;
+    line-height: 1.4;
+}
+/* Specific Cards */
+.card-sort { border-color: rgba(59, 130, 246, 0.3); }
+.card-sort .game-mode-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.card-sort .game-mode-title { color: #2563eb; }
+.card-sort:hover { border-color: #3b82f6; }
+
+.card-quiz { border-color: rgba(139, 92, 246, 0.3); }
+.card-quiz .game-mode-icon { background: linear-gradient(135deg, #a855f7, #7e22ce); }
+.card-quiz .game-mode-title { color: #7e22ce; }
+.card-quiz:hover { border-color: #8b5cf6; }
+
+.game-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #fef3c7;
+    color: #d97706;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 4px 8px;
+    border-radius: 20px;
+    border: 1px solid #fde68a;
+}
+.game-mode-card:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+.game-mode-card:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
 </style>
 </head>
 <body>
@@ -421,45 +508,67 @@
     </div>
   </div>
 
-<!-- تاب الألعاب الجديدة -->
+  <!-- تاب الألعاب الجديدة -->
   <div id="games-tab" class="tab-content" hidden>
     <div class="section-card">
       <div class="section-title" style="justify-content: center; font-size: 18px;">
-        🎮 ساحة الألعاب
+        <svg viewBox="0 0 24 24" style="fill: var(--accent);"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+        ساحة الألعاب
       </div>
       
       <!-- شاشة اختيار اللعبة -->
-      <div id="game-selector" style="text-align: center; padding: 20px 0;">
-        <p id="g-setup-msg" style="font-weight: bold; margin-bottom: 20px;">اختر اسمك من الرئيسية لتتمكن من اللعب.</p>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <button id="btn-load-game" class="send-btn" disabled>🧩 ترتيب الكلمات (بمكافأة 🎟️)</button>
-          <button id="btn-quiz-game" class="send-btn" style="background: #8b5cf6;" disabled>🎤 المرد وردّه (تدريب للقداس)</button>
+      <div id="game-selector" style="padding: 10px 0;">
+        <p id="g-setup-msg" style="font-weight: bold; margin-bottom: 20px; text-align: center;">اختر اسمك من الرئيسية لتتمكن من اللعب.</p>
+        
+        <div id="game-cards-container" style="display: flex; flex-direction: column;">
+          
+          <button id="btn-load-game" class="game-mode-card card-sort" disabled>
+            <div class="game-badge">مكافأة كوبونات</div>
+            <div class="game-mode-icon">
+              <svg viewBox="0 0 24 24"><path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/></svg>
+            </div>
+            <div class="game-mode-details">
+              <h4 class="game-mode-title">ترتيب الكلمات</h4>
+              <p class="game-mode-desc">رتّب مقاطع اللحن بشكل صحيح لتفوز بالكوبونات.</p>
+            </div>
+          </button>
+
+          <button id="btn-quiz-game" class="game-mode-card card-quiz" disabled>
+            <div class="game-mode-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+            </div>
+            <div class="game-mode-details">
+              <h4 class="game-mode-title">المرد وردّه</h4>
+              <p class="game-mode-desc">تدريب عملي على مردات القداس استجابةً لصلاة الكاهن.</p>
+            </div>
+          </button>
+
         </div>
       </div>
       
       <!-- واجهة ترتيب الكلمات -->
       <div id="game-board-wrap" hidden>
-        <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">🔙 رجوع للساحة</button>
+        <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">رجوع للساحة</button>
         <h3 id="g-piece-title" style="color:var(--accent); text-align:center; font-family: 'Marhey', sans-serif;"></h3>
         <p style="text-align: center; font-size: 12px; opacity: 0.8; margin-bottom: 12px;">رتّب المقاطع من فوق لتحت لتكوين اللحن الصحيح</p>
         <div id="g-answer-area" class="area-box"></div>
         <div id="g-words-area" class="area-box"></div>
-        <button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة ✔️</button>
-        <button id="g-retry-btn" class="action-btn" style="background:#f59e0b; margin-top:10px;" hidden>حاول مرة تانية 🔄</button>
-        <button id="g-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد 🆕</button>
+        <button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة</button>
+        <button id="g-retry-btn" class="action-btn" style="background:#f59e0b; margin-top:10px;" hidden>حاول مرة تانية</button>
+        <button id="g-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد</button>
         <div id="g-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 18px;"></div>
       </div>
 
       <!-- واجهة المرد ورده -->
       <div id="quiz-board-wrap" hidden>
-        <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">🔙 رجوع للساحة</button>
+        <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">رجوع للساحة</button>
         <div style="background: rgba(139,92,246,0.1); border: 1px solid #8b5cf6; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px;">
           <div id="q-situation" style="font-size: 12px; color: #8b5cf6; font-weight: bold; margin-bottom: 8px;"></div>
           <div id="q-priest" style="font-size: 18px; font-weight: bold; line-height: 1.5; color: var(--fg);"></div>
         </div>
         <div id="q-choices" style="display: flex; flex-direction: column;"></div>
         <div id="q-msg" style="text-align:center; margin-top:16px; font-weight:bold; font-size: 16px;"></div>
-        <button id="btn-next-quiz" class="action-btn" style="background:#8b5cf6; margin-top:16px;" hidden>السؤال التالي ⏭️</button>
+        <button id="btn-next-quiz" class="action-btn" style="background:#8b5cf6; margin-top:16px;" hidden>السؤال التالي</button>
       </div>
 
     </div>
@@ -481,7 +590,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.19'; 
+const VERSION = 'v2.20 (Game UI Pro)'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -645,9 +754,12 @@ function showNames() {
 function pickName(n) {
   $('name').value = n; $('names').hidden = true; $('name').blur();
   updatePieces(n); fetchHistory(n); fetchAttendance(n); loadChallenge(n);
-  // تحديث حالة اللعبة في حالة التنقل
-  $('btn-load-game').disabled = false;
-  $('game-setup').querySelector('p').textContent = `جاهز للتحدي يا ${n}؟ لك محاولتين فقط إذا أخطأت!`;
+  
+  if ($('btn-load-game')) {
+    $('btn-load-game').disabled = false;
+    $('btn-quiz-game').disabled = false;
+    $('g-setup-msg').textContent = `أهلاً بك يا ${n}! اختار اللعبة اللي تعجبك:`;
+  }
 }
 
 $('name').addEventListener('focus', () => { $('name').select(); showNames(); });
@@ -719,16 +831,16 @@ function switchTab(tabId) {
     el.classList.toggle('active', (tabId === 'main' ? idx === 0 : idx === 1));
   });
   
-if (tabId === 'games') {
+  if (tabId === 'games') {
     const n = $('name').value;
     if (!allNames.includes(n)) {
       $('btn-load-game').disabled = true;
       $('btn-quiz-game').disabled = true;
-      $('game-selector').querySelector('p').textContent = 'اختر اسمك من الرئيسية لتتمكن من اللعب.';
+      $('g-setup-msg').textContent = 'اختر اسمك من الرئيسية لتتمكن من اللعب.';
     } else {
       $('btn-load-game').disabled = false;
       $('btn-quiz-game').disabled = false;
-      $('game-selector').querySelector('p').textContent = `أهلاً بك يا ${n}! اختار اللعبة اللي تعجبك:`;
+      $('g-setup-msg').textContent = `أهلاً بك يا ${n}! اختار اللعبة اللي تعجبك:`;
     }
   }
 }
@@ -749,10 +861,9 @@ function normGameText(txt) {
 }
 
 $('btn-load-game').onclick = () => {
-   $('game-selector').hidden = true; // إخفاء شاشة الاختيار
+   $('game-selector').hidden = true;
    const n = $('name').value;
-   $('btn-load-game').disabled = true;
-   $('btn-load-game').textContent = '⏳ جارٍ التحميل...';
+   $('g-setup-msg').textContent = '⏳ جارٍ تحميل اللعبة...';
 
    fetch(API, { method: 'POST', body: JSON.stringify({action: 'getGame', name: n}) })
    .then(r => r.json())
@@ -762,15 +873,13 @@ $('btn-load-game').onclick = () => {
          $('game-board-wrap').hidden = true;
          $('g-setup-msg').textContent = d.error;
          $('g-setup-msg').style.color = '#dc2626';
-         $('btn-load-game').hidden = true;
          return;
       }
       setupGameBoard(d.game);
    })
    .catch(e => {
       $('game-selector').hidden = false;
-      $('btn-load-game').textContent = '🧩 ترتيب الكلمات (بمكافأة 🎟️)';
-      $('btn-load-game').disabled = false;
+      $('g-setup-msg').textContent = 'أهلاً بك يا ' + n + '! اختار اللعبة اللي تعجبك:';
       alert('⚠️ خطأ في الاتصال بالانترنت');
    });
 };
@@ -824,7 +933,7 @@ function setupGameBoard(game) {
 
     $('g-check-btn').hidden = true;
     $('g-check-btn').disabled = false;
-    $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
+    $('g-check-btn').textContent = 'تحقق من الإجابة';
     $('g-retry-btn').hidden = true;
     $('g-next-game-btn').hidden = true;
 
@@ -942,7 +1051,7 @@ $('g-check-btn').onclick = () => {
     .then(d => {
         gameSubmitting = false;
         $('g-check-btn').disabled = false;
-        $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
+        $('g-check-btn').textContent = 'تحقق من الإجابة';
 
         if (d.error) {
             msg.textContent = d.error;
@@ -954,7 +1063,7 @@ $('g-check-btn').onclick = () => {
         if (isWin) {
             gameFinished = true;
             ansBox.classList.add('correct-anim');
-            msg.textContent = 'برافو عليك! 🎉 كسبت 5 كوبون 🎟️';
+            msg.textContent = 'برافو عليك! كسبت 5 كوبون';
             msg.style.color = '#10b981';
             $('g-check-btn').hidden = true;
             $('g-retry-btn').hidden = true;
@@ -964,10 +1073,8 @@ $('g-check-btn').onclick = () => {
             setTimeout(() => {
                 $('game-selector').hidden = false;
                 $('game-board-wrap').hidden = true;
-                $('btn-load-game').disabled = false;
-                $('g-setup-msg').textContent = 'ممتاز! اختار لحن كمان لو حابب تلعب.';
+                $('g-setup-msg').textContent = 'ممتاز! اختار لعبة كمان لو حابب.';
                 $('g-setup-msg').style.color = 'var(--fg)';
-                $('btn-load-game').textContent = '🧩 ترتيب الكلمات (بمكافأة 🎟️)';
             }, 3000);
         } else {
             remainingGameTries--;
@@ -976,11 +1083,11 @@ $('g-check-btn').onclick = () => {
             $('g-check-btn').hidden = true;
 
             if (remainingGameTries > 0) {
-                msg.textContent = 'إجابة خاطئة ❌ متبقي محاولة واحدة. عدّل الترتيب وجرب تاني.';
+                msg.textContent = 'إجابة خاطئة. متبقي محاولة واحدة، عدّل الترتيب وجرب تاني.';
                 $('g-retry-btn').hidden = false;
             } else {
                 gameFinished = true;
-                msg.textContent = 'إجابة خاطئة ❌ انتهت محاولاتك في اللحن ده.';
+                msg.textContent = 'إجابة خاطئة. انتهت محاولاتك في اللحن ده.';
                 $('g-retry-btn').hidden = true;
                 $('g-next-game-btn').hidden = false;
             }
@@ -991,7 +1098,7 @@ $('g-check-btn').onclick = () => {
     .catch(e => {
         gameSubmitting = false;
         $('g-check-btn').disabled = false;
-        $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
+        $('g-check-btn').textContent = 'تحقق من الإجابة';
         updateGameCheckButton();
         alert('⚠️ خطأ في الاتصال بالانترنت');
     });
@@ -1006,7 +1113,6 @@ $('g-retry-btn').onclick = () => {
     updateGameCheckButton();
 };
 
-// برمجة زرار اللحن الجديد
 $('g-next-game-btn').onclick = () => {
     $('g-next-game-btn').hidden = true;
     $('btn-load-game').click();
@@ -1102,7 +1208,6 @@ function fetchAttendance(name) {
       if (!records.length) { $('graph-section').hidden = true; return; }
       $('graph-section').hidden = false; updateChart(records);
       
-      // الجزء اللي كان ممسوح ورجعناه (كروت الحضور)
       records.forEach(item => {
         const card = document.createElement('div');
         card.className = 'att-card';
@@ -1135,13 +1240,12 @@ $('history-list').addEventListener('click', e => {
 });
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
-  function backToGameSelector() {
+  
+function backToGameSelector() {
     $('game-board-wrap').hidden = true;
     $('quiz-board-wrap').hidden = true;
     $('game-selector').hidden = false;
 }
-
-
 
 /* --- لعبة المرد وردّه --- */
 let currentQuizAnswer = "";
@@ -1188,20 +1292,18 @@ function loadQuiz() {
 }
 
 function checkQuizAnswer(btn, chosen) {
-   // قفل كل الزراير
    Array.from($('q-choices').children).forEach(b => b.disabled = true);
    
    if (chosen === currentQuizAnswer) {
       btn.classList.add('correct');
       $('q-msg').innerHTML = 'إجابة صحيحة! برافو عليك 👏';
       $('q-msg').style.color = '#10b981';
-      playWinSound(); // صوت الفوز
+      playWinSound();
    } else {
       btn.classList.add('wrong');
       $('q-msg').innerHTML = 'للأسف إجابة خاطئة ❌';
       $('q-msg').style.color = '#ef4444';
       
-      // توضيح الإجابة الصح
       Array.from($('q-choices').children).forEach(b => {
          if (b.textContent === currentQuizAnswer) {
             b.classList.add('quiz-correct-ans');
