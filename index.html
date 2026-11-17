@@ -1166,7 +1166,8 @@ function loadQuiz() {
    $('q-msg').textContent = '';
    $('btn-next-quiz').hidden = true;
    
-   fetch(API, { method: 'POST', body: JSON.stringify({action: 'getQuiz'}) })
+   const currentPriestTxt = $('q-priest') ? $('q-priest').textContent : '';
+   fetch(API, { method: 'POST', body: JSON.stringify({action: 'getQuiz', last: currentPriestTxt}) })
    .then(r => r.json())
    .then(d => {
       if (d.error) {
