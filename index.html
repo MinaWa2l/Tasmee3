@@ -4,16 +4,15 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 <title>مدرسة الشمامسة</title>
-  <link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f2d59">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="مدرسة الشمامسة">
 <link rel="apple-touch-icon" href="logo_hifz_192.png">
 <style>
-  /* Light Mode */
   :root { 
     --bg: #f4f6f9; 
     --fg: #111827; 
@@ -24,7 +23,6 @@
     --rec: #c0392b; 
   }
 
-  /* Dark Mode */
   @media (prefers-color-scheme: dark) {
     :root { 
       --bg: #020f24;
@@ -37,9 +35,9 @@
     }
   }
   
-  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 12px; display: flex; justify-content: center; }
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 0; padding: 12px; display: flex; justify-content: center; overflow-x: hidden; }
   
-  main { width: 100%; max-width: 420px; background: var(--bg); padding: 18px 0; box-sizing: border-box; }
+  main { width: 100%; max-width: 420px; background: var(--bg); padding: 18px 0 90px 0; box-sizing: border-box; } /* 90px padding bottom for iOS bar */
   
   .top-header { display: flex; flex-direction: row; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
   .logo { width: 80px; height: 80px; border-radius: 14px; object-fit: contain; background: var(--accent-light); padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex-shrink: 0; }
@@ -53,17 +51,7 @@
   .profile-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 12px; }
   .profile-row .combo { flex: 1; }
   
-  .coupons-box { 
-    background: linear-gradient(135deg, #ffd700, #ffaa00); 
-    border: 2px solid #e68a00; 
-    border-radius: 10px; 
-    padding: 8px 12px; 
-    text-align: center; 
-    display: flex; flex-direction: column; justify-content: center; 
-    min-width: 60px; height: 46px;
-    box-shadow: 0 4px 12px rgba(255, 170, 0, 0.3); 
-    transform: scale(0); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
+  .coupons-box { background: linear-gradient(135deg, #ffd700, #ffaa00); border: 2px solid #e68a00; border-radius: 10px; padding: 8px 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; min-width: 60px; height: 46px; box-shadow: 0 4px 12px rgba(255, 170, 0, 0.3); transform: scale(0); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .coupons-box.show { transform: scale(1); }
   .c-label { font-size: 10px; font-weight: 900; color: #5c3a00; margin-bottom: 2px; }
   .c-val { font-size: 18px; font-weight: 900; color: #2e1d00; font-family: monospace; line-height: 1; }
@@ -81,11 +69,7 @@
   
   .plink-btn { flex: 0 0 52px; display: flex; align-items: center; justify-content: center; background: var(--accent); border: none; color: #fff; border-radius: 10px; text-decoration: none; font-size: 20px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; }
   .plink-btn::after { content: ''; position: absolute; inset: 0; border-radius: 10px; border: 2px solid var(--accent); animation: link-pulse 1.5s infinite; pointer-events: none; }
-  
-  @keyframes link-pulse {
-    0% { transform: scale(1); opacity: 0.8; }
-    100% { transform: scale(1.35); opacity: 0; }
-  }
+  @keyframes link-pulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.35); opacity: 0; } }
   option.closed-opt { font-size: 11px; color: #7a8a85; }
 
   .combo { position: relative; }
@@ -100,117 +84,49 @@
   .prog-bar-bg { width: 100%; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
   #prog-bar-fill { height: 100%; background: hsl(0, 70%, 42%); width: 0%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s; }
 
-  @keyframes alert-glow {
-    0% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.3); border-color: rgba(220, 38, 38, 0.5); }
-    50% { box-shadow: 0 0 12px rgba(220, 38, 38, 0.8); border-color: #dc2626; }
-    100% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.3); border-color: rgba(220, 38, 38, 0.5); }
-  }
+  @keyframes alert-glow { 0% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.3); border-color: rgba(220, 38, 38, 0.5); } 50% { box-shadow: 0 0 12px rgba(220, 38, 38, 0.8); border-color: #dc2626; } 100% { box-shadow: 0 0 4px rgba(220, 38, 38, 0.3); border-color: rgba(220, 38, 38, 0.5); } }
   .needs-attention { animation: alert-glow 1.5s infinite; }
 
   /* --- Challenge Section UI --- */
   .challenge-trigger { background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; color: white; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 12px; box-shadow: 0 8px 16px rgba(139,92,246,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; animation: chal-pulse 2s infinite; margin-bottom: 16px; }
   @keyframes chal-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
-  
   .chal-card { background: linear-gradient(180deg, #1e1b4b, #312e81); border: 2px solid #4f46e5; padding: 20px; border-radius: 16px; color: white; text-align: center; margin-bottom: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; overflow: hidden; }
   .chal-title { font-size: 18px; font-weight: 900; margin: 0 0 16px; color: #a5b4fc; }
+  .chal-rew { display: inline-block; background: linear-gradient(135deg, #f59e0b, #ea580c); padding: 12px 28px; border-radius: 30px; font-size: 18px; font-weight: 900; color: #fff; box-shadow: 0 0 15px rgba(245, 158, 11, 0.6); margin-bottom: 24px; border: 2px solid #fde68a; }
+  .chal-piece { font-family: 'Segoe UI', sans-serif; font-size: 28px; font-weight: 900; color: #ffffff; margin: 10px 0 24px 0; padding: 16px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.4); text-shadow: 0 2px 6px rgba(0,0,0,0.8); }
   
-  .chal-rew { display: inline-block; background: linear-gradient(135deg, #f59e0b, #ea580c); padding: 12px 28px; border-radius: 30px; font-size: 18px; font-weight: 900; color: #fff; box-shadow: 0 0 15px rgba(245, 158, 11, 0.6); margin-bottom: 24px; border: 2px solid #fde68a; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
-  
-  .chal-piece { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 28px; font-weight: 900; color: #ffffff; margin: 10px 0 24px 0; padding: 16px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.4); box-shadow: inset 0 0 15px rgba(0,0,0,0.2); text-shadow: 0 2px 6px rgba(0,0,0,0.8); line-height: 1.4; letter-spacing: 0.5px; }
-  
-  /* --- Ultimate Spinner Wheel CSS --- */
-  .spinner-window {
-      height: 70px;
-      overflow: hidden;
-      position: relative;
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 12px;
-      border: 2px solid #fde68a;
-      margin: 16px 0 24px 0;
-      box-shadow: inset 0 0 25px rgba(0,0,0,0.9);
-      transition: all 0.3s;
-  }
-  @keyframes win-pulse {
-      0% { box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 0 0 rgba(251, 191, 36, 0); }
-      50% { box-shadow: inset 0 0 15px rgba(251, 191, 36, 0.5), 0 0 40px rgba(251, 191, 36, 0.9); border-color: #fff; }
-      100% { box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 0 15px rgba(251, 191, 36, 0.3); }
-  }
-  .spinner-window.win {
-      animation: win-pulse 1.5s ease-out;
-      border-color: #fbbf24;
-  }
-  .spinner-track {
-      display: flex;
-      flex-direction: column;
-      will-change: transform;
-  }
-  .spinner-track.spinning {
-      filter: blur(2px); /* Motion blur for realism */
-  }
-  .spinner-item {
-      height: 70px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Segoe UI', sans-serif;
-      font-size: 26px;
-      font-weight: 900;
-      color: #e2e8f0;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.9);
-  }
-  .spinner-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(30,27,75,1) 0%, rgba(30,27,75,0) 30%, rgba(30,27,75,0) 70%, rgba(30,27,75,1) 100%);
-      pointer-events: none;
-  }
-  .spinner-target {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 70px;
-      transform: translateY(-50%);
-      border-top: 3px solid rgba(251, 191, 36, 0.8);
-      border-bottom: 3px solid rgba(251, 191, 36, 0.8);
-      background: rgba(255, 255, 255, 0.08);
-      pointer-events: none;
-      box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
-  }
+  .spinner-window { height: 70px; overflow: hidden; position: relative; background: rgba(0, 0, 0, 0.6); border-radius: 12px; border: 2px solid #fde68a; margin: 16px 0 24px 0; box-shadow: inset 0 0 25px rgba(0,0,0,0.9); transition: all 0.3s; }
+  @keyframes win-pulse { 0% { box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 0 0 rgba(251, 191, 36, 0); } 50% { box-shadow: inset 0 0 15px rgba(251, 191, 36, 0.5), 0 0 40px rgba(251, 191, 36, 0.9); border-color: #fff; } 100% { box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 0 15px rgba(251, 191, 36, 0.3); } }
+  .spinner-window.win { animation: win-pulse 1.5s ease-out; border-color: #fbbf24; }
+  .spinner-track { display: flex; flex-direction: column; will-change: transform; }
+  .spinner-track.spinning { filter: blur(2px); }
+  .spinner-item { height: 70px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: #e2e8f0; text-shadow: 0 2px 6px rgba(0,0,0,0.9); }
+  .spinner-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(30,27,75,1) 0%, rgba(30,27,75,0) 30%, rgba(30,27,75,0) 70%, rgba(30,27,75,1) 100%); pointer-events: none; }
+  .spinner-target { position: absolute; top: 50%; left: 0; right: 0; height: 70px; transform: translateY(-50%); border-top: 3px solid rgba(251, 191, 36, 0.8); border-bottom: 3px solid rgba(251, 191, 36, 0.8); background: rgba(255, 255, 255, 0.08); pointer-events: none; box-shadow: 0 0 10px rgba(251, 191, 36, 0.2); }
 
   .chal-btn { background: #10b981; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 48%; }
   .chal-reroll { background: #f59e0b; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 48%; }
   .chal-reroll:disabled { background: #4b5563; color: #9ca3af; }
 
-  /* --- Lists (History & Attendance) --- */
   #history-list { max-height: 140px; overflow-y: auto; padding-left: 4px; }
   .h-card { padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
-  .h-card:last-child { border-bottom: none; padding-bottom: 0; }
   .h-title { font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-  .s-pending { color: #d97706; } 
-  .s-approved { color: #16a34a; } 
-  .s-rejected { color: #dc2626; } 
+  .s-pending { color: #d97706; } .s-approved { color: #16a34a; } .s-rejected { color: #dc2626; } 
   .h-comment { margin-top: 4px; font-size: 13px; font-style: italic; color: var(--accent); opacity: 0.9; }
 
   #attendance-list { max-height: 140px; overflow-y: auto; padding-left: 4px; }
   .att-card { padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
-  .att-card:last-child { border-bottom: none; padding-bottom: 0; }
   .att-date { font-weight: bold; font-size: 13px; }
   .att-tags { display: flex; gap: 6px; }
   .att-tag { padding: 4px 6px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #fff; }
-  .att-yes { background: #16a34a; } 
-  .att-no { background: #dc2626; opacity: 0.8; }
+  .att-yes { background: #16a34a; } .att-no { background: #dc2626; opacity: 0.8; }
   .att-na { background: transparent; color: var(--fg); opacity: .45; border: 1px dashed var(--fg); padding: 3px 5px; }
 
-  /* --- Mini Audio Player --- */
-  .mini-play { width: auto !important; min-width: 0 !important; background: transparent !important; border: none !important; color: var(--accent); padding: 0 4px !important; margin: 0; font-size: 16px; cursor: pointer; line-height: 1; transition: transform 0.2s; display: inline-flex; align-items: center; justify-content: center; }
-  .mini-play:hover { transform: scale(1.2); }
-  .mini-play svg { width: 16px; height: 16px; fill: currentColor; display: block; }
+  .mini-play { width: auto !important; min-width: 0 !important; background: transparent !important; border: none !important; color: var(--accent); padding: 0 4px !important; margin: 0; font-size: 16px; cursor: pointer; transition: transform 0.2s; display: inline-flex; align-items: center; }
+  .mini-play svg { width: 16px; height: 16px; fill: currentColor; }
   @keyframes icon-spin { 100% { transform: rotate(360deg); } }
   .spin-icon { animation: icon-spin 1s linear infinite; }
   
-  /* --- Record Button Area --- */
   #recwrap { text-align: center; margin-top: 20px; }
   button.mic { width: 84px; height: 84px; padding: 0; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: var(--accent); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
   button.mic svg { width: 36px; height: 36px; fill: #fff; }
@@ -227,158 +143,199 @@
   #msg.box b { display: block; font-size: 16px; margin-bottom: 4px; }
   #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
   #msg.err { background: #fbe9e7; color: #8f2a1f; border: 1px solid #c0392b; }
-  @media (prefers-color-scheme: dark) {
-    #msg.ok { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
-    #msg.err { background: #3d2220; color: #f3c1ba; }
-  }
   
   button.send-btn { background: var(--accent); color: #fff; margin-top: 16px; border: none; font-weight: bold; }
   button.alt { background: transparent; color: var(--fg); border: 1px solid var(--line); margin-top: 10px; }
   button:disabled { opacity: .5; cursor: not-allowed; }
   audio { width: 100%; margin-top: 16px; height: 44px; }
   [hidden] { display: none !important; }
-  #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; direction: ltr; pointer-events: none; user-select: none; z-index: 100; }
+  #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; pointer-events: none; z-index: 100; }
   
-  @media (min-width: 768px) {
-    main { max-width: 900px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-    .top-header { grid-column: 1 / -1; margin-bottom: 0; }
-    .section-card { margin-bottom: 0; height: 100%; box-sizing: border-box; }
-  }
+  /* --- iOS Style Bottom Bar --- */
+  .ios-bottom-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(15, 45, 89, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 40px; display: flex; padding: 10px 30px; gap: 50px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); z-index: 1000; }
+  @media (prefers-color-scheme: dark) { .ios-bottom-bar { background: rgba(10, 29, 59, 0.85); } }
+  .tab-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; cursor: pointer; transition: 0.3s; width: 60px; }
+  .tab-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px; transition: 0.3s; }
+  .tab-item span { font-size: 11px; font-weight: bold; }
+  .tab-item.active { color: #3b82f6; transform: translateY(-3px); }
+  
+  /* --- Word Game Styles --- */
+  .area-box { min-height: 80px; background: rgba(0,0,0,0.05); border: 2px dashed var(--line); border-radius: 12px; margin-bottom: 16px; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
+  @media (prefers-color-scheme: dark) { .area-box { background: rgba(255,255,255,0.02); } }
+  .word-btn { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+  .word-btn:active { transform: scale(0.9); }
+  .action-btn { background: #10b981; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; }
+  .correct-anim { background-color: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
+  .wrong-anim { background-color: rgba(239, 68, 68, 0.2) !important; border-color: #ef4444 !important; animation: shake 0.4s; }
+  @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
 </style>
 </head>
 <body>
 <div id="ver"></div>
 <main>
   <div class="top-header">
-    <img class="logo" src="logo_hifz_512.png" alt="مدرسة القديس استفانوس للشمامسة">
+    <img class="logo" src="logo_hifz_512.png" alt="مدرسة الشمامسة">
     <div class="header-text">
       <h1>Ϯⲁⲛⲍⲏⲃ ⲛ̀ⲧⲉ ⲡⲓⲁⲋⲓⲟⲥ<br>ⲥ̀ⲧⲉⲫⲁⲛⲟⲥ ⲡⲓⲁⲣⲭⲓⲇⲓⲁⲕⲱⲛ</h1>
     </div>
   </div>
 
-  <div class="section-card">
-    <div class="section-title">
-    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-    بيانات الشماس
-  </div>
-    
-    <div class="profile-row">
-      <div class="combo">
-        <label for="name">الاسم</label>
-        <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
-        <ul id="names" hidden></ul>
+  <!-- التاب الأساسية -->
+  <div id="main-tab" class="tab-content active-tab">
+    <div class="section-card">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        بيانات الشماس
       </div>
-      <div class="coupons-box" id="coupons-box">
-        <span class="c-label">كوبونات 🎟️</span>
-        <span id="c-val" class="c-val">0</span>
-      </div>
-    </div>
-
-    <div id="attendance" hidden>
-      <div id="attendance-list"></div>
-    </div>
-  </div>
-
-  <div class="section-card">
-    <div class="section-title">
-    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
-    التسجيل
-  </div>
-    
-    <div id="progwrap" hidden>
-      <div class="prog-text">
-        <span>مردات الهيكل</span>
-        <span id="prog-val">0%</span>
-      </div>
-      <div class="prog-bar-bg">
-        <div id="prog-bar-fill"></div>
-      </div>
-    </div>
-
-    <button id="chal-trig" class="challenge-trigger" hidden>🎁 صندوق تحدي المردات</button>
-
-    <div id="chal-card" class="chal-card" hidden>
-      <div class="chal-title">🎲 تحدي المردات</div>
-      <div id="chal-content">
-        <p style="font-size:14px; opacity:0.8; margin-bottom:16px;">مستعد لاختبار قوة حفظك؟</p>
-        <button id="chal-open" class="chal-btn" style="width:100%;">افتح الصندوق الآن!</button>
-      </div>
-      <div id="chal-play" hidden>
-        <div class="chal-rew">المكافأة: <span id="chal-cval"></span> 🎟️</div>
-        
-        <div id="chal-pname" class="chal-piece"></div>
-        
-        <!-- 🎰 العجلة المطورة -->
-        <div id="spinner-window" class="spinner-window" hidden>
-            <div id="spinner-track" class="spinner-track"></div>
-            <div class="spinner-overlay"></div>
-            <div class="spinner-target"></div>
+      <div class="profile-row">
+        <div class="combo">
+          <label for="name">الاسم</label>
+          <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
+          <ul id="names" hidden></ul>
         </div>
-
-        <div id="chal-actions" style="display:flex; justify-content:space-between; gap:10px;">
-          <button id="chal-rec-btn" class="chal-btn">بدء التسجيل</button>
-          <button id="chal-reroll" class="chal-reroll">تغيير (يتبقى <span id="chal-rem"></span>)</button>
+        <div class="coupons-box" id="coupons-box">
+          <span class="c-label">كوبونات 🎟️</span>
+          <span id="c-val" class="c-val">0</span>
         </div>
       </div>
-      <div id="chal-msg" style="font-size:16px; font-weight:bold; margin-top:16px; color:#a7f3d0;" hidden></div>
+      <div id="attendance" hidden>
+        <div id="attendance-list"></div>
+      </div>
     </div>
 
-    <div id="regular-inputs">
-      <div class="input-row">
-        <div>
-          <label for="category">النوع</label>
-          <select id="category">
-            <option value="مردات">مردات</option>
-            <option value="ألحان">ألحان</option>
-          </select>
+    <div class="section-card">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+        التسجيل
+      </div>
+      
+      <div id="progwrap" hidden>
+        <div class="prog-text">
+          <span>مردات الهيكل</span>
+          <span id="prog-val">0%</span>
         </div>
-        <div>
-          <label for="piece">المحفوظ</label>
-          <div class="piece-row">
-            <select id="piece"><option>جارٍ التحميل...</option></select>
-            <a id="plink" class="plink-btn" target="_blank" rel="noopener" aria-label="رابط المحفوظ" hidden>▶</a>
+        <div class="prog-bar-bg"><div id="prog-bar-fill"></div></div>
+      </div>
+
+      <button id="chal-trig" class="challenge-trigger" hidden>🎁 صندوق تحدي المردات</button>
+
+      <div id="chal-card" class="chal-card" hidden>
+        <div class="chal-title">🎲 تحدي المردات</div>
+        <div id="chal-content">
+          <p style="font-size:14px; opacity:0.8; margin-bottom:16px;">مستعد لاختبار قوة حفظك؟</p>
+          <button id="chal-open" class="chal-btn" style="width:100%;">افتح الصندوق الآن!</button>
+        </div>
+        <div id="chal-play" hidden>
+          <div class="chal-rew">المكافأة: <span id="chal-cval"></span> 🎟️</div>
+          <div id="chal-pname" class="chal-piece"></div>
+          
+          <div id="spinner-window" class="spinner-window" hidden>
+              <div id="spinner-track" class="spinner-track"></div>
+              <div class="spinner-overlay"></div>
+              <div class="spinner-target"></div>
+          </div>
+
+          <div id="chal-actions" style="display:flex; justify-content:space-between; gap:10px;">
+            <button id="chal-rec-btn" class="chal-btn">بدء التسجيل</button>
+            <button id="chal-reroll" class="chal-reroll">تغيير (يتبقى <span id="chal-rem"></span>)</button>
+          </div>
+        </div>
+        <div id="chal-msg" style="font-size:16px; font-weight:bold; margin-top:16px; color:#a7f3d0;" hidden></div>
+      </div>
+
+      <div id="regular-inputs">
+        <div class="input-row">
+          <div>
+            <label for="category">النوع</label>
+            <select id="category">
+              <option value="مردات">مردات</option>
+              <option value="ألحان">ألحان</option>
+            </select>
+          </div>
+          <div>
+            <label for="piece">المحفوظ</label>
+            <div class="piece-row">
+              <select id="piece"><option>جارٍ التحميل...</option></select>
+              <a id="plink" class="plink-btn" target="_blank" rel="noopener" aria-label="رابط المحفوظ" hidden>▶</a>
+            </div>
           </div>
         </div>
       </div>
+
+      <div id="recwrap">
+        <button id="rec" class="mic" aria-label="تسجيل">
+          <svg class="micic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15zm6-3.5a1 1 0 0 0-2 0 4 4 0 0 1-8 0 1 1 0 0 0-2 0 6 6 0 0 0 5 5.9V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.6a6 6 0 0 0 5-5.9z"/></svg>
+          <svg class="stopic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        </button>
+        <div id="lbl">اضغط للتسجيل</div>
+      </div>
+      
+      <audio id="preview" controls hidden></audio>
+      <div id="after" hidden>
+        <button id="send" class="send-btn">إرسال</button>
+        <button id="redo" class="alt">إعادة التسجيل</button>
+      </div>
+      <div id="msg" role="status"></div>
     </div>
 
-    <div id="recwrap">
-      <button id="rec" class="mic" aria-label="تسجيل">
-        <svg class="micic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 0 0-7 0v6A3.5 3.5 0 0 0 12 15zm6-3.5a1 1 0 0 0-2 0 4 4 0 0 1-8 0 1 1 0 0 0-2 0 6 6 0 0 0 5 5.9V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.6a6 6 0 0 0 5-5.9z"/></svg>
-        <svg class="stopic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-      </button>
-      <div id="lbl">اضغط للتسجيل</div>
+    <div class="section-card" id="history" hidden>
+      <div class="section-title">
+        <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        سجل التسميع
+      </div>
+      <div id="history-list"></div>
     </div>
     
-    <audio id="preview" controls hidden></audio>
-    <div id="after" hidden>
-      <button id="send" class="send-btn">إرسال</button>
-      <button id="redo" class="alt">إعادة التسجيل</button>
+    <div class="section-card" id="graph-section" hidden>
+      <div class="section-title">
+        <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/></svg>
+        مؤشر الحضور
+      </div>
+      <canvas id="attendanceChart"></canvas>
     </div>
-    <div id="msg" role="status"></div>
   </div>
 
-  <div class="section-card" id="history" hidden>
-    <div class="section-title">
-    <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-    سجل التسميع
-  </div>
-    <div id="history-list"></div>
-  </div>
-  
-  <div class="section-card" id="graph-section" hidden>
-    <div class="section-title">
-    <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/></svg>
-    مؤشر الحضور
-  </div>
-    <canvas id="attendanceChart"></canvas>
+  <!-- تاب الألعاب الجديدة -->
+  <div id="games-tab" class="tab-content" hidden>
+    <div class="section-card">
+      <div class="section-title" style="justify-content: center; font-size: 18px;">
+        🎮 تحدي ترتيب الكلمات
+      </div>
+      <div id="game-setup" style="text-align: center; padding: 20px 0;">
+        <p style="font-weight: bold; margin-bottom: 20px;">اختر اسمك من الرئيسية لتتمكن من اللعب.</p>
+        <button id="btn-load-game" class="send-btn" disabled>بدء التحدي 🔥</button>
+      </div>
+      
+      <div id="game-board-wrap" hidden>
+        <h3 id="g-piece-title" style="color:var(--accent); text-align:center; font-family: 'Marhey', sans-serif;"></h3>
+        <p style="text-align: center; font-size: 12px; opacity: 0.8; margin-bottom: 12px;">رتب الكلمات لتكون اللحن الصحيح</p>
+        
+        <div id="g-answer-area" class="area-box"></div>
+        <div id="g-words-area" class="area-box"></div>
+        
+        <button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة ✔️</button>
+        <div id="g-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 18px;"></div>
+      </div>
+    </div>
   </div>
 </main>
+
+<!-- شريط Navigation السفلي ستايل iOS -->
+<div class="ios-bottom-bar">
+  <div class="tab-item active" onclick="switchTab('main')">
+    <svg viewBox="0 0 24 24"><path d="M12 3l10 9h-3v8H5v-8H2z"/></svg>
+    <span>الرئيسية</span>
+  </div>
+  <div class="tab-item" onclick="switchTab('games')">
+    <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+    <span>اللعب</span>
+  </div>
+</div>
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.17 (Ultimate)'; 
+const VERSION = 'v2.18 (Games)'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -392,55 +349,33 @@ let closedMap = {};
 let isChallengeRec = false;
 let chalPiece = null;
 
-// ==========================================
-// 🎵 نظام الصوتيات المبرمج (بدون ملفات خارجية)
-// ==========================================
 let audioCtx;
 function initAudio() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
 }
-
 function playTick() {
     if(!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.05);
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05);
 }
-
 function playWinSound() {
     if(!audioCtx) return;
-    // أكورد الفوز 🎺
     [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.type = 'triangle'; osc.frequency.value = freq;
         gain.gain.setValueAtTime(0, audioCtx.currentTime);
         gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.05 + (i * 0.05));
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 1.5);
+        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 1.5);
     });
 }
-// ==========================================
 
 function showLink() {
-  const cat = $('category').value;
-  const p = $('piece').value;
-  const u = linksMap[cat] && linksMap[cat][p];
+  const cat = $('category').value, p = $('piece').value, u = linksMap[cat] && linksMap[cat][p];
   $('plink').hidden = !u;
   if (u) $('plink').href = u;
 }
@@ -452,17 +387,9 @@ function setRec(on, text) {
   $('lbl').textContent = text;
 }
 const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+function progColor(p) { return 'hsl(' + Math.round(p * 1.2) + ', 70%, 42%)'; }
 
-function progColor(p) {
-  return 'hsl(' + Math.round(p * 1.2) + ', 70%, 42%)';
-}
-
-const norm = s => String(s).toLowerCase()
-  .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
-  .replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
-  .replace(/ڤ/g, 'ف')
-  .replace(/چ/g, 'ج')
-  .replace(/\s+/g, ' ').trim();
+const norm = s => String(s).toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').replace(/ڤ/g, 'ف').replace(/چ/g, 'ج').replace(/\s+/g, ' ').trim();
 
 function updatePieces(name) {
   const cat = $('category').value;
@@ -476,42 +403,29 @@ function updatePieces(name) {
     $('prog-bar-fill').style.width = pVal + '%';
     $('prog-bar-fill').style.backgroundColor = color;
     $('progwrap').hidden = false;
-
-    if (pVal === 100) {
-      $('chal-trig').hidden = false;
-    } else {
-      $('chal-trig').hidden = true;
-      $('chal-card').hidden = true;
-    }
+    $('chal-trig').hidden = (pVal !== 100);
+    if(pVal !== 100) $('chal-card').hidden = true;
   } else {
-    $('progwrap').hidden = true;
-    $('chal-trig').hidden = true;
-    $('chal-card').hidden = true;
+    $('progwrap').hidden = true; $('chal-trig').hidden = true; $('chal-card').hidden = true;
   }
 
   const catSelect = $('category');
   if (name && userPiecesMap && userPiecesMap[name]) {
-    const mList = userPiecesMap[name]['مردات'] || [];
-    const aList = userPiecesMap[name]['ألحان'] || [];
-    
+    const mList = userPiecesMap[name]['مردات'] || [], aList = userPiecesMap[name]['ألحان'] || [];
     catSelect.options[0].textContent = 'مردات ' + (mList.length > 0 ? '🔴' : '✅');
     catSelect.options[1].textContent = 'ألحان ' + (aList.length > 0 ? '🔴' : '✅');
-    
     if (cat === 'مردات' && aList.length > 0) {
-      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px; white-space: nowrap;">(ألحان متبقية 🔴)</span>';
+      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px;">(ألحان متبقية 🔴)</span>';
       catSelect.classList.add('needs-attention');
     } else if (cat === 'ألحان' && mList.length > 0) {
-      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px; white-space: nowrap;">(مردات متبقية 🔴)</span>';
+      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px;">(مردات متبقية 🔴)</span>';
       catSelect.classList.add('needs-attention');
     } else {
-      catLabel.textContent = 'النوع'; 
-      catSelect.classList.remove('needs-attention');
+      catLabel.textContent = 'النوع'; catSelect.classList.remove('needs-attention');
     }
   } else {
-    catSelect.options[0].textContent = 'مردات';
-    catSelect.options[1].textContent = 'ألحان';
-    catLabel.textContent = 'النوع';
-    catSelect.classList.remove('needs-attention');
+    catSelect.options[0].textContent = 'مردات'; catSelect.options[1].textContent = 'ألحان';
+    catLabel.textContent = 'النوع'; catSelect.classList.remove('needs-attention');
   }
 
   const pieceSelect = $('piece');
@@ -519,43 +433,28 @@ function updatePieces(name) {
     pieceSelect.replaceChildren(new Option('اختر الاسم أولاً', ''));
     pieceSelect.classList.remove('needs-attention');
   } else if (userPiecesMap && userPiecesMap[name]) {
-    const pieces = userPiecesMap[name][cat] || [];
-    const closed = (closedMap[name] && closedMap[name][cat]) || [];
+    const pieces = userPiecesMap[name][cat] || [], closed = (closedMap[name] && closedMap[name][cat]) || [];
     if (pieces.length > 0) {
-      fill(pieceSelect, pieces, closed);
-      pieceSelect.classList.add('needs-attention');
+      fill(pieceSelect, pieces, closed); pieceSelect.classList.add('needs-attention');
     } else if (closed.length > 0) {
-      fill(pieceSelect, [], closed);
-      pieceSelect.options[0].textContent = 'لا توجد محفوظات متاحة الآن';
-      pieceSelect.classList.remove('needs-attention');
+      fill(pieceSelect, [], closed); pieceSelect.options[0].textContent = 'لا توجد محفوظات متاحة الآن'; pieceSelect.classList.remove('needs-attention');
     } else {
-      pieceSelect.replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', ''));
-      pieceSelect.classList.remove('needs-attention');
+      pieceSelect.replaceChildren(new Option('سمَّعت كل الحاجات هنا 🎉', '')); pieceSelect.classList.remove('needs-attention');
     }
   }
-  
   showLink();
 }
 
 let listsLoaded = false;
-
 function applyLists(d) {
-  userPiecesMap = d.userPieces;
-  allNames = d.names;
-  progressMap = d.progress || {};
-  closedMap = d.closedPieces || {};
-
+  userPiecesMap = d.userPieces; allNames = d.names; progressMap = d.progress || {}; closedMap = d.closedPieces || {};
   if (!listsLoaded) {
-    listsLoaded = true;
-    $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
-    $('name').disabled = false;
-    $('name').placeholder = 'اكتب للبحث عن اسمك...';
+    listsLoaded = true; $('piece').replaceChildren(new Option('اختر الاسم أولاً', ''));
+    $('name').disabled = false; $('name').placeholder = 'اكتب للبحث عن اسمك...';
   }
-
   const typed = $('name').value;
   if (allNames.includes(typed)) {
-    const keep = $('piece').value;
-    updatePieces(typed);
+    const keep = $('piece').value; updatePieces(typed);
     if ([...$('piece').options].some(o => o.value === keep)) $('piece').value = keep;
     showLink();
   }
@@ -572,23 +471,18 @@ function refreshLists() {
 let cachedLists = null;
 try { cachedLists = JSON.parse(localStorage.getItem('lists_v1')); } catch (e) {}
 if (cachedLists && cachedLists.userPieces) applyLists(cachedLists);
-
 refreshLists().catch(() => {
   if (listsLoaded) return;
-  $('name').placeholder = 'تعذّر التحميل';
-  say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت ثم حدّث الصفحة.');
+  $('name').placeholder = 'تعذّر التحميل'; say('تعذّر تحميل القوائم', 'err', 'تأكد من الإنترنت.');
 });
 
 try { linksMap = JSON.parse(localStorage.getItem('links_v1')) || {}; } catch (e) {}
 fetch(API + '?action=links&t=' + Date.now()).then(r => r.json()).then(l => {
-  linksMap = l || {};
-  try { localStorage.setItem('links_v1', JSON.stringify(linksMap)); } catch (e) {}
+  linksMap = l || {}; try { localStorage.setItem('links_v1', JSON.stringify(linksMap)); } catch (e) {}
   showLink();
 }).catch(() => {});
 
-$('category').addEventListener('change', () => {
-  updatePieces(allNames.includes($('name').value) ? $('name').value : '');
-});
+$('category').addEventListener('change', () => { updatePieces(allNames.includes($('name').value) ? $('name').value : ''); });
 $('piece').addEventListener('change', showLink);
 
 function matches() {
@@ -597,313 +491,31 @@ function matches() {
   const words = norm(typed).split(' ').filter(Boolean);
   return allNames.filter(n => { const x = norm(n); return words.every(w => x.includes(w)); });
 }
-
 function showNames() {
   if (!allNames.length) return;
-  const found = matches();
-  const items = found.length
-    ? found.map(n => Object.assign(document.createElement('li'), { textContent: n }))
-    : [Object.assign(document.createElement('li'), { className: 'none', textContent: 'لا يوجد اسم مطابق' })];
-  $('names').replaceChildren(...items);
-  $('names').hidden = false;
+  const found = matches(), items = found.length ? found.map(n => Object.assign(document.createElement('li'), { textContent: n })) : [Object.assign(document.createElement('li'), { className: 'none', textContent: 'لا يوجد اسم مطابق' })];
+  $('names').replaceChildren(...items); $('names').hidden = false;
 }
-
-// --- Challenge Logic ---
-$('chal-trig').onclick = () => { 
-  $('chal-card').hidden = false; 
-  $('chal-trig').hidden = true; 
-};
-
-function loadChallenge(name) {
-  $('chal-content').hidden = true; 
-  $('chal-play').hidden = true; 
-  $('chal-msg').hidden = true;
-  
-  fetch(API + '?action=getChallenge&name=' + encodeURIComponent(name))
-    .then(r => {
-      if (!r.ok) throw new Error('Network error');
-      return r.json();
-    })
-    .then(d => {
-      if(d.error) { console.error(d.error); return; }
-      if(!d.active) return;
-      
-      if(d.status === 'None' || d.status === 'Submitted' || d.status === 'Approved') { 
-        $('chal-content').hidden = false; 
-        $('chal-open').textContent = 'افتح الصندوق الآن!';
-      }
-      else if(d.status === 'Pending') { 
-        applyChalState(d); 
-      }
-    })
-    .catch(e => {
-      console.error("Challenge Fetch Error:", e);
-      $('chal-msg').textContent = '⚠️ حدث خطأ في الاتصال';
-      $('chal-msg').hidden = false;
-    });
-}
-
-function doRoll() {
-  initAudio(); // تفعيل الصوتيات
-  
-  const btn = $('chal-reroll'); 
-  btn.disabled = true;
-  $('chal-open').textContent = 'جارٍ تشغيل العجلة...';
-  
-  $('chal-content').hidden = true;
-  $('chal-play').hidden = false;
-  $('chal-actions').hidden = true;
-  $('chal-pname').hidden = true;
-  $('spinner-window').classList.remove('win');
-  
-  const rewBox = document.querySelector('.chal-rew');
-  rewBox.style.opacity = '0';
-  
-  // تجميع كل أسماء المردات الحقيقية للسحب
-  let pool = ['اسجدوا لله بخوف', 'أجيوس', 'طاي شوري', 'مرد الإنجيل', 'تين أوأوشت', 'أوؤن نياتو', 'آمين آمين', 'تين أوين إينثوك', 'شيرى نى ماريا'];
-  if (linksMap && linksMap['مردات']) {
-      const keys = Object.keys(linksMap['مردات']);
-      if(keys.length > 0) pool = keys;
-  }
-  
-  const track = $('spinner-track');
-  track.style.transition = 'none'; 
-  track.style.transform = 'translateY(0px)';
-  track.innerHTML = '';
-  track.classList.add('spinning'); // تفعيل زغللة الدوران
-  
-  const spinCount = 50; 
-  for(let i=0; i<spinCount; i++) {
-      const div = document.createElement('div');
-      div.className = 'spinner-item';
-      div.textContent = pool[Math.floor(Math.random() * pool.length)];
-      track.appendChild(div);
-  }
-  
-  $('spinner-window').hidden = false;
-  
-  // تشغيل صوت التكتكة مع الدوران
-  let tickCount = 0;
-  let tickInterval = setInterval(() => {
-      if(tickCount < 15) { playTick(); tickCount++; }
-  }, 120);
-
-  fetch(API, { method:'POST', body: JSON.stringify({action:'rollChallenge', name:$('name').value}) })
-  .then(r => r.json())
-  .then(d => {
-    if(d.error) { 
-      clearInterval(tickInterval);
-      alert(d.error); 
-      $('chal-open').textContent = 'افتح الصندوق الآن!';
-      $('chal-content').hidden = false;
-      $('chal-play').hidden = true;
-      btn.disabled = false;
-      $('spinner-window').hidden = true;
-      return; 
-    }
-    
-    const itemHeight = 70;
-    const targetIndex = spinCount - 3; 
-    track.children[targetIndex].textContent = d.state.piece;
-    
-    void track.offsetWidth; 
-    
-    // ⚙️ ارتداد فيزيائي: العجلة بتنزل أبعد بشعرة وترد مكانها زي الكازينو بظبط
-    track.style.transition = 'transform 3.5s cubic-bezier(0.1, 0.9, 0.2, 1.15)';
-    track.style.transform = `translateY(-${targetIndex * itemHeight}px)`;
-    
-    setTimeout(() => {
-        clearInterval(tickInterval);
-        track.classList.remove('spinning'); // إيقاف الزغللة
-        
-        // ✨ انفجار لون وصوت المكسب
-        $('spinner-window').classList.add('win');
-        track.children[targetIndex].style.color = '#fbbf24'; 
-        playWinSound(); 
-        
-        setTimeout(() => {
-            $('spinner-window').hidden = true;
-            $('chal-pname').hidden = false;
-            applyChalState(d.state, true);
-        }, 1500); 
-    }, 3500);
-    
-  })
-  .catch(e => {
-    clearInterval(tickInterval);
-    alert('حدث خطأ في السحب، تأكد من جودة الإنترنت.');
-    $('chal-open').textContent = 'افتح الصندوق الآن!';
-    btn.disabled = false;
-    $('spinner-window').hidden = true;
-  });
-}
-
-function applyChalState(d, fromSpin = false) {
-  chalPiece = d.piece;
-  const pName = $('chal-pname');
-  pName.textContent = d.piece;
-  
-  $('chal-cval').textContent = d.coupons;
-  const rem = 2 - d.rolls;
-  $('chal-rem').textContent = rem;
-  
-  const btn = $('chal-reroll');
-  btn.disabled = (rem <= 0);
-  
-  $('chal-content').hidden = true;
-  $('chal-play').hidden = false;
-  
-  if (!fromSpin) {
-      $('spinner-window').hidden = true;
-      pName.hidden = false;
-  }
-  
-  $('chal-actions').hidden = false;
-  
-  const rewBox = document.querySelector('.chal-rew');
-  rewBox.style.transition = 'opacity 0.8s';
-  rewBox.style.opacity = '1';
-  
-  if (fromSpin) {
-    pName.style.color = '#fbbf24'; 
-    pName.style.transform = 'scale(1.15)';
-    pName.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-    setTimeout(() => { pName.style.transform = 'scale(1)'; }, 400);
-  } else {
-    pName.style.color = '#ffffff';
-  }
-}
-
-$('chal-open').onclick = () => doRoll();
-$('chal-reroll').onclick = () => doRoll();
-
-$('chal-rec-btn').onclick = () => {
-  isChallengeRec = true;
-  $('regular-inputs').hidden = true;
-  $('chal-card').style.border = '2px solid #10b981';
-  say('تحدي المردات: ' + chalPiece, 'ok', 'اضغط على الميكروفون للتسجيل.');
-};
-
-const iconPlay = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-const iconPause = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-const iconLoad = `<svg viewBox="0 0 24 24" class="spin-icon"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg>`;
-const iconErr = `<svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
-
-function fetchHistory(name) {
-  if (!name) {
-    $('history').hidden = true;
-    return;
-  }
-  
-  $('history').hidden = false;
-  $('history-list').replaceChildren();
-  
-  const loader = document.createElement('div');
-  loader.className = 'h-card';
-  loader.style.textAlign = 'center';
-  loader.style.color = 'var(--accent)';
-  loader.style.fontWeight = 'bold';
-  loader.textContent = '⏳ جارٍ تحميل السجل...';
-  $('history-list').append(loader);
-  
-  fetch(API + '?action=history&name=' + encodeURIComponent(name))
-    .then(r => r.json())
-    .then(data => {
-      $('history-list').replaceChildren();
-      
-      if (!data || !data.length) {
-        const empty = document.createElement('div');
-        empty.className = 'h-card';
-        empty.style.textAlign = 'center';
-        empty.style.opacity = '0.7';
-        empty.textContent = 'لا يوجد سجل سابق';
-        $('history-list').append(empty);
-        return;
-      }
-      
-      data.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'h-card';
-        
-        let statusText = 'قيد المراجعة 🟡';
-        let statusClass = 's-pending';
-        if (item.status === 'Approved') { statusText = 'مقبول 🟢'; statusClass = 's-approved'; }
-        if (item.status === 'Rejected') { 
-          statusText = (item.category === 'تحدي المردات') ? 'محاولة خاسرة 🔴' : 'يحتاج إعادة 🔴'; 
-          statusClass = 's-rejected'; 
-        }
-
-        const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
-
-        let html = `<div class="h-title">
-          <div style="display: flex; align-items: center; gap: 4px;">
-            ${playBtn}
-            <span>${item.category} - ${item.piece}</span>
-          </div>
-          <span class="${statusClass}">${statusText}</span>
-        </div>`;
-        
-        if (item.comment) html += `<div class="h-comment">تعليق: ${item.comment}</div>`;
-        
-        card.innerHTML = html;
-        $('history-list').append(card);
-      });
-    }).catch(e => {
-      $('history-list').replaceChildren();
-      const err = document.createElement('div');
-      err.className = 'h-card s-rejected';
-      err.style.textAlign = 'center';
-      err.textContent = 'حدث خطأ في تحميل السجل';
-      $('history-list').append(err);
-      console.error(e);
-    });
-}
-
 function pickName(n) {
-  $('name').value = n;
-  $('names').hidden = true;
-  $('name').blur();
-  updatePieces(n);
-  fetchHistory(n);
-  fetchAttendance(n);
-  loadChallenge(n);
+  $('name').value = n; $('names').hidden = true; $('name').blur();
+  updatePieces(n); fetchHistory(n); fetchAttendance(n); loadChallenge(n);
+  // تحديث حالة اللعبة في حالة التنقل
+  $('btn-load-game').disabled = false;
+  $('game-setup').querySelector('p').textContent = `جاهز للتحدي يا ${n}؟ لك محاولتين فقط إذا أخطأت!`;
 }
 
 $('name').addEventListener('focus', () => { $('name').select(); showNames(); });
-$('name').addEventListener('input', () => {
-  updatePieces(allNames.includes($('name').value) ? $('name').value : '');
-  showNames();
-});
-$('name').addEventListener('keydown', e => {
-  if (e.key !== 'Enter') return;
-  e.preventDefault();
-  const first = matches()[0];
-  if (first && !allNames.includes($('name').value)) pickName(first);
-});
-$('names').addEventListener('click', e => {
-  const li = e.target.closest('li');
-  if (li && !li.classList.contains('none')) pickName(li.textContent);
-});
+$('name').addEventListener('input', () => { updatePieces(allNames.includes($('name').value) ? $('name').value : ''); showNames(); });
+$('name').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const first = matches()[0]; if (first && !allNames.includes($('name').value)) pickName(first); } });
+$('names').addEventListener('click', e => { const li = e.target.closest('li'); if (li && !li.classList.contains('none')) pickName(li.textContent); });
 document.addEventListener('click', e => { if (!e.target.closest('.combo')) $('names').hidden = true; });
 
 function fill(sel, items, closed = []) {
-  const closedOpts = closed.map(x => {
-    const o = new Option(x + ' — انتهت فترة التسميع', '');
-    o.disabled = true;
-    o.className = 'closed-opt';
-    return o;
-  });
-  sel.replaceChildren(
-    new Option('اختر...', ''),
-    ...items.map(x => new Option(x, x)),
-    ...closedOpts
-  );
+  const closedOpts = closed.map(x => { const o = new Option(x + ' — انتهت فترة التسميع', ''); o.disabled = true; o.className = 'closed-opt'; return o; });
+  sel.replaceChildren(new Option('اختر...', ''), ...items.map(x => new Option(x, x)), ...closedOpts);
 }
-
 function say(t, kind, sub) {
-  const m = $('msg');
-  m.replaceChildren();
-  m.className = kind ? 'box ' + kind : '';
+  const m = $('msg'); m.replaceChildren(); m.className = kind ? 'box ' + kind : '';
   if (!kind) { m.textContent = t; return; }
   const b = document.createElement('b'); b.textContent = t; m.append(b);
   if (sub) m.append(sub);
@@ -914,102 +526,235 @@ let starting = false;
 $('rec').onclick = async () => {
   if (recorder && recorder.state === 'recording') return recorder.stop();
   if (starting) return;
-  
-  if (!isChallengeRec && (!$('name').value || !$('piece').value)) {
-    return say('اختر الاسم والمحفوظ أولاً', 'err');
-  }
-
-  starting = true;
-  $('lbl').textContent = 'جارٍ تشغيل الميكروفون...';
+  if (!isChallengeRec && (!$('name').value || !$('piece').value)) return say('اختر الاسم والمحفوظ أولاً', 'err');
+  starting = true; $('lbl').textContent = 'جارٍ تشغيل الميكروفون...';
   let stream;
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  } catch (e) {
-    starting = false;
-    $('lbl').textContent = 'اضغط للتسجيل';
-    return say('لم يتم السماح بالميكروفون', 'err', 'اسمح بالميكروفون من إعدادات المتصفح ثم حاول مرة أخرى.');
-  }
-
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch (e) { starting = false; $('lbl').textContent = 'اضغط للتسجيل'; return say('لم يتم السماح بالميكروفون', 'err', 'اسمح بالميكروفون من إعدادات المتصفح.'); }
   mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
   const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
-  recorder = rec;
-  chunks = [];
+  recorder = rec; chunks = [];
   rec.ondataavailable = e => chunks.push(e.data);
   rec.onstop = () => {
-    clearInterval(timer);
-    stream.getTracks().forEach(t => t.stop());
-    blob = new Blob(chunks, { type: rec.mimeType });
-    mime = rec.mimeType;
-    $('preview').src = URL.createObjectURL(blob);
-    $('preview').hidden = false; $('after').hidden = false; $('recwrap').hidden = true;
+    clearInterval(timer); stream.getTracks().forEach(t => t.stop());
+    blob = new Blob(chunks, { type: rec.mimeType }); mime = rec.mimeType;
+    $('preview').src = URL.createObjectURL(blob); $('preview').hidden = false; $('after').hidden = false; $('recwrap').hidden = true;
     $('name').disabled = $('piece').disabled = $('category').disabled = true;
-    setRec(false, 'اضغط للتسجيل');
-    say('استمع للتسجيل ثم اضغط إرسال.');
+    setRec(false, 'اضغط للتسجيل'); say('استمع للتسجيل ثم اضغط إرسال.');
   };
-
-  rec.start();
-  starting = false;
-  clearInterval(timer);
-  secs = 0;
-  setRec(true, 'جارٍ التسجيل 0:00 — اضغط للإيقاف');
-  say('');
-  timer = setInterval(() => {
-    if (rec.state !== 'recording') return clearInterval(timer);
-    secs++;
-    $('lbl').textContent = 'جارٍ التسجيل ' + fmt(secs) + ' — اضغط للإيقاف';
-    if (secs >= MAX_SECONDS) rec.stop();
-  }, 1000);
+  rec.start(); starting = false; clearInterval(timer); secs = 0; setRec(true, 'جارٍ التسجيل 0:00 — اضغط للإيقاف'); say('');
+  timer = setInterval(() => { if (rec.state !== 'recording') return clearInterval(timer); secs++; $('lbl').textContent = 'جارٍ التسجيل ' + fmt(secs) + ' — اضغط للإيقاف'; if (secs >= MAX_SECONDS) rec.stop(); }, 1000);
 };
 
-$('redo').onclick = () => {
-  $('preview').hidden = $('after').hidden = true; $('recwrap').hidden = false;
-  setRec(false, 'اضغط للتسجيل');
-  $('name').disabled = $('piece').disabled = $('category').disabled = false; say('');
-};
-
+$('redo').onclick = () => { $('preview').hidden = $('after').hidden = true; $('recwrap').hidden = false; setRec(false, 'اضغط للتسجيل'); $('name').disabled = $('piece').disabled = $('category').disabled = false; say(''); };
 $('send').onclick = () => {
   $('send').disabled = $('redo').disabled = true; say('جارٍ الإرسال...');
   const fr = new FileReader();
   fr.onload = async () => {
     try {
-      const payload = {
-        name: $('name').value, 
-        category: isChallengeRec ? 'تحدي المردات' : $('category').value, 
-        piece: isChallengeRec ? chalPiece : $('piece').value, 
-        mime: mime, 
-        audio: fr.result.split(',')[1],
-        isChallenge: isChallengeRec
-      };
-      const res = await fetch(API, { method: 'POST', body: JSON.stringify(payload) });
-      const d = await res.json();
+      const payload = { name: $('name').value, category: isChallengeRec ? 'تحدي المردات' : $('category').value, piece: isChallengeRec ? chalPiece : $('piece').value, mime: mime, audio: fr.result.split(',')[1], isChallenge: isChallengeRec };
+      const res = await fetch(API, { method: 'POST', body: JSON.stringify(payload) }); const d = await res.json();
       if (!d.ok) throw new Error(d.error);
-      say('✓ تم إرسال تسجيلك بنجاح', 'ok', isChallengeRec ? 'بانتظار تقييم الخادم لتحدي المردات.' : payload.category + ' (' + payload.piece + ')\nسيستمع إليه الخادم ويوافق عليه قريباً.');
-      
-      $('after').hidden = $('preview').hidden = true; $('recwrap').hidden = false;
-      setRec(false, 'اضغط لتسجيل آخر');
-      $('name').disabled = $('piece').disabled = $('category').disabled = false;
-      
-      if(isChallengeRec) {
-        isChallengeRec = false; 
-        $('regular-inputs').hidden = false;
-        $('chal-card').style.border = '2px solid #4f46e5';
-        loadChallenge($('name').value); 
-      } else {
-        refreshLists().catch(() => {}); 
-        fetchHistory($('name').value);
-      }
+      say('✓ تم إرسال تسجيلك بنجاح', 'ok', isChallengeRec ? 'بانتظار تقييم الخادم.' : payload.category + ' (' + payload.piece + ')\nسيستمع إليه الخادم ويوافق عليه قريباً.');
+      $('after').hidden = $('preview').hidden = true; $('recwrap').hidden = false; setRec(false, 'اضغط لتسجيل آخر'); $('name').disabled = $('piece').disabled = $('category').disabled = false;
+      if(isChallengeRec) { isChallengeRec = false; $('regular-inputs').hidden = false; $('chal-card').style.border = '2px solid #4f46e5'; loadChallenge($('name').value); } else { refreshLists().catch(() => {}); fetchHistory($('name').value); }
     } catch (e) {
-      if (String(e.message).includes('already completed')) {
-        say('هذا المحفوظ تم تسميعه مسبقاً', 'err', 'تم تحديث القائمة. اضغط إعادة التسجيل ثم اختر محفوظاً آخر.');
-        refreshLists().catch(() => {});
-      } else {
-        say('لم يتم الإرسال', 'err', 'تأكد من الإنترنت ثم اضغط إرسال مرة أخرى. تسجيلك ما زال محفوظاً هنا.');
-      }
+      if (String(e.message).includes('already completed')) { say('هذا المحفوظ تم تسميعه مسبقاً', 'err', 'تم تحديث القائمة.'); refreshLists().catch(() => {}); } else { say('لم يتم الإرسال', 'err', 'تأكد من الإنترنت ثم اضغط إرسال مرة أخرى.'); }
     }
     $('send').disabled = $('redo').disabled = false;
   };
   fr.readAsDataURL(blob);
 };
+
+/* --- نظام التابات الجديد (iOS Tabs) --- */
+function switchTab(tabId) {
+  document.getElementById('main-tab').hidden = (tabId !== 'main');
+  document.getElementById('games-tab').hidden = (tabId !== 'games');
+  document.querySelectorAll('.tab-item').forEach((el, idx) => {
+    el.classList.toggle('active', (tabId === 'main' ? idx === 0 : idx === 1));
+  });
+  
+  if (tabId === 'games') {
+    const n = $('name').value;
+    if (!allNames.includes(n)) {
+      $('btn-load-game').disabled = true;
+      $('game-setup').querySelector('p').textContent = 'اختر اسمك من الرئيسية لتتمكن من اللعب.';
+    } else {
+      $('btn-load-game').disabled = false;
+      $('game-setup').querySelector('p').textContent = `جاهز للتحدي يا ${n}؟ لك محاولتين فقط إذا أخطأت!`;
+    }
+  }
+}
+
+/* --- لعبة ترتيب الكلمات --- */
+let currentGameTarget = "";
+let currentWords = [];
+
+function normGameText(txt) {
+  // دالة بسيطة لتوحيد المسافات (تدعم القبطي عادي جداً)
+  return txt.trim().replace(/\s+/g, ' '); 
+}
+
+$('btn-load-game').onclick = () => {
+   const n = $('name').value;
+   $('btn-load-game').disabled = true;
+   $('btn-load-game').textContent = '⏳ جارٍ التحميل...';
+   
+   fetch(API, { method: 'POST', body: JSON.stringify({action: 'getGame', name: n}) })
+   .then(r => r.json())
+   .then(d => {
+      if (d.error) {
+         $('game-setup').querySelector('p').textContent = d.error;
+         $('game-setup').querySelector('p').style.color = '#dc2626';
+         $('btn-load-game').hidden = true;
+         return;
+      }
+      setupGameBoard(d.game);
+   })
+   .catch(e => {
+      $('btn-load-game').textContent = 'بدء التحدي 🔥';
+      $('btn-load-game').disabled = false;
+      alert('⚠️ خطأ في الاتصال بالانترنت');
+   });
+};
+
+function setupGameBoard(game) {
+   $('game-setup').hidden = true;
+   $('game-board-wrap').hidden = false;
+   $('g-piece-title').textContent = game.title;
+   currentGameTarget = normGameText(game.text); 
+   
+   // تقطيع الكلمات عشوائياً (الـ regex دي بتفصل القبطي والعربي بامتياز)
+   currentWords = game.text.trim().split(/\s+/);
+   let shuffled = [...currentWords].sort(() => Math.random() - 0.5);
+   
+   $('g-answer-area').innerHTML = '';
+   $('g-words-area').innerHTML = '';
+   $('g-msg').textContent = '';
+   $('g-answer-area').className = 'area-box';
+   $('g-check-btn').hidden = true;
+   
+   shuffled.forEach(w => {
+      let btn = document.createElement('button');
+      btn.className = 'word-btn';
+      btn.textContent = w;
+      btn.onclick = () => moveWord(btn);
+      $('g-words-area').appendChild(btn);
+   });
+}
+
+function moveWord(btn) {
+   initAudio(); // للتأكد من تفعيل الصوت
+   let ans = $('g-answer-area'), wrd = $('g-words-area');
+   if (btn.parentElement === wrd) ans.appendChild(btn);
+   else wrd.appendChild(btn);
+   $('g-check-btn').hidden = (wrd.children.length > 0);
+}
+
+$('g-check-btn').onclick = () => {
+   const userSentence = Array.from($('g-answer-area').children).map(b => b.textContent).join(' ');
+   const isWin = normGameText(userSentence) === currentGameTarget;
+   const ansBox = $('g-answer-area'), msg = $('g-msg');
+   
+   $('g-check-btn').disabled = true;
+   $('g-check-btn').textContent = '⏳ جارٍ التحقق...';
+   
+   fetch(API, { method: 'POST', body: JSON.stringify({action: 'submitGame', name: $('name').value, piece: $('g-piece-title').textContent, isWin: isWin}) })
+   .then(r => r.json())
+   .then(d => {
+      $('g-check-btn').disabled = false;
+      $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
+      
+      if (isWin) {
+         ansBox.classList.add('correct-anim');
+         msg.innerHTML = 'برافو عليك! 🎉 كسبت 1 كوبون 🎟️';
+         msg.style.color = '#10b981';
+         $('g-check-btn').hidden = true;
+         playWinSound(); // تشغيل مزيكا الفوز
+         fetchAttendance($('name').value); // تحديث الكوبونات فوراً في الواجهة
+         
+         setTimeout(() => {
+            $('game-setup').hidden = false;
+            $('game-board-wrap').hidden = true;
+            $('btn-load-game').disabled = false;
+            $('game-setup').querySelector('p').textContent = 'ممتاز! اختار لحن كمان لو حابب تلعب.';
+            $('game-setup').querySelector('p').style.color = 'var(--fg)';
+            $('btn-load-game').textContent = 'العب لحن جديد 🔥';
+         }, 3000);
+      } else {
+         ansBox.classList.add('wrong-anim');
+         msg.innerHTML = 'إجابة خاطئة ❌ تم خصم محاولة.';
+         msg.style.color = '#ef4444';
+         setTimeout(() => { ansBox.classList.remove('wrong-anim'); }, 1000);
+         // ترجيع الكلمات تحت عشان يجرب تاني
+         Array.from(ansBox.children).forEach(b => moveWord(b));
+      }
+   })
+   .catch(e => {
+      $('g-check-btn').disabled = false;
+      $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
+      alert('⚠️ خطأ في الاتصال بالانترنت');
+   });
+};
+
+/* --- دوال Challenge State الخاصة بتحدي المردات القديم --- */
+$('chal-trig').onclick = () => { $('chal-card').hidden = false; $('chal-trig').hidden = true; };
+function loadChallenge(name) {
+  $('chal-content').hidden = true; $('chal-play').hidden = true; $('chal-msg').hidden = true;
+  fetch(API + '?action=getChallenge&name=' + encodeURIComponent(name)).then(r => r.json()).then(d => {
+    if(d.error) return;
+    if(!d.active) return;
+    if(d.status === 'None' || d.status === 'Submitted' || d.status === 'Approved') { $('chal-content').hidden = false; $('chal-open').textContent = 'افتح الصندوق الآن!'; }
+    else if(d.status === 'Pending') { applyChalState(d); }
+  });
+}
+function doRoll() {
+  initAudio(); const btn = $('chal-reroll'); btn.disabled = true; $('chal-open').textContent = 'جارٍ تشغيل العجلة...';
+  $('chal-content').hidden = true; $('chal-play').hidden = false; $('chal-actions').hidden = true; $('chal-pname').hidden = true; $('spinner-window').classList.remove('win'); document.querySelector('.chal-rew').style.opacity = '0';
+  let pool = ['اسجدوا لله بخوف', 'أجيوس', 'طاي شوري', 'مرد الإنجيل']; if (linksMap && linksMap['مردات']) { const keys = Object.keys(linksMap['مردات']); if(keys.length > 0) pool = keys; }
+  const track = $('spinner-track'); track.style.transition = 'none'; track.style.transform = 'translateY(0px)'; track.innerHTML = ''; track.classList.add('spinning');
+  const spinCount = 50; for(let i=0; i<spinCount; i++) { const div = document.createElement('div'); div.className = 'spinner-item'; div.textContent = pool[Math.floor(Math.random() * pool.length)]; track.appendChild(div); }
+  $('spinner-window').hidden = false;
+  let tickCount = 0; let tickInterval = setInterval(() => { if(tickCount < 15) { playTick(); tickCount++; } }, 120);
+  fetch(API, { method:'POST', body: JSON.stringify({action:'rollChallenge', name:$('name').value}) }).then(r => r.json()).then(d => {
+    if(d.error) { clearInterval(tickInterval); alert(d.error); $('chal-open').textContent = 'افتح الصندوق الآن!'; $('chal-content').hidden = false; $('chal-play').hidden = true; btn.disabled = false; $('spinner-window').hidden = true; return; }
+    const targetIndex = spinCount - 3; track.children[targetIndex].textContent = d.state.piece; void track.offsetWidth; 
+    track.style.transition = 'transform 3.5s cubic-bezier(0.1, 0.9, 0.2, 1.15)'; track.style.transform = `translateY(-${targetIndex * 70}px)`;
+    setTimeout(() => { clearInterval(tickInterval); track.classList.remove('spinning'); $('spinner-window').classList.add('win'); track.children[targetIndex].style.color = '#fbbf24'; playWinSound(); setTimeout(() => { $('spinner-window').hidden = true; $('chal-pname').hidden = false; applyChalState(d.state, true); }, 1500); }, 3500);
+  });
+}
+function applyChalState(d, fromSpin = false) {
+  chalPiece = d.piece; const pName = $('chal-pname'); pName.textContent = d.piece; $('chal-cval').textContent = d.coupons; const rem = 2 - d.rolls; $('chal-rem').textContent = rem; $('chal-reroll').disabled = (rem <= 0);
+  $('chal-content').hidden = true; $('chal-play').hidden = false; if (!fromSpin) { $('spinner-window').hidden = true; pName.hidden = false; } $('chal-actions').hidden = false; document.querySelector('.chal-rew').style.transition = 'opacity 0.8s'; document.querySelector('.chal-rew').style.opacity = '1';
+  if (fromSpin) { pName.style.color = '#fbbf24'; pName.style.transform = 'scale(1.15)'; pName.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; setTimeout(() => { pName.style.transform = 'scale(1)'; }, 400); } else { pName.style.color = '#ffffff'; }
+}
+$('chal-open').onclick = () => doRoll(); $('chal-reroll').onclick = () => doRoll();
+$('chal-rec-btn').onclick = () => { isChallengeRec = true; $('regular-inputs').hidden = true; $('chal-card').style.border = '2px solid #10b981'; say('تحدي المردات: ' + chalPiece, 'ok', 'اضغط على الميكروفون للتسجيل.'); };
+
+/* --- دوال مساعدة أخرى (السجل والحضور) --- */
+const iconPlay = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+const iconPause = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+const iconLoad = `<svg viewBox="0 0 24 24" class="spin-icon"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg>`;
+const iconErr = `<svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+
+function fetchHistory(name) {
+  if (!name) { $('history').hidden = true; return; }
+  $('history').hidden = false; $('history-list').replaceChildren();
+  const loader = document.createElement('div'); loader.className = 'h-card'; loader.style.textAlign = 'center'; loader.style.color = 'var(--accent)'; loader.style.fontWeight = 'bold'; loader.textContent = '⏳ جارٍ تحميل السجل...'; $('history-list').append(loader);
+  fetch(API + '?action=history&name=' + encodeURIComponent(name)).then(r => r.json()).then(data => {
+    $('history-list').replaceChildren();
+    if (!data || !data.length) { const empty = document.createElement('div'); empty.className = 'h-card'; empty.style.textAlign = 'center'; empty.style.opacity = '0.7'; empty.textContent = 'لا يوجد سجل سابق'; $('history-list').append(empty); return; }
+    data.forEach(item => {
+      const card = document.createElement('div'); card.className = 'h-card';
+      let statusText = 'قيد المراجعة 🟡', statusClass = 's-pending';
+      if (item.status === 'Approved') { statusText = 'مقبول 🟢'; statusClass = 's-approved'; }
+      if (item.status === 'Rejected') { statusText = (item.category === 'تحدي المردات') ? 'محاولة خاسرة 🔴' : 'يحتاج إعادة 🔴'; statusClass = 's-rejected'; }
+      const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
+      let html = `<div class="h-title"><div style="display: flex; align-items: center; gap: 4px;">${playBtn}<span>${item.category} - ${item.piece}</span></div><span class="${statusClass}">${statusText}</span></div>`;
+      if (item.comment) html += `<div class="h-comment">تعليق: ${item.comment}</div>`;
+      card.innerHTML = html; $('history-list').append(card);
+    });
+  });
+}
 
 function animateValue(obj, start, end, duration) {
   let startTimestamp = null;
@@ -1018,183 +763,43 @@ function animateValue(obj, start, end, duration) {
     const progress = Math.min((timestamp - startTimestamp) / duration, 1);
     const easeOut = 1 - Math.pow(1 - progress, 3);
     obj.textContent = Math.floor(easeOut * (end - start) + start);
-    if (progress < 1) {
-      window.requestAnimationFrame(step);
-    } else {
-      obj.textContent = end;
-    }
-  };
-  window.requestAnimationFrame(step);
+    if (progress < 1) window.requestAnimationFrame(step); else obj.textContent = end;
+  }; window.requestAnimationFrame(step);
 }
 let attChart = null;
-
 function updateChart(records) {
-  const chronological = [...records].reverse();
-  const labels = chronological.map(r => r.date);
-  
-  let vScore = 0, hScore = 0, lScore = 0;
-  const vData = [], hData = [], lData = [];
-  
+  const chronological = [...records].reverse(), labels = chronological.map(r => r.date);
+  let vScore = 0, hScore = 0, lScore = 0; const vData = [], hData = [], lData = [];
   const step = (present, held) => held === false ? 0 : (present ? 1 : -1);
-  
-  chronological.forEach(r => {
-    vScore += step(r.vespers, r.vespersHeld);
-    hScore += step(r.hymns, r.hymnsHeld);
-    lScore += step(r.liturgy, r.liturgyHeld);
-    
-    lData.push(lScore);
-    hData.push(hScore + 0.15);
-    vData.push(vScore - 0.15);
-  });
-  
+  chronological.forEach(r => { vScore += step(r.vespers, r.vespersHeld); hScore += step(r.hymns, r.hymnsHeld); lScore += step(r.liturgy, r.liturgyHeld); lData.push(lScore); hData.push(hScore + 0.15); vData.push(vScore - 0.15); });
   const ctx = document.getElementById('attendanceChart').getContext('2d');
   if (attChart) attChart.destroy();
-  
-  attChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2, pointRadius: 3, order: 3 },
-        { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [8, 6], order: 2 },
-        { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [2, 4], order: 1 }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { font: { family: 'system-ui' } } } },
-      scales: {
-        y: { ticks: { stepSize: 1, precision: 0 } },
-        x: { ticks: { font: { size: 10 } } }
-      }
-    }
+  attChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2, pointRadius: 3, order: 3 }, { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [8, 6], order: 2 }, { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [2, 4], order: 1 } ] }, options: { responsive: true, plugins: { legend: { labels: { font: { family: 'system-ui' } } } }, scales: { y: { ticks: { stepSize: 1, precision: 0 } }, x: { ticks: { font: { size: 10 } } } } } });
+}
+function fetchAttendance(name) {
+  if (!name) { $('attendance').hidden = true; $('coupons-box').classList.remove('show'); return; }
+  $('attendance').hidden = false; $('attendance-list').replaceChildren(); $('coupons-box').classList.remove('show'); 
+  fetch(API + '?action=attendance&name=' + encodeURIComponent(name)).then(r => r.json()).then(data => {
+      $('attendance-list').replaceChildren();
+      const records = data.records || [], coupons = data.coupons !== undefined ? Number(data.coupons) : 0;
+      $('coupons-box').classList.add('show'); animateValue($('c-val'), 0, coupons, 1500);
+      if (!records.length) { $('graph-section').hidden = true; return; }
+      $('graph-section').hidden = false; updateChart(records);
   });
 }
 
-function fetchAttendance(name) {
-  if (!name) {
-    $('attendance').hidden = true;
-    $('coupons-box').classList.remove('show');
-    return;
-  }
-  
-  $('attendance').hidden = false;
-  $('attendance-list').replaceChildren();
-  $('coupons-box').classList.remove('show'); 
-  const loader = document.createElement('div');
-  loader.className = 'att-card';
-  loader.style.justifyContent = 'center';
-  loader.style.color = 'var(--accent)';
-  loader.textContent = '⏳ جارٍ تحميل البيانات...';
-  $('attendance-list').append(loader);
-  
-  fetch(API + '?action=attendance&name=' + encodeURIComponent(name))
-    .then(r => {
-      if (!r.ok) throw new Error('Network error');
-      return r.json();
-    })
-    .then(data => {
-      $('attendance-list').replaceChildren();
-      
-      const records = data.records || [];
-      const coupons = data.coupons !== undefined ? Number(data.coupons) : 0;
-      
-      $('coupons-box').classList.add('show');
-      animateValue($('c-val'), 0, coupons, 1500);
-      
-      if (!records.length) {
-        const empty = document.createElement('div');
-        empty.className = 'att-card';
-        empty.style.justifyContent = 'center';
-        empty.style.opacity = '0.7';
-        empty.textContent = 'لا توجد بيانات حضور';
-        $('attendance-list').append(empty);
-        $('graph-section').hidden = true; 
-        return;
-      }
-
-      $('graph-section').hidden = false;
-      updateChart(records);
-      records.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'att-card';
-        const getTag = (eventName, isPresent, held) => {
-          const cls = held === false ? 'att-na' : (isPresent ? 'att-yes' : 'att-no');
-          return `<span class="att-tag ${cls}">${eventName}</span>`;
-        };
-        card.innerHTML = `
-          <span class="att-date">${item.date}</span>
-          <div class="att-tags">
-            ${getTag('عشية', item.vespers, item.vespersHeld)}
-            ${getTag('ألحان', item.hymns, item.hymnsHeld)}
-            ${getTag('قداس', item.liturgy, item.liturgyHeld)}
-          </div>
-        `;
-        $('attendance-list').append(card);
-      });
-    }).catch(e => {
-      $('attendance-list').replaceChildren();
-      const err = document.createElement('div');
-      err.className = 'att-card';
-      err.style.justifyContent = 'center';
-      err.style.color = '#dc2626';
-      err.style.fontWeight = 'bold';
-      err.textContent = '⚠️ حدث خطأ في الاتصال بالخادم';
-      $('attendance-list').append(err);
-      console.error("Attendance Fetch Error:", e);
-    });
-}
-
-let currentPlayBtn = null;
-const sharedAudio = $('preview'); 
-
+let currentPlayBtn = null; const sharedAudio = $('preview'); 
 $('history-list').addEventListener('click', e => {
-  const btn = e.target.closest('.mini-play');
-  if (!btn) return;
-  
-  const rawUrl = btn.dataset.url;
-  const idMatch = rawUrl.match(/[-\w]{25,}/);
-  if (!idMatch) return;
-  
-  if (currentPlayBtn === btn && !sharedAudio.paused) {
-    sharedAudio.pause();
-    btn.innerHTML = iconPlay;
-    return;
-  }
-  
-  if (currentPlayBtn && currentPlayBtn !== btn) {
-    currentPlayBtn.innerHTML = iconPlay;
-  }
-  
-  currentPlayBtn = btn;
-  btn.innerHTML = iconLoad; 
-  
-  fetch(API + '?action=play&id=' + idMatch[0])
-    .then(r => r.json())
-    .then(d => {
-      if (!d.ok) throw new Error('Audio not found');
-      sharedAudio.src = 'data:' + d.mime + ';base64,' + d.data;
-      sharedAudio.load();
-      return sharedAudio.play();
-    })
-    .then(() => {
-      btn.innerHTML = iconPause;
-    })
-    .catch((err) => {
-      console.error("Playback failed:", err);
-      btn.innerHTML = iconErr; 
-    });
-    
-  sharedAudio.onended = () => {
-    btn.innerHTML = iconPlay;
-  };
+  const btn = e.target.closest('.mini-play'); if (!btn) return;
+  const rawUrl = btn.dataset.url; const idMatch = rawUrl.match(/[-\w]{25,}/); if (!idMatch) return;
+  if (currentPlayBtn === btn && !sharedAudio.paused) { sharedAudio.pause(); btn.innerHTML = iconPlay; return; }
+  if (currentPlayBtn && currentPlayBtn !== btn) { currentPlayBtn.innerHTML = iconPlay; }
+  currentPlayBtn = btn; btn.innerHTML = iconLoad; 
+  fetch(API + '?action=play&id=' + idMatch[0]).then(r => r.json()).then(d => { sharedAudio.src = 'data:' + d.mime + ';base64,' + d.data; sharedAudio.load(); return sharedAudio.play(); }).then(() => { btn.innerHTML = iconPause; });
+  sharedAudio.onended = () => { btn.innerHTML = iconPlay; };
 });
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
-}
+if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 </script>
 </body>
 </html>
