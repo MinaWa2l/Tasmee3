@@ -168,6 +168,46 @@
   .correct-anim { background-color: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
   .wrong-anim { background-color: rgba(239, 68, 68, 0.2) !important; border-color: #ef4444 !important; animation: shake 0.4s; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
+  
+/* Puzzle pieces with movement arrows */
+.game-part {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    direction: ltr;
+}
+
+.game-part .word-btn {
+    width: auto;
+    padding: 8px 12px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.move-arrow {
+    display: none;
+    width: 30px;
+    min-width: 30px;
+    padding: 8px 0;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    background: #6366f1;
+    color: white;
+    cursor: pointer;
+}
+
+#g-answer-area .move-arrow {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.move-arrow:disabled {
+    opacity: 0.25;
+}
+
 </style>
 </head>
 <body>
@@ -313,7 +353,10 @@
         <div id="g-answer-area" class="area-box"></div>
         <div id="g-words-area" class="area-box"></div>
         
-        <button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة ✔️</button>
+        
+<button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة ✔️</button>
+<button id="g-retry-btn" class="action-btn" style="background:#f59e0b; margin-top:10px;" hidden>حاول مرة تانية 🔄</button>
+
         <div id="g-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 18px;"></div>
       </div>
     </div>
@@ -617,30 +660,258 @@ $('btn-load-game').onclick = () => {
    });
 };
 
+
+let remainingGameTries = 2;
+
 function setupGameBoard(game) {
-   $('game-setup').hidden = true;
-   $('game-board-wrap').hidden = false;
-   $('g-piece-title').textContent = game.title;
-   currentGameTarget = normGameText(game.text); 
-   
-   // تقطيع الكلمات عشوائياً (الـ regex دي بتفصل القبطي والعربي بامتياز)
-   currentWords = game.text.trim().split(/\s+/);
-   let shuffled = [...currentWords].sort(() => Math.random() - 0.5);
-   
-   $('g-answer-area').innerHTML = '';
-   $('g-words-area').innerHTML = '';
-   $('g-msg').textContent = '';
-   $('g-answer-area').className = 'area-box';
-   $('g-check-btn').hidden = true;
-   
-   shuffled.forEach(w => {
-      let btn = document.createElement('button');
-      btn.className = 'word-btn';
-      btn.textContent = w;
-      btn.onclick = () => moveWord(btn);
-      $('g-words-area').appendChild(btn);
-   });
+    $('game-setup').hidden = true;
+    $('game-board-wrap').hidden = false;
+    $('g-piece-title').textContent = game.title;
+
+    currentGameTarget = normGameText(game.text);
+    remainingGameTries = 2;
+
+    // Split the text into 5-10 random groups
+    const words = currentGameTarget.split(' ').filter(Boolean);
+
+    const partsCount = words.length <= 5
+        ? words.length
+        : 5 + Math.floor(Math.random() * (Math.min(10, words.length) - 4));
+
+    // Keep group lengths reasonably balanced
+    let sizes = Array(partsCount).fill(Math.floor(words.length / partsCount));
+
+    for (let i = 0; i < words.length % partsCount; i++) {
+        sizes[i]++;
+    }
+
+    sizes.sort(() => Math.random() - 0.5);
+
+    let position = 0;
+    currentWords = sizes.map(size => {
+        const part = words.slice(position, position + size).join(' ');
+        position += size;
+        return part;
+    });
+
+    // Shuffle the groups
+    let shuffled = [...currentWords];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    // Avoid starting in the correct order
+    if (shuffled.length > 1 &&
+        shuffled.every((w, i) => w === currentWords[i])) {
+        [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
+    }
+
+    $('g-answer-area').replaceChildren();
+    $('g-words-area').replaceChildren();
+
+    $('g-answer-area').dir = 'ltr';
+    $('g-words-area').dir = 'ltr';
+
+    $('g-msg').textContent = '';
+    $('g-msg').style.color = 'var(--fg)';
+    $('g-answer-area').className = 'area-box';
+
+    $('g-check-btn').hidden = true;
+    $('g-check-btn').disabled = false;
+    $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
+    $('g-retry-btn').hidden = true;
+
+    shuffled.forEach(part => {
+        $('g-words-area').appendChild(createGamePart(part));
+    });
 }
+
+
+// Create one movable puzzle group
+function createGamePart(text) {
+    const item = document.createElement('div');
+    item.className = 'game-part';
+    item.dataset.text = text;
+
+    const left = document.createElement('button');
+    left.type = 'button';
+    left.className = 'move-arrow';
+    left.textContent = '◀';
+    left.onclick = () => shiftGamePart(item, -1);
+
+    const word = document.createElement('button');
+    word.type = 'button';
+    word.className = 'word-btn';
+    word.textContent = text;
+    word.onclick = () => moveWord(item);
+
+    const right = document.createElement('button');
+    right.type = 'button';
+    right.className = 'move-arrow';
+    right.textContent = '▶';
+    right.onclick = () => shiftGamePart(item, 1);
+
+    item.append(left, word, right);
+    return item;
+}
+
+
+// Move a group between the two areas
+function moveWord(item) {
+    initAudio();
+
+    const ans = $('g-answer-area');
+    const wrd = $('g-words-area');
+
+    if (item.parentElement === wrd) {
+        ans.appendChild(item);
+    } else {
+        wrd.appendChild(item);
+    }
+
+    updateMoveButtons();
+
+    $('g-check-btn').hidden =
+        wrd.children.length > 0 ||
+        ! $('g-retry-btn').hidden ||
+        remainingGameTries <= 0;
+}
+
+
+// Move a group left or right inside the answer
+function shiftGamePart(item, direction) {
+    const ans = $('g-answer-area');
+
+    if (item.parentElement !== ans) return;
+
+    if (direction === -1 && item.previousElementSibling) {
+        ans.insertBefore(item, item.previousElementSibling);
+    }
+
+    if (direction === 1 && item.nextElementSibling) {
+        ans.insertBefore(item.nextElementSibling, item);
+    }
+
+    updateMoveButtons();
+}
+
+
+// Enable arrows only when movement is possible
+function updateMoveButtons() {
+    const items = [...$('g-answer-area').children];
+
+    items.forEach((item, i) => {
+        const arrows = item.querySelectorAll('.move-arrow');
+
+        arrows[0].disabled = (i === 0);
+        arrows[1].disabled = (i === items.length - 1);
+    });
+}
+
+
+// Check the answer
+$('g-check-btn').onclick = () => {
+    if (remainingGameTries <= 0) return;
+
+    const userSentence = Array.from($('g-answer-area').children)
+        .map(b => b.dataset.text)
+        .join(' ');
+
+    const isWin = normGameText(userSentence) === currentGameTarget;
+
+    const ansBox = $('g-answer-area');
+    const msg = $('g-msg');
+
+    $('g-check-btn').disabled = true;
+    $('g-check-btn').textContent = '⏳ جارٍ التحقق...';
+
+    fetch(API, {
+        method: 'POST',
+        body: JSON.stringify({
+            action: 'submitGame',
+            name: $('name').value,
+            piece: $('g-piece-title').textContent,
+            isWin: isWin
+        })
+    })
+    .then(r => r.json())
+    .then(d => {
+        $('g-check-btn').disabled = false;
+        $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
+
+        if (d.error) {
+            msg.textContent = d.error;
+            msg.style.color = '#ef4444';
+            $('g-check-btn').hidden = true;
+            return;
+        }
+
+        if (isWin) {
+            ansBox.classList.add('correct-anim');
+            msg.textContent = 'برافو عليك! 🎉 كسبت 1 كوبون 🎟️';
+            msg.style.color = '#10b981';
+            $('g-check-btn').hidden = true;
+            $('g-retry-btn').hidden = true;
+
+            playWinSound();
+            fetchAttendance($('name').value);
+
+            setTimeout(() => {
+                $('game-setup').hidden = false;
+                $('game-board-wrap').hidden = true;
+                $('btn-load-game').disabled = false;
+                $('game-setup').querySelector('p').textContent =
+                    'ممتاز! اختار لحن كمان لو حابب تلعب.';
+                $('game-setup').querySelector('p').style.color = 'var(--fg)';
+                $('btn-load-game').textContent = 'العب لحن جديد 🔥';
+            }, 3000);
+
+        } else {
+            remainingGameTries--;
+
+            ansBox.classList.add('wrong-anim');
+            msg.style.color = '#ef4444';
+
+            $('g-check-btn').hidden = true;
+
+            if (remainingGameTries > 0) {
+                msg.textContent =
+                    'إجابة خاطئة ❌ متبقي محاولة واحدة. عدّل الترتيب وجرب تاني.';
+                $('g-retry-btn').hidden = false;
+            } else {
+                msg.textContent =
+                    'إجابة خاطئة ❌ انتهت المحاولتان.';
+                $('g-retry-btn').hidden = true;
+            }
+
+            setTimeout(() => {
+                ansBox.classList.remove('wrong-anim');
+            }, 1000);
+        }
+    })
+    .catch(e => {
+        $('g-check-btn').disabled = false;
+        $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
+        alert('⚠️ خطأ في الاتصال بالانترنت');
+    });
+};
+
+
+// Retry without clearing the current answer
+$('g-retry-btn').onclick = () => {
+    $('g-retry-btn').hidden = true;
+    $('g-answer-area').classList.remove('wrong-anim');
+
+    $('g-msg').textContent =
+        'عدّل ترتيب القطع باستخدام الأسهم ثم تحقق من الإجابة.';
+    $('g-msg').style.color = 'var(--fg)';
+
+    $('g-check-btn').hidden =
+        $('g-words-area').children.length > 0;
+};
+
 
 function moveWord(btn) {
    initAudio(); // للتأكد من تفعيل الصوت
