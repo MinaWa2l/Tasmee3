@@ -749,6 +749,7 @@ function normGameText(txt) {
 }
 
 $('btn-load-game').onclick = () => {
+   $('game-selector').hidden = true; // إخفاء شاشة الاختيار
    const n = $('name').value;
    $('btn-load-game').disabled = true;
    $('btn-load-game').textContent = '⏳ جارٍ التحميل...';
@@ -757,8 +758,7 @@ $('btn-load-game').onclick = () => {
    .then(r => r.json())
    .then(d => {
       if (d.error) {
-         // نرجع لواجهة البداية لو مفيش ألحان تاني
-         $('game-setup').hidden = false;
+         $('game-selector').hidden = false;
          $('game-board-wrap').hidden = true;
          $('g-setup-msg').textContent = d.error;
          $('g-setup-msg').style.color = '#dc2626';
@@ -768,14 +768,15 @@ $('btn-load-game').onclick = () => {
       setupGameBoard(d.game);
    })
    .catch(e => {
-      $('btn-load-game').textContent = 'بدء التحدي 🔥';
+      $('game-selector').hidden = false;
+      $('btn-load-game').textContent = '🧩 ترتيب الكلمات (بمكافأة 🎟️)';
       $('btn-load-game').disabled = false;
       alert('⚠️ خطأ في الاتصال بالانترنت');
    });
 };
 
 function setupGameBoard(game) {
-    $('game-setup').hidden = true;
+    $('game-selector').hidden = true;
     $('game-board-wrap').hidden = false;
     $('g-piece-title').textContent = game.title;
     $('g-piece-title').dir = 'auto';
@@ -961,12 +962,12 @@ $('g-check-btn').onclick = () => {
             fetchAttendance($('name').value);
 
             setTimeout(() => {
-                $('game-setup').hidden = false;
+                $('game-selector').hidden = false;
                 $('game-board-wrap').hidden = true;
                 $('btn-load-game').disabled = false;
-                $('game-setup').querySelector('p').textContent = 'ممتاز! اختار لحن كمان لو حابب تلعب.';
-                $('game-setup').querySelector('p').style.color = 'var(--fg)';
-                $('btn-load-game').textContent = 'العب لحن جديد 🔥';
+                $('g-setup-msg').textContent = 'ممتاز! اختار لحن كمان لو حابب تلعب.';
+                $('g-setup-msg').style.color = 'var(--fg)';
+                $('btn-load-game').textContent = '🧩 ترتيب الكلمات (بمكافأة 🎟️)';
             }, 3000);
         } else {
             remainingGameTries--;
@@ -981,8 +982,6 @@ $('g-check-btn').onclick = () => {
                 gameFinished = true;
                 msg.textContent = 'إجابة خاطئة ❌ انتهت محاولاتك في اللحن ده.';
                 $('g-retry-btn').hidden = true;
-                
-                // إظهار زرار "جرب لحن جديد"
                 $('g-next-game-btn').hidden = false;
             }
 
@@ -1142,12 +1141,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => { naviga
     $('game-selector').hidden = false;
 }
 
-// تعديل بسيط على إخفاء شاشة الاختيار في اللعبة الأولى
-const originalBtnLoadGameClick = $('btn-load-game').onclick;
-$('btn-load-game').onclick = () => {
-    $('game-selector').hidden = true;
-    originalBtnLoadGameClick();
-};
+
 
 /* --- لعبة المرد وردّه --- */
 let currentQuizAnswer = "";
