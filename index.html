@@ -785,6 +785,25 @@ function fetchAttendance(name) {
       $('coupons-box').classList.add('show'); animateValue($('c-val'), 0, coupons, 1500);
       if (!records.length) { $('graph-section').hidden = true; return; }
       $('graph-section').hidden = false; updateChart(records);
+      
+      // الجزء اللي كان ممسوح ورجعناه (كروت الحضور)
+      records.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'att-card';
+        const getTag = (eventName, isPresent, held) => {
+          const cls = held === false ? 'att-na' : (isPresent ? 'att-yes' : 'att-no');
+          return `<span class="att-tag ${cls}">${eventName}</span>`;
+        };
+        card.innerHTML = `
+          <span class="att-date">${item.date}</span>
+          <div class="att-tags">
+            ${getTag('عشية', item.vespers, item.vespersHeld)}
+            ${getTag('ألحان', item.hymns, item.hymnsHeld)}
+            ${getTag('قداس', item.liturgy, item.liturgyHeld)}
+          </div>
+        `;
+        $('attendance-list').append(card);
+      });
   });
 }
 
