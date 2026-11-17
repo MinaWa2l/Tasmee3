@@ -288,7 +288,12 @@
     opacity: 0.25;
     cursor: default;
 }
-
+/* --- Quiz Styles --- */
+  .quiz-choice { background: var(--bg); border: 2px solid var(--line); color: var(--fg); padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; text-align: right; font-family: inherit; margin-bottom: 8px; }
+  .quiz-choice:hover { border-color: #8b5cf6; }
+  .quiz-choice.correct { background: rgba(16, 185, 129, 0.15) !important; border-color: #10b981 !important; color: #10b981 !important; }
+  .quiz-choice.wrong { background: rgba(239, 68, 68, 0.15) !important; border-color: #ef4444 !important; color: #ef4444 !important; animation: shake 0.4s; }
+  .quiz-correct-ans { border-color: #10b981 !important; color: #10b981 !important; }
 </style>
 </head>
 <body>
@@ -416,31 +421,47 @@
     </div>
   </div>
 
-  <!-- تاب الألعاب الجديدة -->
+<!-- تاب الألعاب الجديدة -->
   <div id="games-tab" class="tab-content" hidden>
     <div class="section-card">
       <div class="section-title" style="justify-content: center; font-size: 18px;">
-        🎮 تحدي ترتيب الكلمات
-      </div>
-      <div id="game-setup" style="text-align: center; padding: 20px 0;">
-        <p style="font-weight: bold; margin-bottom: 20px;">اختر اسمك من الرئيسية لتتمكن من اللعب.</p>
-        <button id="btn-load-game" class="send-btn" disabled>بدء التحدي 🔥</button>
+        🎮 ساحة الألعاب
       </div>
       
+      <!-- شاشة اختيار اللعبة -->
+      <div id="game-selector" style="text-align: center; padding: 20px 0;">
+        <p id="g-setup-msg" style="font-weight: bold; margin-bottom: 20px;">اختر اسمك من الرئيسية لتتمكن من اللعب.</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <button id="btn-load-game" class="send-btn" disabled>🧩 ترتيب الكلمات (بمكافأة 🎟️)</button>
+          <button id="btn-quiz-game" class="send-btn" style="background: #8b5cf6;" disabled>🎤 المرد وردّه (تدريب للقداس)</button>
+        </div>
+      </div>
+      
+      <!-- واجهة ترتيب الكلمات -->
       <div id="game-board-wrap" hidden>
+        <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">🔙 رجوع للساحة</button>
         <h3 id="g-piece-title" style="color:var(--accent); text-align:center; font-family: 'Marhey', sans-serif;"></h3>
         <p style="text-align: center; font-size: 12px; opacity: 0.8; margin-bottom: 12px;">رتّب المقاطع من فوق لتحت لتكوين اللحن الصحيح</p>
-        
         <div id="g-answer-area" class="area-box"></div>
         <div id="g-words-area" class="area-box"></div>
-        
-        
-<button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة ✔️</button>
-      <button id="g-retry-btn" class="action-btn" style="background:#f59e0b; margin-top:10px;" hidden>حاول مرة تانية 🔄</button>
-      <button id="g-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد 🆕</button>
-
+        <button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة ✔️</button>
+        <button id="g-retry-btn" class="action-btn" style="background:#f59e0b; margin-top:10px;" hidden>حاول مرة تانية 🔄</button>
+        <button id="g-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد 🆕</button>
         <div id="g-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 18px;"></div>
       </div>
+
+      <!-- واجهة المرد ورده -->
+      <div id="quiz-board-wrap" hidden>
+        <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">🔙 رجوع للساحة</button>
+        <div style="background: rgba(139,92,246,0.1); border: 1px solid #8b5cf6; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px;">
+          <div id="q-situation" style="font-size: 12px; color: #8b5cf6; font-weight: bold; margin-bottom: 8px;"></div>
+          <div id="q-priest" style="font-size: 18px; font-weight: bold; line-height: 1.5; color: var(--fg);"></div>
+        </div>
+        <div id="q-choices" style="display: flex; flex-direction: column;"></div>
+        <div id="q-msg" style="text-align:center; margin-top:16px; font-weight:bold; font-size: 16px;"></div>
+        <button id="btn-next-quiz" class="action-btn" style="background:#8b5cf6; margin-top:16px;" hidden>السؤال التالي ⏭️</button>
+      </div>
+
     </div>
   </div>
 </main>
@@ -698,14 +719,16 @@ function switchTab(tabId) {
     el.classList.toggle('active', (tabId === 'main' ? idx === 0 : idx === 1));
   });
   
-  if (tabId === 'games') {
+if (tabId === 'games') {
     const n = $('name').value;
     if (!allNames.includes(n)) {
       $('btn-load-game').disabled = true;
-      $('game-setup').querySelector('p').textContent = 'اختر اسمك من الرئيسية لتتمكن من اللعب.';
+      $('btn-quiz-game').disabled = true;
+      $('game-selector').querySelector('p').textContent = 'اختر اسمك من الرئيسية لتتمكن من اللعب.';
     } else {
       $('btn-load-game').disabled = false;
-      $('game-setup').querySelector('p').textContent = `جاهز للتحدي يا ${n}؟ لك محاولتين فقط إذا أخطأت!`;
+      $('btn-quiz-game').disabled = false;
+      $('game-selector').querySelector('p').textContent = `أهلاً بك يا ${n}! اختار اللعبة اللي تعجبك:`;
     }
   }
 }
@@ -1113,6 +1136,85 @@ $('history-list').addEventListener('click', e => {
 });
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  function backToGameSelector() {
+    $('game-board-wrap').hidden = true;
+    $('quiz-board-wrap').hidden = true;
+    $('game-selector').hidden = false;
+}
+
+// تعديل بسيط على إخفاء شاشة الاختيار في اللعبة الأولى
+const originalBtnLoadGameClick = $('btn-load-game').onclick;
+$('btn-load-game').onclick = () => {
+    $('game-selector').hidden = true;
+    originalBtnLoadGameClick();
+};
+
+/* --- لعبة المرد وردّه --- */
+let currentQuizAnswer = "";
+
+$('btn-quiz-game').onclick = loadQuiz;
+$('btn-next-quiz').onclick = loadQuiz;
+
+function loadQuiz() {
+   $('game-selector').hidden = true;
+   $('game-board-wrap').hidden = true;
+   $('quiz-board-wrap').hidden = false;
+   
+   $('q-situation').textContent = '⏳ جارٍ التحميل...';
+   $('q-priest').textContent = '';
+   $('q-choices').innerHTML = '';
+   $('q-msg').textContent = '';
+   $('btn-next-quiz').hidden = true;
+   
+   fetch(API, { method: 'POST', body: JSON.stringify({action: 'getQuiz'}) })
+   .then(r => r.json())
+   .then(d => {
+      if (d.error) {
+         $('q-situation').textContent = '⚠️ تنبيه';
+         $('q-priest').textContent = d.error;
+         return;
+      }
+      
+      $('q-situation').textContent = '📌 ' + (d.situation || 'مردات القداس');
+      $('q-priest').textContent = d.priest;
+      currentQuizAnswer = d.correctAnswer;
+      
+      d.choices.forEach(c => {
+         const btn = document.createElement('button');
+         btn.className = 'quiz-choice';
+         btn.textContent = c;
+         btn.onclick = () => checkQuizAnswer(btn, c);
+         $('q-choices').appendChild(btn);
+      });
+   })
+   .catch(e => {
+      $('q-situation').textContent = '⚠️ خطأ في الاتصال بالانترنت';
+   });
+}
+
+function checkQuizAnswer(btn, chosen) {
+   // قفل كل الزراير
+   Array.from($('q-choices').children).forEach(b => b.disabled = true);
+   
+   if (chosen === currentQuizAnswer) {
+      btn.classList.add('correct');
+      $('q-msg').innerHTML = 'إجابة صحيحة! برافو عليك 👏';
+      $('q-msg').style.color = '#10b981';
+      playWinSound(); // صوت الفوز
+   } else {
+      btn.classList.add('wrong');
+      $('q-msg').innerHTML = 'للأسف إجابة خاطئة ❌';
+      $('q-msg').style.color = '#ef4444';
+      
+      // توضيح الإجابة الصح
+      Array.from($('q-choices').children).forEach(b => {
+         if (b.textContent === currentQuizAnswer) {
+            b.classList.add('quiz-correct-ans');
+         }
+      });
+   }
+   $('btn-next-quiz').hidden = false;
+}
 </script>
 </body>
 </html>
