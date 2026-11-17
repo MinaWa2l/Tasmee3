@@ -169,30 +169,52 @@
   .wrong-anim { background-color: rgba(239, 68, 68, 0.2) !important; border-color: #ef4444 !important; animation: shake 0.4s; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
   
-/* Puzzle pieces with movement arrows */
+/* Puzzle pieces: top-to-bottom order for Arabic and Coptic */
+#g-answer-area,
+#g-words-area {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    direction: ltr;
+}
+
 .game-part {
-    display: inline-flex;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
     align-items: center;
-    gap: 4px;
-    max-width: 100%;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
     direction: ltr;
 }
 
 .game-part .word-btn {
-    width: auto;
-    padding: 8px 12px;
+    width: 100%;
+    min-width: 0;
+    padding: 10px 8px;
     white-space: normal;
     overflow-wrap: anywhere;
+    line-height: 1.6;
+    text-align: center;
+    unicode-bidi: plaintext;
+}
+
+#g-words-area .game-part .word-btn {
+    grid-column: 1 / -1;
 }
 
 .move-arrow {
     display: none;
-    width: 30px;
-    min-width: 30px;
-    padding: 8px 0;
-    font-size: 14px;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    min-width: 36px;
+    height: 44px;
+    padding: 0;
+    font-size: 23px;
     border: none;
-    border-radius: 6px;
+    border-radius: 7px;
     background: #6366f1;
     color: white;
     cursor: pointer;
@@ -200,12 +222,11 @@
 
 #g-answer-area .move-arrow {
     display: inline-flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .move-arrow:disabled {
     opacity: 0.25;
+    cursor: default;
 }
 
 </style>
@@ -348,7 +369,7 @@
       
       <div id="game-board-wrap" hidden>
         <h3 id="g-piece-title" style="color:var(--accent); text-align:center; font-family: 'Marhey', sans-serif;"></h3>
-        <p style="text-align: center; font-size: 12px; opacity: 0.8; margin-bottom: 12px;">رتب الكلمات لتكون اللحن الصحيح</p>
+        <p style="text-align: center; font-size: 12px; opacity: 0.8; margin-bottom: 12px;">رتّب المقاطع من فوق لتحت لتكوين اللحن الصحيح</p>
         
         <div id="g-answer-area" class="area-box"></div>
         <div id="g-words-area" class="area-box"></div>
@@ -631,17 +652,24 @@ function switchTab(tabId) {
 /* --- لعبة ترتيب الكلمات --- */
 let currentGameTarget = "";
 let currentWords = [];
+let remainingGameTries = 2;
+let gameSubmitting = false;
+let gameFinished = false;
 
 function normGameText(txt) {
-  // دالة بسيطة لتوحيد المسافات (تدعم القبطي عادي جداً)
-  return txt.trim().replace(/\s+/g, ' '); 
+    // Normalize whitespace and Unicode without removing Coptic accents or Arabic letters.
+    return String(txt ?? '')
+        .normalize('NFC')
+        .replace(/[\u200E\u200F\u061C\u202A-\u202E\u2066-\u2069\uFEFF]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
 $('btn-load-game').onclick = () => {
    const n = $('name').value;
    $('btn-load-game').disabled = true;
    $('btn-load-game').textContent = '⏳ جارٍ التحميل...';
-   
+
    fetch(API, { method: 'POST', body: JSON.stringify({action: 'getGame', name: n}) })
    .then(r => r.json())
    .then(d => {
@@ -660,32 +688,29 @@ $('btn-load-game').onclick = () => {
    });
 };
 
-
-let remainingGameTries = 2;
-
 function setupGameBoard(game) {
     $('game-setup').hidden = true;
     $('game-board-wrap').hidden = false;
     $('g-piece-title').textContent = game.title;
+    $('g-piece-title').dir = 'auto';
 
     currentGameTarget = normGameText(game.text);
     remainingGameTries = 2;
+    gameSubmitting = false;
+    gameFinished = false;
 
-    // Split the text into 5-10 random groups
     const words = currentGameTarget.split(' ').filter(Boolean);
-
     const partsCount = words.length <= 5
         ? words.length
         : 5 + Math.floor(Math.random() * (Math.min(10, words.length) - 4));
 
-    // Keep group lengths reasonably balanced
-    let sizes = Array(partsCount).fill(Math.floor(words.length / partsCount));
-
-    for (let i = 0; i < words.length % partsCount; i++) {
-        sizes[i]++;
+    // Random groups, with a reasonably balanced number of words per group.
+    const sizes = Array(partsCount).fill(Math.floor(words.length / partsCount));
+    for (let i = 0; i < words.length % partsCount; i++) sizes[i]++;
+    for (let i = sizes.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [sizes[i], sizes[j]] = [sizes[j], sizes[i]];
     }
-
-    sizes.sort(() => Math.random() - 0.5);
 
     let position = 0;
     currentWords = sizes.map(size => {
@@ -694,26 +719,20 @@ function setupGameBoard(game) {
         return part;
     });
 
-    // Shuffle the groups
-    let shuffled = [...currentWords];
-
+    // Save the original position so right/wrong isn't affected by RTL/LTR display.
+    const shuffled = currentWords.map((text, index) => ({ text, index }));
     for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-
-    // Avoid starting in the correct order
-    if (shuffled.length > 1 &&
-        shuffled.every((w, i) => w === currentWords[i])) {
+    if (shuffled.length > 1 && shuffled.every((part, i) => part.index === i)) {
         [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
     }
 
     $('g-answer-area').replaceChildren();
     $('g-words-area').replaceChildren();
-
     $('g-answer-area').dir = 'ltr';
     $('g-words-area').dir = 'ltr';
-
     $('g-msg').textContent = '';
     $('g-msg').style.color = 'var(--fg)';
     $('g-answer-area').className = 'area-box';
@@ -723,107 +742,111 @@ function setupGameBoard(game) {
     $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
     $('g-retry-btn').hidden = true;
 
+    if (!shuffled.length) {
+        $('g-msg').textContent = 'لا يوجد نص للحن في الجدول.';
+        return;
+    }
+
     shuffled.forEach(part => {
-        $('g-words-area').appendChild(createGamePart(part));
+        $('g-words-area').appendChild(createGamePart(part.text, part.index));
     });
 }
 
-
-// Create one movable puzzle group
-function createGamePart(text) {
+// Each puzzle piece carries its exact source text and original index.
+function createGamePart(text, index) {
     const item = document.createElement('div');
     item.className = 'game-part';
     item.dataset.text = text;
+    item.dataset.index = String(index);
 
-    const left = document.createElement('button');
-    left.type = 'button';
-    left.className = 'move-arrow';
-    left.textContent = '◀';
-    left.onclick = () => shiftGamePart(item, -1);
+    const up = document.createElement('button');
+    up.type = 'button';
+    up.className = 'move-arrow';
+    up.textContent = '↑';
+    up.title = 'حرك لفوق';
+    up.setAttribute('aria-label', 'حرك المقطع لفوق');
+    up.onclick = () => shiftGamePart(item, -1);
 
     const word = document.createElement('button');
     word.type = 'button';
     word.className = 'word-btn';
     word.textContent = text;
+    word.dir = 'auto';
     word.onclick = () => moveWord(item);
 
-    const right = document.createElement('button');
-    right.type = 'button';
-    right.className = 'move-arrow';
-    right.textContent = '▶';
-    right.onclick = () => shiftGamePart(item, 1);
+    const down = document.createElement('button');
+    down.type = 'button';
+    down.className = 'move-arrow';
+    down.textContent = '↓';
+    down.title = 'حرك لتحت';
+    down.setAttribute('aria-label', 'حرك المقطع لتحت');
+    down.onclick = () => shiftGamePart(item, 1);
 
-    item.append(left, word, right);
+    item.append(up, word, down);
     return item;
 }
 
-
-// Move a group between the two areas
+// Tap a piece to move it between the available groups and the answer.
 function moveWord(item) {
+    if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
     initAudio();
 
     const ans = $('g-answer-area');
     const wrd = $('g-words-area');
-
-    if (item.parentElement === wrd) {
-        ans.appendChild(item);
-    } else {
-        wrd.appendChild(item);
-    }
+    if (item.parentElement === wrd) ans.appendChild(item);
+    else if (item.parentElement === ans) wrd.appendChild(item);
 
     updateMoveButtons();
-
-    $('g-check-btn').hidden =
-        wrd.children.length > 0 ||
-        ! $('g-retry-btn').hidden ||
-        remainingGameTries <= 0;
+    updateGameCheckButton();
 }
 
-
-// Move a group left or right inside the answer
+// Visually the answer goes from top to bottom for both Arabic and Coptic.
 function shiftGamePart(item, direction) {
+    if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
     const ans = $('g-answer-area');
-
     if (item.parentElement !== ans) return;
 
     if (direction === -1 && item.previousElementSibling) {
         ans.insertBefore(item, item.previousElementSibling);
-    }
-
-    if (direction === 1 && item.nextElementSibling) {
+    } else if (direction === 1 && item.nextElementSibling) {
         ans.insertBefore(item.nextElementSibling, item);
     }
-
     updateMoveButtons();
 }
 
-
-// Enable arrows only when movement is possible
 function updateMoveButtons() {
     const items = [...$('g-answer-area').children];
-
     items.forEach((item, i) => {
         const arrows = item.querySelectorAll('.move-arrow');
-
-        arrows[0].disabled = (i === 0);
-        arrows[1].disabled = (i === items.length - 1);
+        arrows[0].disabled = i === 0;
+        arrows[1].disabled = i === items.length - 1;
     });
 }
 
+function updateGameCheckButton() {
+    $('g-check-btn').hidden =
+        $('g-words-area').children.length > 0 ||
+        $('g-answer-area').children.length !== currentWords.length ||
+        !$('g-retry-btn').hidden ||
+        remainingGameTries <= 0 ||
+        gameSubmitting || gameFinished;
+}
 
-// Check the answer
 $('g-check-btn').onclick = () => {
-    if (remainingGameTries <= 0) return;
+    if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
 
-    const userSentence = Array.from($('g-answer-area').children)
-        .map(b => b.dataset.text)
-        .join(' ');
+    const answerParts = [...$('g-answer-area').children];
+    if (answerParts.length !== currentWords.length || $('g-words-area').children.length) return;
 
-    const isWin = normGameText(userSentence) === currentGameTarget;
+    const userSentence = answerParts.map(part => part.dataset.text).join(' ');
+    const correctOrder = answerParts.every((part, i) => Number(part.dataset.index) === i);
+    // Identical phrases can be swapped without changing the actual hymn.
+    const correctText = normGameText(userSentence) === currentGameTarget;
+    const isWin = correctOrder || correctText;
 
     const ansBox = $('g-answer-area');
     const msg = $('g-msg');
-
+    gameSubmitting = true;
     $('g-check-btn').disabled = true;
     $('g-check-btn').textContent = '⏳ جارٍ التحقق...';
 
@@ -838,6 +861,7 @@ $('g-check-btn').onclick = () => {
     })
     .then(r => r.json())
     .then(d => {
+        gameSubmitting = false;
         $('g-check-btn').disabled = false;
         $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
 
@@ -849,12 +873,12 @@ $('g-check-btn').onclick = () => {
         }
 
         if (isWin) {
+            gameFinished = true;
             ansBox.classList.add('correct-anim');
             msg.textContent = 'برافو عليك! 🎉 كسبت 1 كوبون 🎟️';
             msg.style.color = '#10b981';
             $('g-check-btn').hidden = true;
             $('g-retry-btn').hidden = true;
-
             playWinSound();
             fetchAttendance($('name').value);
 
@@ -867,104 +891,41 @@ $('g-check-btn').onclick = () => {
                 $('game-setup').querySelector('p').style.color = 'var(--fg)';
                 $('btn-load-game').textContent = 'العب لحن جديد 🔥';
             }, 3000);
-
         } else {
             remainingGameTries--;
-
             ansBox.classList.add('wrong-anim');
             msg.style.color = '#ef4444';
-
             $('g-check-btn').hidden = true;
 
             if (remainingGameTries > 0) {
-                msg.textContent =
-                    'إجابة خاطئة ❌ متبقي محاولة واحدة. عدّل الترتيب وجرب تاني.';
+                msg.textContent = 'إجابة خاطئة ❌ متبقي محاولة واحدة. عدّل الترتيب وجرب تاني.';
                 $('g-retry-btn').hidden = false;
             } else {
-                msg.textContent =
-                    'إجابة خاطئة ❌ انتهت المحاولتان.';
+                gameFinished = true;
+                msg.textContent = 'إجابة خاطئة ❌ انتهت المحاولتان.';
                 $('g-retry-btn').hidden = true;
             }
 
-            setTimeout(() => {
-                ansBox.classList.remove('wrong-anim');
-            }, 1000);
+            setTimeout(() => ansBox.classList.remove('wrong-anim'), 1000);
         }
     })
     .catch(e => {
+        gameSubmitting = false;
         $('g-check-btn').disabled = false;
         $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
+        updateGameCheckButton();
         alert('⚠️ خطأ في الاتصال بالانترنت');
     });
 };
 
-
-// Retry without clearing the current answer
+// Retry: keep the existing arrangement, then allow a second check.
 $('g-retry-btn').onclick = () => {
+    if (gameFinished || gameSubmitting || remainingGameTries <= 0) return;
     $('g-retry-btn').hidden = true;
     $('g-answer-area').classList.remove('wrong-anim');
-
-    $('g-msg').textContent =
-        'عدّل ترتيب القطع باستخدام الأسهم ثم تحقق من الإجابة.';
+    $('g-msg').textContent = 'عدّل ترتيب القطع باستخدام الأسهم ثم تحقق من الإجابة.';
     $('g-msg').style.color = 'var(--fg)';
-
-    $('g-check-btn').hidden =
-        $('g-words-area').children.length > 0;
-};
-
-
-function moveWord(btn) {
-   initAudio(); // للتأكد من تفعيل الصوت
-   let ans = $('g-answer-area'), wrd = $('g-words-area');
-   if (btn.parentElement === wrd) ans.appendChild(btn);
-   else wrd.appendChild(btn);
-   $('g-check-btn').hidden = (wrd.children.length > 0);
-}
-
-$('g-check-btn').onclick = () => {
-   const userSentence = Array.from($('g-answer-area').children).map(b => b.textContent).join(' ');
-   const isWin = normGameText(userSentence) === currentGameTarget;
-   const ansBox = $('g-answer-area'), msg = $('g-msg');
-   
-   $('g-check-btn').disabled = true;
-   $('g-check-btn').textContent = '⏳ جارٍ التحقق...';
-   
-   fetch(API, { method: 'POST', body: JSON.stringify({action: 'submitGame', name: $('name').value, piece: $('g-piece-title').textContent, isWin: isWin}) })
-   .then(r => r.json())
-   .then(d => {
-      $('g-check-btn').disabled = false;
-      $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
-      
-      if (isWin) {
-         ansBox.classList.add('correct-anim');
-         msg.innerHTML = 'برافو عليك! 🎉 كسبت 1 كوبون 🎟️';
-         msg.style.color = '#10b981';
-         $('g-check-btn').hidden = true;
-         playWinSound(); // تشغيل مزيكا الفوز
-         fetchAttendance($('name').value); // تحديث الكوبونات فوراً في الواجهة
-         
-         setTimeout(() => {
-            $('game-setup').hidden = false;
-            $('game-board-wrap').hidden = true;
-            $('btn-load-game').disabled = false;
-            $('game-setup').querySelector('p').textContent = 'ممتاز! اختار لحن كمان لو حابب تلعب.';
-            $('game-setup').querySelector('p').style.color = 'var(--fg)';
-            $('btn-load-game').textContent = 'العب لحن جديد 🔥';
-         }, 3000);
-      } else {
-         ansBox.classList.add('wrong-anim');
-         msg.innerHTML = 'إجابة خاطئة ❌ تم خصم محاولة.';
-         msg.style.color = '#ef4444';
-         setTimeout(() => { ansBox.classList.remove('wrong-anim'); }, 1000);
-         // ترجيع الكلمات تحت عشان يجرب تاني
-         Array.from(ansBox.children).forEach(b => moveWord(b));
-      }
-   })
-   .catch(e => {
-      $('g-check-btn').disabled = false;
-      $('g-check-btn').textContent = 'تحقق من الإجابة ✔️';
-      alert('⚠️ خطأ في الاتصال بالانترنت');
-   });
+    updateGameCheckButton();
 };
 
 /* --- دوال Challenge State الخاصة بتحدي المردات القديم --- */
