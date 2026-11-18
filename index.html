@@ -305,7 +305,7 @@
     font-weight: 900; box-shadow: 0 6px 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.3); 
     white-space: nowrap; font-size: 17px; z-index: 5; 
     border: 2px solid #60a5fa; 
-    transform: translate3d(-50%, -50px, 0); /* Hardware Accelerated Start */
+    transform: translate3d(-50%, -50px, 0); 
     will-change: transform;
 }
 .catch-item.wrong {
@@ -460,17 +460,7 @@
         
         <div id="game-cards-container" style="display: flex; flex-direction: column;">
           
-          <button id="btn-catch-game" class="game-mode-card card-catch" disabled>
-            <div class="game-badge">مكافأة كوبونات</div>
-            <div class="game-mode-icon">
-              <svg viewBox="0 0 24 24"><path d="M4 11h16v2H4zm14-4H6V5h12v2zm-2-4H8v2h8V3zM3 15h18v6c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-6zm3 2v4h12v-4H6z"/></svg>
-            </div>
-            <div class="game-mode-details">
-              <h4 class="game-mode-title">صائد الكلمات (أركيد)</h4>
-              <p class="game-mode-desc">اصطد كلمات اللحن وهي بتنزل من السما بالترتيب.</p>
-            </div>
-          </button>
-
+          <!-- 1. ترتيب الكلمات -->
           <button id="btn-load-game" class="game-mode-card card-sort" disabled>
             <div class="game-badge">مكافأة كوبونات</div>
             <div class="game-mode-icon">
@@ -481,7 +471,19 @@
               <p class="game-mode-desc">رتّب مقاطع اللحن بشكل صحيح لتفوز بالكوبونات.</p>
             </div>
           </button>
+          
+          <!-- 2. صائد الكلمات -->
+          <button id="btn-catch-game" class="game-mode-card card-catch" disabled>
+            <div class="game-mode-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 11h16v2H4zm14-4H6V5h12v2zm-2-4H8v2h8V3zM3 15h18v6c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-6zm3 2v4h12v-4H6z"/></svg>
+            </div>
+            <div class="game-mode-details">
+              <h4 class="game-mode-title">صائد الكلمات (أركيد)</h4>
+              <p class="game-mode-desc">اصطد كلمات اللحن بالترتيب (للتدريب والتركيز).</p>
+            </div>
+          </button>
 
+          <!-- 3. المرد وردّه -->
           <button id="btn-quiz-game" class="game-mode-card card-quiz" disabled>
             <div class="game-mode-icon">
               <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
@@ -493,6 +495,19 @@
           </button>
 
         </div>
+      </div>
+      
+      <!-- واجهة ترتيب الكلمات -->
+      <div id="game-board-wrap" hidden>
+        <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">رجوع للساحة</button>
+        <h3 id="g-piece-title" style="color:var(--accent); text-align:center; font-family: 'Marhey', sans-serif;"></h3>
+        <p style="text-align: center; font-size: 12px; opacity: 0.8; margin-bottom: 12px;">رتّب المقاطع من فوق لتحت لتكوين اللحن الصحيح</p>
+        <div id="g-answer-area" class="area-box"></div>
+        <div id="g-words-area" class="area-box"></div>
+        <button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة</button>
+        <button id="g-retry-btn" class="action-btn" style="background:#f59e0b; margin-top:10px;" hidden>حاول مرة تانية</button>
+        <button id="g-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد</button>
+        <div id="g-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 18px;"></div>
       </div>
       
       <!-- واجهة لعبة صائد الكلمات -->
@@ -512,19 +527,6 @@
         
         <button id="c-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد</button>
         <div id="c-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 16px;"></div>
-      </div>
-
-      <!-- واجهة ترتيب الكلمات -->
-      <div id="game-board-wrap" hidden>
-        <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">رجوع للساحة</button>
-        <h3 id="g-piece-title" style="color:var(--accent); text-align:center; font-family: 'Marhey', sans-serif;"></h3>
-        <p style="text-align: center; font-size: 12px; opacity: 0.8; margin-bottom: 12px;">رتّب المقاطع من فوق لتحت لتكوين اللحن الصحيح</p>
-        <div id="g-answer-area" class="area-box"></div>
-        <div id="g-words-area" class="area-box"></div>
-        <button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة</button>
-        <button id="g-retry-btn" class="action-btn" style="background:#f59e0b; margin-top:10px;" hidden>حاول مرة تانية</button>
-        <button id="g-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد</button>
-        <div id="g-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 18px;"></div>
       </div>
 
       <!-- واجهة المرد ورده -->
@@ -558,7 +560,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.24 (Arcade Pro)'; 
+const VERSION = 'v2.25 (Arcade Final)'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -1272,57 +1274,23 @@ function winCatchGame() {
     catchIsActive = false;
     clearInterval(catchSpawner);
     $('c-target-msg').innerHTML = '<span style="color:#10b981;">اكتمل اللحن! 🎉</span>';
-    $('c-msg').textContent = 'جاري إرسال النتيجة...';
+    $('c-msg').textContent = 'أداء ممتاز برافو عليك 👏';
     $('c-msg').style.color = '#10b981';
-
-    fetch(API, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'submitGame', name: $('name').value, piece: catchGamePiece, isWin: true })
-    })
-    .then(r => r.json())
-    .then(d => {
-        if(d.error) {
-            $('c-msg').textContent = d.error;
-            $('c-msg').style.color = '#ef4444';
-        } else {
-            $('c-msg').textContent = 'برافو! كسبت 5 كوبون 🎟️';
-            playWinSound();
-            fetchAttendance($('name').value);
-            setTimeout(backToGameSelector, 3000);
-        }
-    }).catch(e => {
-        $('c-msg').textContent = '⚠️ تم الفوز ولكن فشل الاتصال لحفظ الكوبونات';
-        setTimeout(backToGameSelector, 3000);
-    });
+    playWinSound();
+    
+    // تم إلغاء الاتصال بالسيرفر للمكافأة هنا بناءً على طلبك
+    setTimeout(backToGameSelector, 3000);
 }
 
 function loseCatchGame() {
     catchIsActive = false;
     clearInterval(catchSpawner);
     $('c-target-msg').innerHTML = '<span style="color:#ef4444;">انتهت القلوب 💔</span>';
-    $('c-msg').textContent = 'جاري تسجيل المحاولة...';
+    $('c-msg').textContent = 'حاول تركز أكتر المرة الجاية!';
     $('c-msg').style.color = '#ef4444';
-
-    fetch(API, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'submitGame', name: $('name').value, piece: catchGamePiece, isWin: false })
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.error && !d.error.includes("خلصت محاولتين")) {
-            $('c-msg').textContent = d.error;
-        } else if(d.attemptsLeft !== undefined && d.attemptsLeft <= 0) {
-            $('c-msg').textContent = 'انتهت محاولاتك في اللحن ده اليوم.';
-            $('c-next-game-btn').hidden = false;
-        } else {
-            $('c-msg').textContent = 'حاول تركز أكتر المرة الجاية!';
-            $('c-next-game-btn').hidden = false;
-            $('c-next-game-btn').textContent = 'حاول مرة تانية 🔄';
-        }
-    }).catch(e => {
-        $('c-msg').textContent = '⚠️ خطأ في الاتصال';
-        $('c-next-game-btn').hidden = false;
-    });
+    
+    $('c-next-game-btn').hidden = false;
+    $('c-next-game-btn').textContent = 'حاول مرة تانية 🔄';
 }
 
 // تحريك السلة بنعومة وبدون لاج نهائياً
