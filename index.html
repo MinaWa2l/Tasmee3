@@ -267,16 +267,58 @@
 .card-quiz .game-mode-title { color: #7e22ce; }
 .card-quiz:hover { border-color: #8b5cf6; }
 
-/* Catch The Melody Game Styles */
+/* Catch The Melody Arcade Pro Styles */
 .card-catch { border-color: rgba(16, 185, 129, 0.3); }
 .card-catch .game-mode-icon { background: linear-gradient(135deg, #10b981, #059669); }
 .card-catch .game-mode-title { color: #059669; }
 .card-catch:hover { border-color: #10b981; }
 
-#catch-area { position: relative; width: 100%; height: 350px; background: linear-gradient(180deg, #1e3a8a, #3b82f6); border-radius: 12px; overflow: hidden; touch-action: none; margin-bottom: 16px; border: 3px solid #1e3a8a; }
-#catch-basket { position: absolute; bottom: 15px; left: 50%; width: 70px; height: 50px; background: rgba(255,255,255,0.2); border: 2px solid #fff; border-radius: 10px 10px 20px 20px; transform: translateX(-50%); display: flex; justify-content: center; align-items: center; font-size: 30px; backdrop-filter: blur(4px); transition: background 0.2s, transform 0.1s; z-index: 10; }
-.catch-item { position: absolute; background: #ffffff; color: #1e3a8a; padding: 6px 12px; border-radius: 12px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.3); white-space: nowrap; transform: translateX(-50%); font-size: 16px; z-index: 5; border: 2px solid #e0f2fe; }
+#catch-area { 
+    position: relative; width: 100%; height: 420px; 
+    background: radial-gradient(circle at bottom, #0f172a 0%, #020617 100%); 
+    border-radius: 16px; overflow: hidden; touch-action: none; 
+    margin-bottom: 16px; border: 2px solid #3b82f6; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 30px rgba(59,130,246,0.2);
+}
+.catch-stars {
+    position: absolute; width: 200%; height: 200%;
+    background-image: radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, #ffffff, rgba(0,0,0,0));
+    background-repeat: repeat; background-size: 200px 200px;
+    animation: starsScroll 5s linear infinite; opacity: 0.25;
+}
+@keyframes starsScroll { 0% { transform: translateY(-100px); } 100% { transform: translateY(100px); } }
+
+#catch-basket { 
+    position: absolute; bottom: 15px; left: 50%; 
+    width: 76px; height: 76px; 
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
+    border-radius: 50%; transform: translateX(-50%); 
+    display: flex; justify-content: center; align-items: center; 
+    font-size: 40px; z-index: 10; 
+    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.8));
+    will-change: left, background;
+}
+.catch-item { 
+    position: absolute; top:0; left: 50%;
+    background: linear-gradient(135deg, #1e40af, #3b82f6); 
+    color: #ffffff; padding: 10px 18px; border-radius: 25px; 
+    font-weight: 900; box-shadow: 0 6px 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.3); 
+    white-space: nowrap; font-size: 17px; z-index: 5; 
+    border: 2px solid #60a5fa; 
+    transform: translate3d(-50%, -50px, 0); /* Hardware Accelerated Start */
+    will-change: transform;
+}
+.catch-item.wrong {
+    background: linear-gradient(135deg, #475569, #1e293b); 
+    border-color: #94a3b8; color: #f1f5f9;
+}
 .catch-stats { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg); border: 2px solid var(--line); border-radius: 12px; margin-bottom: 12px; font-weight: bold; }
+.c-pop {
+    position: absolute; color: #10b981; font-weight: 900; font-size: 24px;
+    animation: flyUp 0.6s ease-out forwards; z-index: 20; pointer-events: none;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+@keyframes flyUp { 0% { transform: translate(-50%, 0) scale(1); opacity: 1; } 100% { transform: translate(-50%, -40px) scale(1.5); opacity: 0; } }
 </style>
 </head>
 <body>
@@ -459,12 +501,13 @@
         <h3 id="c-piece-title" style="color:var(--accent); text-align:center; font-family: 'Marhey', sans-serif; margin-top:0;"></h3>
         
         <div class="catch-stats">
-           <span id="c-target-msg" style="color:#059669;">الكلمة القادمة: <span id="c-next-word" style="font-size:18px;">---</span></span>
-           <span id="c-lives" style="font-size:18px;">❤️❤️❤️</span>
+           <span id="c-target-msg" style="color:#059669;">الكلمة القادمة: <span id="c-next-word" style="font-size:18px; color:var(--accent);">---</span></span>
+           <span id="c-lives" style="font-size:18px; filter: drop-shadow(0 2px 4px rgba(220,38,38,0.3));">❤️❤️❤️</span>
         </div>
         
         <div id="catch-area">
-           <div id="catch-basket">🧺</div>
+           <div class="catch-stars"></div>
+           <div id="catch-basket">✨</div>
         </div>
         
         <button id="c-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد</button>
@@ -515,7 +558,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v2.22 (Arcade)'; 
+const VERSION = 'v2.24 (Arcade Pro)'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -788,7 +831,6 @@ function backToGameSelector() {
     $('catch-board-wrap').hidden = true;
     $('game-selector').hidden = false;
     
-    // إيقاف لعبة صائد الكلمات لو شغالة
     catchIsActive = false;
     if(catchAnimationFrame) cancelAnimationFrame(catchAnimationFrame);
     if(catchSpawner) clearInterval(catchSpawner);
@@ -1059,7 +1101,7 @@ $('g-next-game-btn').onclick = () => {
 };
 
 /* ==================================================
-   لعبة 2: صائد الكلمات (Catch The Melody Arcade)
+   لعبة 2: صائد الكلمات (Catch The Melody Pro)
 ================================================== */
 let catchAnimationFrame, catchSpawner;
 let catchBasketX = 50; 
@@ -1067,7 +1109,7 @@ let catchItems = [];
 let catchTargetWords = [];
 let catchCurrentIdx = 0;
 let catchLives = 3;
-let catchSpeed = 1.5;
+let catchSpeed = 2.5;
 let catchIsActive = false;
 let catchGamePiece = "";
 
@@ -1098,7 +1140,6 @@ function initCatchGame(game) {
     catchGamePiece = game.title;
     $('c-piece-title').textContent = catchGamePiece;
     
-    // تحويل النص لكلمات، بحد أقصى 20 كلمة عشان متبقاش طويلة جداً
     let fullWords = normGameText(game.text).split(' ').filter(Boolean);
     catchTargetWords = fullWords.length > 20 ? fullWords.slice(0, 20) : fullWords;
     
@@ -1110,7 +1151,7 @@ function initCatchGame(game) {
     
     catchCurrentIdx = 0;
     catchLives = 3;
-    catchSpeed = window.innerHeight < 700 ? 1.2 : 1.5; // أبطأ شوية للشاشات الصغيرة
+    catchSpeed = window.innerHeight < 700 ? 2 : 2.8; 
     catchItems.forEach(i => i.el.remove());
     catchItems = [];
     catchIsActive = true;
@@ -1123,16 +1164,16 @@ function initCatchGame(game) {
     
     catchBasketX = 50;
     $('catch-basket').style.left = '50%';
-    $('catch-basket').style.background = 'rgba(255,255,255,0.2)';
+    $('catch-basket').style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)';
     
     initAudio();
     catchAnimationFrame = requestAnimationFrame(catchLoop);
-    catchSpawner = setInterval(spawnCatchItem, 1400); // تنزيل كلمة كل ثانية ونص
+    catchSpawner = setInterval(spawnCatchItem, 1000); 
 }
 
 function spawnCatchItem() {
     if(!catchIsActive) return;
-    let isCorrect = Math.random() < 0.45; // 45% الكلمة الصح تنزل
+    let isCorrect = Math.random() < 0.45;
     let wordToSpawn = "";
     
     if(isCorrect) {
@@ -1146,16 +1187,16 @@ function spawnCatchItem() {
     }
 
     let el = document.createElement('div');
-    el.className = 'catch-item';
+    el.className = 'catch-item' + (isCorrect ? '' : ' wrong');
     el.textContent = wordToSpawn;
     el.dir = 'auto';
     
-    let xPos = 15 + Math.random() * 70; // 15% to 85% عشان متخرجش بره الشاشة
+    let xPos = 15 + Math.random() * 70; 
     el.style.left = xPos + '%';
-    el.style.top = '-30px';
+    el.style.transform = `translate3d(-50%, -50px, 0)`;
     $('catch-area').appendChild(el);
 
-    catchItems.push({ el, x: xPos, y: -30, isCorrect, text: wordToSpawn });
+    catchItems.push({ el, x: xPos, y: -50, isCorrect, text: wordToSpawn });
 }
 
 function catchLoop() {
@@ -1166,10 +1207,9 @@ function catchLoop() {
     for(let i = catchItems.length - 1; i >= 0; i--) {
         let item = catchItems[i];
         item.y += catchSpeed;
-        item.el.style.top = item.y + 'px';
+        item.el.style.transform = `translate3d(-50%, ${item.y}px, 0)`;
 
         let itemRect = item.el.getBoundingClientRect();
-        
         let hit = !(itemRect.right < basketRect.left || 
                     itemRect.left > basketRect.right || 
                     itemRect.bottom < basketRect.top || 
@@ -1178,9 +1218,8 @@ function catchLoop() {
         if(hit) {
             item.el.remove();
             catchItems.splice(i, 1);
-            handleCatchCollision(item);
+            handleCatchCollision(item, itemRect.left, itemRect.top);
         } else if (item.y > areaHeight) {
-            // لو الكلمة الصح نزلت عالأرض من غير ما نصطادها مش هننقص قلب، هنستناها تنزل تاني
             item.el.remove();
             catchItems.splice(i, 1);
         }
@@ -1188,12 +1227,25 @@ function catchLoop() {
     catchAnimationFrame = requestAnimationFrame(catchLoop);
 }
 
-function handleCatchCollision(item) {
+function showCatchPop(text, color, x, y) {
+    let pop = document.createElement('div');
+    pop.className = 'c-pop';
+    pop.style.left = x + 'px';
+    pop.style.top = y + 'px';
+    pop.style.color = color;
+    pop.textContent = text;
+    document.body.appendChild(pop);
+    setTimeout(() => pop.remove(), 600);
+}
+
+function handleCatchCollision(item, x, y) {
     if(item.isCorrect && item.text === catchTargetWords[catchCurrentIdx]) {
         catchCurrentIdx++;
-        catchSpeed += 0.05; // اللعبة بتسرع سنة صغيرة
-        $('catch-basket').style.background = 'rgba(16, 185, 129, 0.6)';
-        setTimeout(() => { if($('catch-basket')) $('catch-basket').style.background = 'rgba(255,255,255,0.2)'; }, 200);
+        catchSpeed += 0.15; 
+        $('catch-basket').style.background = 'radial-gradient(circle, rgba(16, 185, 129, 0.7) 0%, transparent 70%)';
+        showCatchPop('+1', '#10b981', x + 30, y);
+        
+        setTimeout(() => { if($('catch-basket')) $('catch-basket').style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)'; }, 200);
         
         if(catchCurrentIdx >= catchTargetWords.length) {
             winCatchGame();
@@ -1204,8 +1256,10 @@ function handleCatchCollision(item) {
     } else {
         catchLives--;
         $('c-lives').textContent = '❤️'.repeat(catchLives) + '🤍'.repeat(3 - catchLives);
-        $('catch-basket').style.background = 'rgba(239, 68, 68, 0.6)';
-        setTimeout(() => { if($('catch-basket')) $('catch-basket').style.background = 'rgba(255,255,255,0.2)'; }, 200);
+        $('catch-basket').style.background = 'radial-gradient(circle, rgba(239, 68, 68, 0.7) 0%, transparent 70%)';
+        showCatchPop('❌', '#ef4444', x + 30, y);
+        
+        setTimeout(() => { if($('catch-basket')) $('catch-basket').style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)'; }, 200);
         playLoseSound();
         
         if(catchLives <= 0) {
@@ -1271,25 +1325,26 @@ function loseCatchGame() {
     });
 }
 
-// التحكم في حركة السلة (Touch & Mouse)
+// تحريك السلة بنعومة وبدون لاج نهائياً
 let moveBasket = (e) => {
     if(!catchIsActive) return;
-    e.preventDefault(); // منع سكرول الشاشة
+    e.preventDefault();
     let rect = $('catch-area').getBoundingClientRect();
     let clientX = e.touches ? e.touches[0].clientX : e.clientX;
     let x = clientX - rect.left;
     catchBasketX = Math.max(10, Math.min(90, (x / rect.width) * 100));
+    // تغيير الـ left فقط لأن الـ Transform متثبت
     $('catch-basket').style.left = catchBasketX + '%';
 };
 $('catch-area').addEventListener('touchmove', moveBasket, {passive:false});
 $('catch-area').addEventListener('mousemove', (e) => {
-    if(e.buttons === 1) moveBasket(e); // التحريك بالماوس شغال لو ضاغط كليك
+    if(e.buttons === 1) moveBasket(e);
 });
 
 $('c-next-game-btn').onclick = () => {
     $('c-next-game-btn').hidden = true;
     backToGameSelector();
-    $('btn-catch-game').click(); // نفتح لحن جديد
+    $('btn-catch-game').click();
 };
 
 
