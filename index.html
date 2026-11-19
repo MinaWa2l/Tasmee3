@@ -4,6 +4,16 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <meta charset="utf-8">
+<script>
+(function () {
+  var t = null;
+  try { t = localStorage.getItem('theme'); } catch (e) {}
+  if (t !== 'light' && t !== 'dark') {
+    t = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 <title>مدرسة الشمامسة</title>
 <link rel="manifest" href="manifest.json">
@@ -32,21 +42,22 @@
     --shadow-soft: 0 10px 30px -5px rgba(15, 45, 89, 0.08), 0 4px 12px -2px rgba(15, 45, 89, 0.04);
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root { 
-      --bg: #020b1c;
-      --fg: #f8fafc; 
-      --card: rgba(12, 29, 58, 0.65);
-      --card-solid: #0a1d3b;
-      --line: rgba(148, 163, 184, 0.16); 
-      --accent: #3b82f6; 
-      --accent-bright: #60a5fa;
-      --accent-light: rgba(59, 130, 246, 0.16);
-      --rec: #ef4444; 
-      --glass-inset: rgba(255, 255, 255, 0.1);
-      --input-bg: rgba(2, 15, 36, 0.55);
-      --shadow-soft: 0 12px 36px -6px rgba(0, 0, 0, 0.45), 0 4px 12px -2px rgba(0, 0, 0, 0.3);
-    }
+  :root { color-scheme: light; }
+
+  :root[data-theme="dark"] { 
+    color-scheme: dark;
+    --bg: #020b1c;
+    --fg: #f8fafc; 
+    --card: rgba(12, 29, 58, 0.65);
+    --card-solid: #0a1d3b;
+    --line: rgba(148, 163, 184, 0.16); 
+    --accent: #3b82f6; 
+    --accent-bright: #60a5fa;
+    --accent-light: rgba(59, 130, 246, 0.16);
+    --rec: #ef4444; 
+    --glass-inset: rgba(255, 255, 255, 0.1);
+    --input-bg: rgba(2, 15, 36, 0.55);
+    --shadow-soft: 0 12px 36px -6px rgba(0, 0, 0, 0.45), 0 4px 12px -2px rgba(0, 0, 0, 0.3);
   }
   
   body { 
@@ -334,19 +345,17 @@
     transition: color 0.8s;
   }
 
-  @media (prefers-color-scheme: dark) {
-    #progwrap {
-      background: rgba(15, 23, 42, 0.45);
-      border-color: rgba(255, 255, 255, 0.16);
-      box-shadow:
-        0 10px 26px rgba(0, 0, 0, 0.35),
-        inset 0 1px 1px rgba(255, 255, 255, 0.22),
-        inset 0 -2px 8px rgba(0, 0, 0, 0.35);
-    }
-    .prog-text span:last-child {
-      background: rgba(2, 11, 28, 0.6);
-      border-color: rgba(255, 255, 255, 0.16);
-    }
+  :root[data-theme="dark"] #progwrap {
+    background: rgba(15, 23, 42, 0.45);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow:
+      0 10px 26px rgba(0, 0, 0, 0.35),
+      inset 0 1px 1px rgba(255, 255, 255, 0.22),
+      inset 0 -2px 8px rgba(0, 0, 0, 0.35);
+  }
+  :root[data-theme="dark"] .prog-text span:last-child {
+    background: rgba(2, 11, 28, 0.6);
+    border-color: rgba(255, 255, 255, 0.16);
   }
 
   @keyframes alert-glow { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35); border-color: rgba(220, 38, 38, 0.5); } 50% { box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15); border-color: #dc2626; } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35); border-color: rgba(220, 38, 38, 0.5); } }
@@ -473,11 +482,9 @@
   z-index: 1000; 
 }
 
-@media (prefers-color-scheme: dark) { 
-  .ios-bottom-bar { 
-    background: rgba(10, 29, 59, 0.75); 
-    border-color: rgba(59, 130, 246, 0.25);
-  } 
+:root[data-theme="dark"] .ios-bottom-bar { 
+  background: rgba(10, 29, 59, 0.75); 
+  border-color: rgba(59, 130, 246, 0.25);
 }
 
 .tab-item { 
@@ -699,6 +706,17 @@
 
 
 
+  /* --- Dark / Light Theme Toggle Button --- */
+  .theme-toggle {
+    width: 44px; height: 44px; padding: 0; flex-shrink: 0;
+    display: grid; place-items: center;
+    border-radius: 50%; font-size: 20px; line-height: 1; cursor: pointer;
+  }
+  .theme-toggle:active { transform: scale(0.92); }
+  .theme-toggle .icon-sun { display: none; }
+  :root[data-theme="dark"] .theme-toggle .icon-sun { display: inline; }
+  :root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
   /* --- Liquid Glass Install App Banner --- */
   .install-banner {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -737,6 +755,9 @@
     <div class="header-text">
       <h1>Ϯⲁⲛⲍⲏⲃ ⲛ̀ⲧⲉ ⲡⲓⲁⲋⲓⲟⲥ<br>ⲥ̀ⲧⲉⲫⲁⲛⲟⲥ ⲡⲓⲁⲣⲭⲓⲇⲓⲁⲕⲱⲛ</h1>
     </div>
+    <button type="button" id="theme-toggle" class="theme-toggle" aria-label="تبديل الوضع">
+      <span class="icon-moon">🌙</span><span class="icon-sun">☀️</span>
+    </button>
   </div>
 
   <div id="install-banner" class="install-banner" hidden>
@@ -999,7 +1020,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v3.02'; 
+const VERSION = 'v3.03'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -2122,7 +2143,53 @@ window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
 });
 
+/* --- Dark / Light theme toggle --- */
+function applyTheme(t) {
+  const dark = t === 'dark';
+  document.documentElement.setAttribute('data-theme', t);
 
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', dark ? '#020b1c' : '#0f2d59');
+
+  const btn = $('theme-toggle');
+  if (btn) btn.setAttribute('aria-label', dark ? 'التبديل للوضع الفاتح' : 'التبديل للوضع الداكن');
+
+  // keep the attendance chart readable in both modes
+  if (typeof Chart !== 'undefined') {
+    const text = dark ? '#cbd5e1' : '#475569';
+    const grid = dark ? 'rgba(148,163,184,0.18)' : 'rgba(15,23,42,0.1)';
+    Chart.defaults.color = text;
+    Chart.defaults.borderColor = grid;
+    if (attChart) {
+      const o = attChart.options;
+      o.plugins.legend.labels.color = text;
+      o.scales.x.ticks.color = text;
+      o.scales.y.ticks.color = text;
+      o.scales.x.grid = { color: grid };
+      o.scales.y.grid = { color: grid };
+      attChart.update();
+    }
+  }
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  applyTheme(next);
+}
+
+$('theme-toggle').onclick = toggleTheme;
+applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
+
+// if the kid never chose manually, follow the phone's setting live
+try {
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    let saved = null;
+    try { saved = localStorage.getItem('theme'); } catch (_) {}
+    if (!saved) applyTheme(e.matches ? 'dark' : 'light');
+  });
+} catch (e) {}
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 </script>
