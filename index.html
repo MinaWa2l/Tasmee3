@@ -802,6 +802,40 @@
     box-shadow: 0 0 18px var(--accent-light);
   }
   .g-loader-txt { font-size: 14.5px; font-weight: 800; color: var(--accent); }
+  /* --- PIN Login Flow --- */
+  .pin-input {
+    text-align: center; font-size: 24px; font-weight: 900;
+    letter-spacing: 12px; direction: ltr; padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .pin-error {
+    color: #ef4444; font-size: 13px; font-weight: 800;
+    min-height: 20px; margin: 6px 0 10px; text-align: center;
+  }
+  .pin-hint {
+    font-size: 11.5px; opacity: 0.7; margin-top: 12px; line-height: 1.5; font-weight: 600;
+  }
+  .pin-loading {
+    font-size: 13.5px; font-weight: 700; color: var(--accent-bright);
+    margin-top: 12px; text-align: center;
+  }
+  /* --- PIN Login Flow --- */
+  .pin-input {
+    text-align: center; font-size: 24px; font-weight: 900;
+    letter-spacing: 12px; direction: ltr; padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .pin-error {
+    color: #ef4444; font-size: 13px; font-weight: 800;
+    min-height: 20px; margin: 6px 0 10px; text-align: center;
+  }
+  .pin-hint {
+    font-size: 11.5px; opacity: 0.7; margin-top: 12px; line-height: 1.5; font-weight: 600;
+  }
+  .pin-loading {
+    font-size: 13.5px; font-weight: 700; color: var(--accent-bright);
+    margin-top: 12px; text-align: center;
+  }
 </style>
 </head>
 <body>
@@ -828,17 +862,40 @@
     </div>
   </div>
 
-  <!-- شاشة تسجيل الدخول بالاسم -->
+<!-- شاشة تسجيل الدخول بالاسم + الرقم السري -->
   <div id="login-screen" class="section-card login-card">
     <div class="login-icon">
       <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
     </div>
-    <h2 class="login-title">أهلاً بك يا بطل 👋</h2>
-    <p class="login-sub">اكتب اسمك واختاره من القائمة عشان تدخل على حسابك</p>
-    <div class="combo">
-      <label for="name">اسم الشماس</label>
-      <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
-      <ul id="names" hidden></ul>
+
+    <!-- الخطوة 1: اختيار الاسم -->
+    <div id="login-step-name">
+      <h2 class="login-title">أهلاً بك يا بطل 👋</h2>
+      <p class="login-sub">اكتب اسمك واختاره من القائمة عشان تدخل على حسابك</p>
+      <div class="combo">
+        <label for="name">اسم الشماس</label>
+        <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
+        <ul id="names" hidden></ul>
+      </div>
+      <div id="pin-loading" class="pin-loading" hidden>⏳ جارٍ التحقق من الحساب...</div>
+    </div>
+
+    <!-- الخطوة 2: الرقم السري (تعيين أول مرة أو دخول) -->
+    <div id="login-step-pin" hidden>
+      <h2 id="pin-title" class="login-title">---</h2>
+      <p id="pin-sub" class="login-sub"></p>
+
+      <input id="pin-input" class="pin-input" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
+
+      <div id="pin-confirm-wrap" hidden>
+        <label for="pin-confirm" style="text-align:center;">تأكيد الرقم السري</label>
+        <input id="pin-confirm" class="pin-input" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
+      </div>
+
+      <div id="pin-error" class="pin-error"></div>
+      <button type="button" id="pin-submit-btn" class="send-btn" style="margin-top:4px;">دخول</button>
+      <button type="button" id="pin-back-btn" class="alt">← تغيير الاسم</button>
+      <p id="pin-forgot-hint" class="pin-hint" hidden>نسيت الرقم السري؟ اطلب من الخادم يمسحه عشان تعمل واحد جديد.</p>
     </div>
   </div>
 
@@ -1312,6 +1369,19 @@ function updatePieces(name) {
 }
 
 let listsLoaded = false;
+let pendingLoginName = '';
+let pinMode = 'verify'; // 'setup' | 'verify'
+
+const cleanPin = v => String(v || '')
+  .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+  .replace(/\D/g, '')
+  .slice(0, 4);
+
+['pin-input', 'pin-confirm'].forEach(id => {
+  $(id).addEventListener('input', e => { e.target.value = cleanPin(e.target.value); });
+  $(id).addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('pin-submit-btn').click(); } });
+});
+
 function applyLists(d) {
   userPiecesMap = d.userPieces; allNames = d.names; progressMap = d.progress || {}; closedMap = d.closedPieces || {};
   if (!listsLoaded) {
@@ -1319,19 +1389,33 @@ function applyLists(d) {
     $('name').disabled = false; $('name').placeholder = 'اكتب للبحث عن اسمك...';
   }
   const typed = $('name').value;
-  if (allNames.includes(typed)) {
+  if (allNames.includes(typed) && $('login-screen').hidden) {
     const keep = $('piece').value; updatePieces(typed);
     if ([...$('piece').options].some(o => o.value === keep)) $('piece').value = keep;
     showLink();
   }
   syncCustomSelect('piece');
-  if (!$('name').value) {
-    let saved = '';
-    try { saved = localStorage.getItem('saved_deacon_name') || ''; } catch (e) {}
-    if (saved && allNames.includes(saved)) pickName(saved);
+
+  if (!$('name').value && !$('login-screen').hidden && !pendingLoginName) {
+    let saved = '', savedPin = '';
+    try {
+      saved = localStorage.getItem('saved_deacon_name') || '';
+      savedPin = localStorage.getItem('saved_deacon_pin') || '';
+    } catch (e) {}
+    if (saved && allNames.includes(saved)) {
+      if (savedPin) {
+        completeLogin(saved, savedPin);
+        // Silent background check in case admin cleared/reset PIN in sheet
+        fetch(API, { method: 'POST', body: JSON.stringify({ action: 'verifyPin', name: saved, pin: savedPin }) })
+          .then(r => r.json())
+          .then(res => { if (!res.ok) logoutUser(); })
+          .catch(() => {});
+      } else {
+        startPinFlow(saved);
+      }
+    }
   }
 }
-
 function refreshLists() {
   return fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
     if (!d.userPieces) throw new Error('bad response');
@@ -1368,19 +1452,125 @@ function showNames() {
   const found = matches(), items = found.length ? found.map(n => Object.assign(document.createElement('li'), { textContent: n })) : [Object.assign(document.createElement('li'), { className: 'none', textContent: 'لا يوجد اسم مطابق' })];
   $('names').replaceChildren(...items); $('names').hidden = false;
 }
-function pickName(n) {
-  try { localStorage.setItem('saved_deacon_name', n); } catch (e) {}
-  
+function startPinFlow(n) {
+  pendingLoginName = n;
+  $('name').value = n;
+  $('names').hidden = true;
+  $('name').blur();
+  $('name').disabled = true;
+  $('pin-loading').hidden = false;
+
+  fetch(API + '?action=checkPin&name=' + encodeURIComponent(n) + '&t=' + Date.now())
+    .then(r => r.json())
+    .then(d => {
+      $('pin-loading').hidden = true;
+      $('name').disabled = false;
+      if (!d.ok) {
+        pendingLoginName = '';
+        alert(d.error || 'حدث خطأ، حاول مرة أخرى');
+        return;
+      }
+      pinMode = d.hasPin ? 'verify' : 'setup';
+      $('login-step-name').hidden = true;
+      $('login-step-pin').hidden = false;
+      $('pin-input').value = '';
+      $('pin-confirm').value = '';
+      $('pin-error').textContent = '';
+
+      if (pinMode === 'setup') {
+        $('pin-title').textContent = `أهلاً بك يا ${n} 👋`;
+        $('pin-sub').textContent = 'أول مرة تدخل! اختار رقم سري من 4 أرقام لحماية حسابك';
+        $('pin-confirm-wrap').hidden = false;
+        $('pin-forgot-hint').hidden = true;
+        $('pin-submit-btn').textContent = 'حفظ ودخول';
+      } else {
+        $('pin-title').textContent = `أهلاً بك يا ${n} 🔐`;
+        $('pin-sub').textContent = 'اكتب الرقم السري بتاعك (4 أرقام)';
+        $('pin-confirm-wrap').hidden = true;
+        $('pin-forgot-hint').hidden = false;
+        $('pin-submit-btn').textContent = 'دخول';
+      }
+      $('pin-input').focus();
+    })
+    .catch(() => {
+      $('pin-loading').hidden = true;
+      $('name').disabled = false;
+      pendingLoginName = '';
+      alert('⚠️ خطأ في الاتصال بالانترنت');
+    });
+}
+
+$('pin-back-btn').onclick = () => {
+  pendingLoginName = '';
+  $('login-step-pin').hidden = true;
+  $('login-step-name').hidden = false;
+  $('pin-error').textContent = '';
+  $('name').value = '';
+  $('name').focus();
+  showNames();
+};
+
+$('pin-submit-btn').onclick = () => {
+  const pin = cleanPin($('pin-input').value);
+  const conf = cleanPin($('pin-confirm').value);
+  $('pin-error').textContent = '';
+
+  if (pin.length !== 4) {
+    $('pin-error').textContent = 'اكتب 4 أرقام';
+    $('pin-input').focus();
+    return;
+  }
+  if (pinMode === 'setup' && pin !== conf) {
+    $('pin-error').textContent = 'الرقمين مش متطابقين، جرب تاني';
+    $('pin-confirm').focus();
+    return;
+  }
+
+  $('pin-submit-btn').disabled = true;
+  $('pin-submit-btn').textContent = '⏳ جارٍ التحقق...';
+  const action = pinMode === 'setup' ? 'setPin' : 'verifyPin';
+
+  fetch(API, { method: 'POST', body: JSON.stringify({ action, name: pendingLoginName, pin }) })
+    .then(r => r.json())
+    .then(d => {
+      $('pin-submit-btn').disabled = false;
+      $('pin-submit-btn').textContent = pinMode === 'setup' ? 'حفظ ودخول' : 'دخول';
+      if (d.ok) {
+        completeLogin(pendingLoginName, pin);
+      } else {
+        $('pin-error').textContent = d.error || 'الرقم السري غير صحيح ❌';
+        $('pin-input').classList.add('wrong-anim');
+        setTimeout(() => $('pin-input').classList.remove('wrong-anim'), 500);
+        $('pin-input').value = '';
+        $('pin-input').focus();
+      }
+    })
+    .catch(() => {
+      $('pin-submit-btn').disabled = false;
+      $('pin-submit-btn').textContent = pinMode === 'setup' ? 'حفظ ودخول' : 'دخول';
+      $('pin-error').textContent = '⚠️ خطأ في الاتصال بالانترنت';
+    });
+};
+
+function completeLogin(n, pin) {
+  try {
+    localStorage.setItem('saved_deacon_name', n);
+    if (pin) localStorage.setItem('saved_deacon_pin', pin);
+  } catch (e) {}
+
+  pendingLoginName = '';
   $('name').value = n; $('names').hidden = true; $('name').blur();
   $('profile-name-display').textContent = n;
-  
+
   const wasLoggedOut = !$('login-screen').hidden;
   $('login-screen').hidden = true;
+  $('login-step-pin').hidden = true;
+  $('login-step-name').hidden = false;
   $('bottom-bar').hidden = false;
   if (wasLoggedOut) switchTab('recite');
 
   updatePieces(n); fetchHistory(n); fetchAttendance(n); loadChallenge(n);
-  
+
   if ($('btn-load-game')) {
     $('btn-load-game').disabled = false;
     $('btn-quiz-game').disabled = false;
@@ -1389,8 +1579,12 @@ function pickName(n) {
   }
 }
 
-$('btn-switch-user').onclick = () => {
-  try { localStorage.removeItem('saved_deacon_name'); } catch (e) {}
+function logoutUser() {
+  try {
+    localStorage.removeItem('saved_deacon_name');
+    localStorage.removeItem('saved_deacon_pin');
+  } catch (e) {}
+  pendingLoginName = '';
   backToGameSelector();
   isChallengeRec = false;
   $('regular-inputs').hidden = false;
@@ -1401,17 +1595,30 @@ $('btn-switch-user').onclick = () => {
   $('profile-tab').hidden = true;
   $('games-tab').hidden = true;
   $('bottom-bar').hidden = true;
+  $('login-step-pin').hidden = true;
+  $('login-step-name').hidden = false;
   $('login-screen').hidden = false;
   updatePieces(''); fetchHistory(''); fetchAttendance('');
   $('graph-section').hidden = true;
   $('name').focus();
   showNames();
-};
+}
+
+$('btn-switch-user').onclick = logoutUser;
 
 $('name').addEventListener('focus', () => { $('name').select(); showNames(); });
-$('name').addEventListener('input', () => { updatePieces(allNames.includes($('name').value) ? $('name').value : ''); showNames(); });
-$('name').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const first = matches()[0]; if (first && !allNames.includes($('name').value)) pickName(first); } });
-$('names').addEventListener('click', e => { const li = e.target.closest('li'); if (li && !li.classList.contains('none')) pickName(li.textContent); });
+$('name').addEventListener('input', () => { showNames(); });
+$('name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const first = matches()[0];
+    if (first) startPinFlow(first);
+  }
+});
+$('names').addEventListener('click', e => {
+  const li = e.target.closest('li');
+  if (li && !li.classList.contains('none')) startPinFlow(li.textContent);
+});
 document.addEventListener('click', e => { if (!e.target.closest('.combo')) $('names').hidden = true; });
 
 function fill(sel, items, closed = []) {
