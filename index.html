@@ -608,23 +608,23 @@
 @keyframes starsScroll { 0% { transform: translateY(-100px); } 100% { transform: translateY(100px); } }
 
 #catch-basket { 
-    position: absolute; bottom: 16px; left: 50%; 
-    width: 82px; height: 52px; 
+    position: absolute; bottom: 14px; left: 50%; 
+    width: 54px; height: 38px; 
     background: linear-gradient(180deg, rgba(59, 130, 246, 0.55), rgba(37, 99, 235, 0.25));
-    border: 2px solid rgba(147, 197, 253, 0.75);
+    border: 1.5px solid rgba(147, 197, 253, 0.8);
     border-radius: 99px; transform: translateX(-50%); 
     display: flex; justify-content: center; align-items: center; 
-    font-size: 26px; z-index: 10; 
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.55), inset 0 2px 6px rgba(255,255,255,0.4);
-    transition: background 0.18s, border-color 0.18s, transform 0.1s;
+    font-size: 20px; z-index: 10; 
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.5), inset 0 2px 4px rgba(255,255,255,0.35);
+    transition: background 0.18s, border-color 0.18s;
     will-change: left;
 }
 .catch-item { 
     position: absolute; top: 0; left: 50%;
     background: linear-gradient(135deg, rgba(30, 64, 175, 0.92), rgba(59, 130, 246, 0.88)); 
-    color: #ffffff; padding: 9px 17px; border-radius: 99px; 
-    font-weight: 800; box-shadow: 0 6px 16px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.35); 
-    white-space: nowrap; font-size: 16px; z-index: 5; 
+    color: #ffffff; padding: 5px 12px; border-radius: 99px; 
+    font-weight: 800; box-shadow: 0 4px 12px rgba(0,0,0,0.35), inset 0 1px 2px rgba(255,255,255,0.3); 
+    white-space: nowrap; font-size: 13.5px; z-index: 5; 
     border: 1.5px solid rgba(147, 197, 253, 0.65); 
     transform: translate3d(-50%, -50px, 0); 
     will-change: transform;
@@ -636,44 +636,11 @@
 .catch-built { min-height: 26px; font-size: 12.5px; font-weight: 700; color: var(--accent-bright); background: var(--accent-light); border-radius: 10px; padding: 6px 10px; margin-bottom: 10px; text-align: center; line-height: 1.6; }
 #catch-overlay { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.65); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 56px; font-weight: 900; color: #fff; z-index: 25; text-shadow: 0 4px 20px rgba(59,130,246,0.8); }
 .c-pop {
-    position: absolute; color: #10b981; font-weight: 900; font-size: 22px;
+    position: absolute; color: #10b981; font-weight: 900; font-size: 20px;
     animation: flyUp 0.6s ease-out forwards; z-index: 20; pointer-events: none;
     text-shadow: 0 2px 6px rgba(0,0,0,0.6);
 }
 @keyframes flyUp { 0% { transform: translate(-50%, 0) scale(1); opacity: 1; } 100% { transform: translate(-50%, -44px) scale(1.4); opacity: 0; } }
-
-#catch-basket { 
-    position: absolute; bottom: 15px; left: 50%; 
-    width: 76px; height: 76px; 
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
-    border-radius: 50%; transform: translateX(-50%); 
-    display: flex; justify-content: center; align-items: center; 
-    font-size: 40px; z-index: 10; 
-    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.8));
-    will-change: left, background;
-}
-.catch-item { 
-    position: absolute; top:0; left: 50%;
-    background: linear-gradient(135deg, #1e40af, #3b82f6); 
-    color: #ffffff; padding: 10px 18px; border-radius: 25px; 
-    font-weight: 900; box-shadow: 0 6px 15px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.3); 
-    white-space: nowrap; font-size: 17px; z-index: 5; 
-    border: 2px solid #60a5fa; 
-    transform: translate3d(-50%, -50px, 0); 
-    will-change: transform;
-}
-.catch-item.wrong {
-    background: linear-gradient(135deg, #475569, #1e293b); 
-    border-color: #94a3b8; color: #f1f5f9;
-}
-.catch-stats { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--input-bg); border: 1.5px solid var(--line); border-radius: 14px; margin-bottom: 12px; font-weight: bold; }
-.c-pop {
-    position: absolute; color: #10b981; font-weight: 900; font-size: 24px;
-    animation: flyUp 0.6s ease-out forwards; z-index: 20; pointer-events: none;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-}
-@keyframes flyUp { 0% { transform: translate(-50%, 0) scale(1); opacity: 1; } 100% { transform: translate(-50%, -40px) scale(1.5); opacity: 0; } }
-
   /* --- Sleek Custom Scrollbars (Desktop Polish) --- */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -1908,9 +1875,9 @@ function catchLoop(now) {
     }
 
     const basketCenterX = (catchBasketX / 100) * catchAreaW;
-    const basketHalfW = 36;
-    const basketTop = catchAreaH - 68;
-    const basketBottom = catchAreaH - 16;
+    const basketHalfW = 24;
+    const basketTop = catchAreaH - 52;
+    const basketBottom = catchAreaH - 14;
 
     for (let i = catchItems.length - 1; i >= 0; i--) {
         let item = catchItems[i];
