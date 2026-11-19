@@ -538,21 +538,17 @@
   .wrong-anim { background-color: rgba(239, 68, 68, 0.16) !important; border-color: #ef4444 !important; animation: shake 0.4s; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
   
-#g-answer-area,
-#g-words-area { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; direction: ltr; }
-.game-part { width: 100%; min-width: 0; position: relative; transition: transform 0.15s ease; }
+#g-answer-area { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; direction: ltr; }
+.game-part { width: 100%; min-width: 0; position: relative; touch-action: none; transition: transform 0.15s ease; }
 .game-part .word-btn {
-  width: 100%; min-width: 0; padding: 10px 14px;
+  width: 100%; min-width: 0; padding: 11px 14px;
   white-space: normal; overflow-wrap: anywhere; line-height: 1.6;
   text-align: center; unicode-bidi: plaintext;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  user-select: none; -webkit-user-select: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  cursor: grab; user-select: none; -webkit-user-select: none;
 }
-.drag-handle { display: none; opacity: 0.7; font-size: 16px; letter-spacing: -2px; flex-shrink: 0; }
-#g-answer-area .game-part { touch-action: none; }
-#g-answer-area .game-part .word-btn { cursor: grab; justify-content: space-between; }
-#g-answer-area .drag-handle { display: inline-block; }
-.game-part.dragging { opacity: 0.85; transform: scale(1.03); z-index: 20; }
+.drag-handle { opacity: 0.75; font-size: 16px; letter-spacing: -2px; flex-shrink: 0; }
+.game-part.dragging { opacity: 0.9; transform: scale(1.03); z-index: 20; }
 .game-part.dragging .word-btn { cursor: grabbing; box-shadow: 0 10px 24px rgba(37, 99, 235, 0.45); outline: 2px solid #93c5fd; }
 
 /* --- Quiz Styles --- */
@@ -715,8 +711,6 @@
   @media (min-width: 1280px) {
     main { max-width: 1140px; }
   }
-
-
 
   /* --- Dark / Light Theme Toggle Button --- */
   .theme-toggle {
@@ -991,9 +985,8 @@
       <div id="game-board-wrap" hidden>
         <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">رجوع للساحة</button>
         <h3 id="g-piece-title" style="color:var(--accent); text-align:center; font-family: 'Cairo', sans-serif;"></h3>
-        <p style="text-align: center; font-size: 12px; opacity: 0.8; margin-bottom: 12px;">رتّب المقاطع من فوق لتحت لتكوين اللحن الصحيح</p>
+        <p style="text-align: center; font-size: 12px; opacity: 0.8; margin-bottom: 12px;">اسحب المقاطع ورتّبها من فوق لتحت لتكوين اللحن الصحيح</p>
         <div id="g-answer-area" class="area-box"></div>
-        <div id="g-words-area" class="area-box"></div>
         <button id="g-check-btn" class="action-btn" hidden>تحقق من الإجابة</button>
         <button id="g-retry-btn" class="action-btn" style="background:#f59e0b; margin-top:10px;" hidden>حاول مرة تانية</button>
         <button id="g-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد</button>
@@ -1442,7 +1435,7 @@ function normGameText(txt) {
 }
 
 /* ==================================================
-   لعبة 1: ترتيب الكلمات (Word Sorting)
+   لعبة 1: ترتيب الكلمات (Word Sorting - Single Box Drag & Drop)
 ================================================== */
 let currentGameTarget = "";
 let currentWords = [];
@@ -1515,27 +1508,26 @@ function setupGameBoard(game) {
     }
 
     $('g-answer-area').replaceChildren();
-    $('g-words-area').replaceChildren();
     $('g-answer-area').dir = 'ltr';
-    $('g-words-area').dir = 'ltr';
     $('g-msg').textContent = '';
     $('g-msg').style.color = 'var(--fg)';
     $('g-answer-area').className = 'area-box';
 
-    $('g-check-btn').hidden = true;
     $('g-check-btn').disabled = false;
     $('g-check-btn').textContent = 'تحقق من الإجابة';
     $('g-retry-btn').hidden = true;
     $('g-next-game-btn').hidden = true;
 
     if (!shuffled.length) {
+        $('g-check-btn').hidden = true;
         $('g-msg').textContent = 'لا يوجد نص للحن في الجدول.';
         return;
     }
 
     shuffled.forEach(part => {
-        $('g-words-area').appendChild(createGamePart(part.text, part.index));
+        $('g-answer-area').appendChild(createGamePart(part.text, part.index));
     });
+    updateGameCheckButton();
 }
 
 function createGamePart(text, index) {
@@ -1561,27 +1553,19 @@ function createGamePart(text, index) {
     word.append(label, handle);
     item.append(word);
 
-    // Tap to move between boxes; drag to reorder inside #g-answer-area
-    let startY = 0, isDragging = false, pointerId = null;
+    let pointerId = null;
 
     word.addEventListener('pointerdown', (e) => {
         if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
-        if (item.parentElement !== $('g-answer-area')) return;
-        startY = e.clientY;
-        isDragging = false;
+        initAudio();
         pointerId = e.pointerId;
         word.setPointerCapture(pointerId);
+        item.classList.add('dragging');
+        if (navigator.vibrate) navigator.vibrate(12);
     });
 
     word.addEventListener('pointermove', (e) => {
         if (pointerId !== e.pointerId) return;
-        if (!isDragging && Math.abs(e.clientY - startY) > 8) {
-            isDragging = true;
-            item.classList.add('dragging');
-            if (navigator.vibrate) navigator.vibrate(12);
-        }
-        if (!isDragging) return;
-
         const ans = $('g-answer-area');
         const siblings = [...ans.children].filter(el => el !== item);
         const nextSibling = siblings.find(sib => {
@@ -1595,38 +1579,16 @@ function createGamePart(text, index) {
         if (pointerId !== e.pointerId) return;
         try { word.releasePointerCapture(pointerId); } catch (_) {}
         pointerId = null;
-        if (isDragging) {
-            item.classList.remove('dragging');
-            // Prevent the click event from firing right after a drag
-            item.dataset.justDragged = '1';
-            setTimeout(() => { delete item.dataset.justDragged; }, 60);
-        }
-        isDragging = false;
+        item.classList.remove('dragging');
     };
     word.addEventListener('pointerup', endDrag);
     word.addEventListener('pointercancel', endDrag);
 
-    word.onclick = () => {
-        if (item.dataset.justDragged) return;
-        moveWord(item);
-    };
-
     return item;
-}
-
-function moveWord(item) {
-    if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
-    initAudio();
-    const ans = $('g-answer-area');
-    const wrd = $('g-words-area');
-    if (item.parentElement === wrd) ans.appendChild(item);
-    else if (item.parentElement === ans) wrd.appendChild(item);
-    updateGameCheckButton();
 }
 
 function updateGameCheckButton() {
     $('g-check-btn').hidden =
-        $('g-words-area').children.length > 0 ||
         $('g-answer-area').children.length !== currentWords.length ||
         !$('g-retry-btn').hidden ||
         !$('g-next-game-btn').hidden ||
@@ -1637,7 +1599,7 @@ function updateGameCheckButton() {
 $('g-check-btn').onclick = () => {
     if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
     const answerParts = [...$('g-answer-area').children];
-    if (answerParts.length !== currentWords.length || $('g-words-area').children.length) return;
+    if (answerParts.length !== currentWords.length) return;
 
     const userSentence = answerParts.map(part => part.dataset.text).join(' ');
     const correctOrder = answerParts.every((part, i) => Number(part.dataset.index) === i);
@@ -1714,7 +1676,7 @@ $('g-retry-btn').onclick = () => {
     if (gameFinished || gameSubmitting || remainingGameTries <= 0) return;
     $('g-retry-btn').hidden = true;
     $('g-answer-area').classList.remove('wrong-anim');
-    $('g-msg').textContent = 'عدّل ترتيب القطع باستخدام الأسهم ثم تحقق من الإجابة.';
+    $('g-msg').textContent = 'اسحب القطع لتعديل الترتيب ثم تحقق من الإجابة.';
     $('g-msg').style.color = 'var(--fg)';
     updateGameCheckButton();
 };
