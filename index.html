@@ -1011,10 +1011,10 @@ function updatePieces(name) {
     catSelect.options[0].textContent = 'مردات ' + (mList.length > 0 ? '🔴' : '✅');
     catSelect.options[1].textContent = 'ألحان ' + (aList.length > 0 ? '🔴' : '✅');
     if (cat === 'مردات' && aList.length > 0) {
-      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px;">(ألحان متبقية 🔴)</span>';
+      catLabel.innerHTML = 'النوع <span style="color: #ef4444; font-size: 10.5px; white-space: nowrap;">(ألحان متبقية)</span>';
       catSelect.classList.add('needs-attention');
     } else if (cat === 'ألحان' && mList.length > 0) {
-      catLabel.innerHTML = 'النوع <span style="color: #dc2626; font-size: 11px; margin-right: 2px;">(مردات متبقية 🔴)</span>';
+      catLabel.innerHTML = 'النوع <span style="color: #ef4444; font-size: 10.5px; white-space: nowrap;">(مردات متبقية)</span>';
       catSelect.classList.add('needs-attention');
     } else {
       catLabel.textContent = 'النوع'; catSelect.classList.remove('needs-attention');
