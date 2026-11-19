@@ -107,6 +107,9 @@
     box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-inset);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
+  .section-card { position: relative; z-index: 1; }
+  .section-card:has(#names:not([hidden])),
+  .section-card:has(.c-select-wrap.open) { z-index: 50; }
   .section-title { 
     font-size: 15px; font-weight: 800; margin: 0 0 14px 0; color: var(--accent); 
     display: flex; align-items: center; gap: 8px; 
