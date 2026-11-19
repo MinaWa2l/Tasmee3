@@ -629,6 +629,7 @@
     text-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 @keyframes flyUp { 0% { transform: translate(-50%, 0) scale(1); opacity: 1; } 100% { transform: translate(-50%, -40px) scale(1.5); opacity: 0; } }
+
   /* --- Sleek Custom Scrollbars (Desktop Polish) --- */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -695,6 +696,45 @@
   @media (min-width: 1280px) {
     main { max-width: 1140px; }
   }
+
+  /* --- Remember Me / Change Name Button --- */
+  .name-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .name-label-row label { margin: 0; }
+  .change-name-btn {
+    width: auto; padding: 2px 10px; font-size: 11.5px; font-weight: 800;
+    border-radius: 99px; border: 1px solid var(--line);
+    background: var(--accent-light); color: var(--accent-bright); cursor: pointer;
+  }
+  .change-name-btn:active { transform: scale(0.94); }
+
+  /* --- Liquid Glass Install App Banner --- */
+  .install-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 16px; margin-bottom: 16px; border-radius: 18px;
+    background: var(--card);
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-inset);
+    animation: dropIn 0.3s ease;
+  }
+  .install-info { display: flex; flex-direction: column; gap: 2px; }
+  .install-title { font-size: 13.5px; font-weight: 800; color: var(--accent); }
+  .install-sub { font-size: 11.5px; opacity: 0.72; font-weight: 600; }
+  .install-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .install-btn {
+    width: auto; padding: 7px 16px; font-size: 13px; font-weight: 800;
+    border-radius: 99px; border: none; color: #fff; cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  }
+  .install-btn:active { transform: scale(0.95); }
+  .install-close {
+    width: 30px; height: 30px; padding: 0; border-radius: 50%;
+    border: 1px solid var(--line); background: var(--input-bg);
+    color: var(--fg); font-size: 13px; cursor: pointer;
+    display: grid; place-items: center;
+  }
 </style>
 </head>
 <body>
@@ -707,6 +747,17 @@
     </div>
   </div>
 
+  <div id="install-banner" class="install-banner" hidden>
+    <div class="install-info">
+      <span class="install-title">📲 تثبيت تطبيق مدرسة الشمامسة</span>
+      <span class="install-sub">وصول أسرع من الشاشة الرئيسية</span>
+    </div>
+    <div class="install-actions">
+      <button type="button" id="btn-install-app" class="install-btn">تثبيت</button>
+      <button type="button" id="btn-dismiss-install" class="install-close" aria-label="إغلاق">✕</button>
+    </div>
+  </div>
+
   <!-- التاب الأساسية -->
   <div id="main-tab" class="tab-content active-tab">
     <div class="section-card">
@@ -716,7 +767,10 @@
       </div>
       <div class="profile-row">
         <div class="combo">
-          <label for="name">الاسم</label>
+          <div class="name-label-row">
+            <label for="name">الاسم</label>
+            <button type="button" id="change-name-btn" class="change-name-btn" hidden>تغيير</button>
+          </div>
           <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
           <ul id="names" hidden></ul>
         </div>
@@ -956,7 +1010,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v3.01 '; 
+const VERSION = 'v3.02'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -1110,6 +1164,10 @@ function updatePieces(name) {
     $('prog-bar-fill').style.backgroundColor = color;
     $('progwrap').hidden = false;
     $('chal-trig').hidden = (pVal !== 100);
+    if (pVal === 100 && window._lastCelebratedName !== name) {
+      window._lastCelebratedName = name;
+      launchConfetti();
+    }
     if(pVal !== 100) $('chal-card').hidden = true;
   } else {
     $('progwrap').hidden = true; $('chal-trig').hidden = true; $('chal-card').hidden = true;
@@ -1167,6 +1225,11 @@ function applyLists(d) {
     showLink();
   }
   syncCustomSelect('piece');
+  if (!$('name').value) {
+    let saved = '';
+    try { saved = localStorage.getItem('saved_deacon_name') || ''; } catch (e) {}
+    if (saved && allNames.includes(saved)) pickName(saved);
+  }
 }
 
 function refreshLists() {
@@ -1206,6 +1269,8 @@ function showNames() {
   $('names').replaceChildren(...items); $('names').hidden = false;
 }
 function pickName(n) {
+  try { localStorage.setItem('saved_deacon_name', n); } catch (e) {}
+  $('change-name-btn').hidden = false;
   $('name').value = n; $('names').hidden = true; $('name').blur();
   updatePieces(n); fetchHistory(n); fetchAttendance(n); loadChallenge(n);
   
@@ -1538,6 +1603,7 @@ $('g-check-btn').onclick = () => {
             $('g-check-btn').hidden = true;
             $('g-retry-btn').hidden = true;
             playWinSound();
+            launchConfetti();
             fetchAttendance($('name').value);
             setTimeout(() => { backToGameSelector(); }, 3000);
         } else {
@@ -1756,6 +1822,7 @@ function winCatchGame() {
     $('c-msg').textContent = 'أداء ممتاز برافو عليك 👏';
     $('c-msg').style.color = '#10b981';
     playWinSound();
+    launchConfetti();
     
     setTimeout(backToGameSelector, 3000);
 }
@@ -1987,6 +2054,103 @@ $('history-list').addEventListener('click', e => {
   fetch(API + '?action=play&id=' + idMatch[0]).then(r => r.json()).then(d => { sharedAudio.src = 'data:' + d.mime + ';base64,' + d.data; sharedAudio.load(); return sharedAudio.play(); }).then(() => { btn.innerHTML = iconPause; });
   sharedAudio.onended = () => { btn.innerHTML = iconPlay; };
 });
+
+/* --- Confetti Celebration (Lightweight Canvas) --- */
+function launchConfetti() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#fde047'];
+  const pieces = Array.from({ length: 85 }, () => ({
+    x: canvas.width * (0.2 + Math.random() * 0.6),
+    y: canvas.height * 0.35 + (Math.random() - 0.5) * 60,
+    vx: (Math.random() - 0.5) * 14,
+    vy: -6 - Math.random() * 10,
+    size: 6 + Math.random() * 6,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    rot: Math.random() * Math.PI * 2,
+    vrot: (Math.random() - 0.5) * 0.25,
+    life: 1
+  }));
+
+  function frame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    pieces.forEach(p => {
+      if (p.life <= 0) return;
+      alive = true;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.35;
+      p.vx *= 0.99;
+      p.rot += p.vrot;
+      p.life -= 0.012;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      ctx.restore();
+    });
+    if (alive) requestAnimationFrame(frame);
+    else canvas.remove();
+  }
+  requestAnimationFrame(frame);
+}
+
+/* --- PWA Install App Prompt --- */
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  try {
+    if (!localStorage.getItem('install_dismissed')) $('install-banner').hidden = false;
+  } catch (err) {
+    $('install-banner').hidden = false;
+  }
+});
+
+$('btn-install-app').onclick = async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  $('install-banner').hidden = true;
+};
+
+$('btn-dismiss-install').onclick = () => {
+  $('install-banner').hidden = true;
+  try { localStorage.setItem('install_dismissed', '1'); } catch (e) {}
+};
+
+window.addEventListener('appinstalled', () => {
+  $('install-banner').hidden = true;
+  deferredInstallPrompt = null;
+});
+
+/* --- Change Saved Name Button --- */
+$('change-name-btn').onclick = () => {
+  try { localStorage.removeItem('saved_deacon_name'); } catch (e) {}
+  $('name').value = '';
+  $('change-name-btn').hidden = true;
+  updatePieces('');
+  fetchHistory('');
+  fetchAttendance('');
+  $('graph-section').hidden = true;
+  if ($('btn-load-game')) {
+    $('btn-load-game').disabled = true;
+    $('btn-quiz-game').disabled = true;
+    $('btn-catch-game').disabled = true;
+    $('g-setup-msg').textContent = 'اختر اسمك من الرئيسية لتتمكن من اللعب.';
+  }
+  $('name').focus();
+  showNames();
+};
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 </script>
