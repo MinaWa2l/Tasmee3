@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
 <style>
   :root { 
     --bg: #eef2f7; 
@@ -518,6 +519,72 @@
     text-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 @keyframes flyUp { 0% { transform: translate(-50%, 0) scale(1); opacity: 1; } 100% { transform: translate(-50%, -40px) scale(1.5); opacity: 0; } }
+  /* --- Sleek Custom Scrollbars (Desktop Polish) --- */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent-bright); }
+
+  /* --- Desktop & Large Screen Layout --- */
+  @media (min-width: 860px) {
+    body { padding: 24px 32px; }
+    main { max-width: 1020px; padding: 10px 0 110px 0; }
+
+    .top-header { padding: 18px 28px; margin-bottom: 24px; border-radius: 24px; }
+    .logo { width: 82px; height: 82px; }
+    .header-text h1 { font-size: 26px; }
+
+    /* 2-Column Dashboard Grid for Main Tab */
+    #main-tab:not([hidden]) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+      gap: 20px;
+      align-items: start;
+    }
+    #main-tab .section-card { margin-bottom: 0; height: fit-content; }
+
+    /* More breathing room for lists on desktop */
+    #attendance-list { max-height: 260px; }
+    #history-list { max-height: 280px; }
+
+    /* 3-Column Game Launcher Grid */
+    #game-cards-container {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .game-mode-card {
+      flex-direction: column;
+      text-align: center;
+      padding: 28px 18px 22px;
+      margin-bottom: 0;
+      height: 100%;
+    }
+    .game-mode-icon { width: 64px; height: 64px; border-radius: 18px; }
+    .game-mode-icon svg { width: 32px; height: 32px; }
+    .game-mode-title { font-size: 18px; margin-top: 6px; }
+    .game-mode-desc { font-size: 13px; }
+
+    /* Keep active game boards comfortably centered instead of over-stretched */
+    #game-board-wrap,
+    #catch-board-wrap,
+    #quiz-board-wrap {
+      max-width: 620px;
+      margin: 0 auto;
+    }
+    #catch-area { height: 480px; cursor: crosshair; }
+
+    /* Wider Floating Dock on Desktop */
+    .ios-bottom-bar { bottom: 26px; padding: 8px; gap: 10px; }
+    .tab-item { width: 110px; padding: 10px 16px; flex-direction: row; gap: 8px; }
+    .tab-item svg { margin-bottom: 0; width: 20px; height: 20px; }
+    .tab-item span { font-size: 13px; }
+    .tab-item:hover:not(.active) { color: #e2e8f0; background: rgba(255, 255, 255, 0.08); }
+  }
+
+  @media (min-width: 1280px) {
+    main { max-width: 1140px; }
+  }
 </style>
 </head>
 <body>
