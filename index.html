@@ -782,6 +782,19 @@
     color: var(--fg); font-size: 13px; cursor: pointer;
     display: grid; place-items: center;
   }
+  /* --- Game Loading State --- */
+  #game-loader {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; padding: 54px 16px; text-align: center;
+  }
+  .g-spinner {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 3.5px solid var(--line);
+    border-top-color: var(--accent-bright);
+    animation: icon-spin 0.8s linear infinite;
+    box-shadow: 0 0 18px var(--accent-light);
+  }
+  .g-loader-txt { font-size: 14.5px; font-weight: 800; color: var(--accent); }
 </style>
 </head>
 <body>
@@ -975,7 +988,7 @@
               <svg viewBox="0 0 24 24"><path d="M4 11h16v2H4zm14-4H6V5h12v2zm-2-4H8v2h8V3zM3 15h18v6c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-6zm3 2v4h12v-4H6z"/></svg>
             </div>
             <div class="game-mode-details">
-              <h4 class="game-mode-title">صائد الكلمات (أركيد)</h4>
+              <h4 class="game-mode-title">صائد الكلمات</h4>
               <p class="game-mode-desc">اصطد كلمات اللحن بالترتيب (للتدريب والتركيز).</p>
             </div>
           </button>
@@ -992,6 +1005,11 @@
           </button>
 
         </div>
+      </div>
+      <!-- شاشة التحميل -->
+      <div id="game-loader" hidden>
+        <div class="g-spinner"></div>
+        <div class="g-loader-txt">جارٍ تحضير اللحن...</div>
       </div>
       
       <!-- واجهة ترتيب الكلمات -->
@@ -1432,10 +1450,12 @@ function backToGameSelector() {
     $('quiz-board-wrap').hidden = true;
     $('catch-board-wrap').hidden = true;
     $('game-selector').hidden = false;
+    $('game-loader').hidden = true;
     
     catchIsActive = false;
     if(catchAnimationFrame) cancelAnimationFrame(catchAnimationFrame);
     if(catchSpawner) clearInterval(catchSpawner);
+    if (catchCountdownTimer) clearInterval(catchCountdownTimer);
 }
 
 function normGameText(txt) {
@@ -1457,15 +1477,16 @@ let gameFinished = false;
 
 $('btn-load-game').onclick = () => {
    $('game-selector').hidden = true;
+   $('game-board-wrap').hidden = true;
+   $('game-loader').hidden = false;
    const n = $('name').value;
-   $('g-setup-msg').textContent = '⏳ جارٍ تحميل اللعبة...';
 
    fetch(API, { method: 'POST', body: JSON.stringify({action: 'getGame', name: n}) })
    .then(r => r.json())
    .then(d => {
+      $('game-loader').hidden = true;
       if (d.error) {
          $('game-selector').hidden = false;
-         $('game-board-wrap').hidden = true;
          $('g-setup-msg').textContent = d.error;
          $('g-setup-msg').style.color = '#dc2626';
          return;
@@ -1473,8 +1494,8 @@ $('btn-load-game').onclick = () => {
       setupGameBoard(d.game);
    })
    .catch(e => {
+      $('game-loader').hidden = true;
       $('game-selector').hidden = false;
-      $('g-setup-msg').textContent = 'أهلاً بك يا ' + n + '! اختار اللعبة اللي تعجبك:';
       alert('⚠️ خطأ في الاتصال بالانترنت');
    });
 };
@@ -1704,7 +1725,7 @@ $('g-next-game-btn').onclick = () => {
 };
 
 /* ==================================================
-   لعبة 2: صائد الكلمات (Catch The Melody Pro)
+   لعبة 2: صائد الكلمات (Catch The Melody Pro - Smooth 60/120fps)
 ================================================== */
 let catchAnimationFrame, catchSpawner, catchCountdownTimer;
 let catchBasketX = 50;
@@ -1712,13 +1733,16 @@ let catchItems = [];
 let catchTargetWords = [];
 let catchCurrentIdx = 0;
 let catchLives = 3;
-let catchSpeed = 2.4;
+let catchSpeed = 145; // pixels per second (consistent on 60Hz & 120Hz)
 let catchIsActive = false;
 let catchGamePiece = "";
 let catchCombo = 0;
 let catchScore = 0;
 let catchMissSinceTarget = 0;
 let catchLastX = 50;
+let catchLastTime = 0;
+let catchAreaW = 360, catchAreaH = 430;
+const catchKeys = { left: false, right: false };
 
 function getCatchBest() {
     try { return Number(localStorage.getItem('catch_best_score') || 0); } catch (e) { return 0; }
@@ -1732,12 +1756,14 @@ function saveCatchBest(score) {
 
 $('btn-catch-game').onclick = () => {
    $('game-selector').hidden = true;
+   $('catch-board-wrap').hidden = true;
+   $('game-loader').hidden = false;
    const n = $('name').value;
-   $('g-setup-msg').textContent = '⏳ جارٍ تحميل اللعبة...';
 
    fetch(API, { method: 'POST', body: JSON.stringify({action: 'getGame', name: n}) })
    .then(r => r.json())
    .then(d => {
+      $('game-loader').hidden = true;
       if (d.error) {
          $('game-selector').hidden = false;
          $('g-setup-msg').textContent = d.error;
@@ -1747,8 +1773,8 @@ $('btn-catch-game').onclick = () => {
       initCatchGame(d.game);
    })
    .catch(e => {
+      $('game-loader').hidden = true;
       $('game-selector').hidden = false;
-      $('g-setup-msg').textContent = 'أهلاً بك يا ' + n + '! اختار اللعبة اللي تعجبك:';
       alert('⚠️ خطأ في الاتصال بالانترنت');
    });
 };
@@ -1775,7 +1801,7 @@ function initCatchGame(game) {
     catchCombo = 0;
     catchScore = 0;
     catchMissSinceTarget = 0;
-    catchSpeed = window.innerHeight < 700 ? 2.1 : 2.6;
+    catchSpeed = 145; // px/sec
     catchItems.forEach(i => i.el.remove());
     catchItems = [];
     catchIsActive = false;
@@ -1793,11 +1819,14 @@ function initCatchGame(game) {
     $('c-next-game-btn').hidden = true;
     $('catch-board-wrap').hidden = false;
 
+    // Measure playfield once
+    catchAreaW = $('catch-area').clientWidth || 360;
+    catchAreaH = $('catch-area').clientHeight || 430;
+
     catchBasketX = 50;
     $('catch-basket').style.left = '50%';
     initAudio();
 
-    // 3-2-1 Countdown before words drop
     let count = 3;
     const ov = $('catch-overlay');
     ov.textContent = count;
@@ -1813,6 +1842,7 @@ function initCatchGame(game) {
             clearInterval(catchCountdownTimer);
             ov.hidden = true;
             catchIsActive = true;
+            catchLastTime = performance.now();
             catchAnimationFrame = requestAnimationFrame(catchLoop);
             spawnCatchItem();
             catchSpawner = setInterval(spawnCatchItem, 950);
@@ -1823,7 +1853,6 @@ function initCatchGame(game) {
 function spawnCatchItem() {
     if (!catchIsActive) return;
 
-    // Guarantee the target word appears at least every 3 drops
     let forceTarget = catchMissSinceTarget >= 2;
     let isCorrect = forceTarget || Math.random() < 0.48;
     let targetWord = catchTargetWords[catchCurrentIdx];
@@ -1844,7 +1873,6 @@ function spawnCatchItem() {
     el.textContent = wordToSpawn;
     el.dir = 'auto';
 
-    // Keep consecutive drops spaced apart horizontally
     let xPos = 16 + Math.random() * 68;
     if (Math.abs(xPos - catchLastX) < 22) xPos = (xPos + 35) % 68 + 16;
     catchLastX = xPos;
@@ -1853,30 +1881,53 @@ function spawnCatchItem() {
     el.style.transform = `translate3d(-50%, -50px, 0)`;
     $('catch-area').appendChild(el);
 
-    catchItems.push({ el, x: xPos, y: -50, text: wordToSpawn });
+    // Measure item size ONCE on spawn (no layout reads in the game loop)
+    catchItems.push({
+        el,
+        xPx: (xPos / 100) * catchAreaW,
+        y: -50,
+        halfW: (el.offsetWidth || 70) / 2,
+        h: el.offsetHeight || 40,
+        text: wordToSpawn
+    });
 }
 
-function catchLoop() {
+function catchLoop(now) {
     if (!catchIsActive) return;
-    let areaHeight = $('catch-area').clientHeight;
-    let basketRect = $('catch-basket').getBoundingClientRect();
+
+    // Delta time in seconds (clamped so tab switches never cause a jump)
+    const dt = Math.min((now - catchLastTime) / 1000, 0.05);
+    catchLastTime = now;
+
+    // Smooth keyboard movement tied to dt
+    if (catchKeys.left || catchKeys.right) {
+        const move = 115 * dt;
+        if (catchKeys.left) catchBasketX = Math.max(10, catchBasketX - move);
+        if (catchKeys.right) catchBasketX = Math.min(90, catchBasketX + move);
+        $('catch-basket').style.left = catchBasketX + '%';
+    }
+
+    const basketCenterX = (catchBasketX / 100) * catchAreaW;
+    const basketHalfW = 36;
+    const basketTop = catchAreaH - 68;
+    const basketBottom = catchAreaH - 16;
 
     for (let i = catchItems.length - 1; i >= 0; i--) {
         let item = catchItems[i];
-        item.y += catchSpeed;
+        item.y += catchSpeed * dt;
         item.el.style.transform = `translate3d(-50%, ${item.y}px, 0)`;
 
-        let itemRect = item.el.getBoundingClientRect();
-        let hit = !(itemRect.right < basketRect.left + 6 ||
-                    itemRect.left > basketRect.right - 6 ||
-                    itemRect.bottom < basketRect.top + 6 ||
-                    itemRect.top > basketRect.bottom);
+        const hit =
+            (item.xPx + item.halfW) > (basketCenterX - basketHalfW) &&
+            (item.xPx - item.halfW) < (basketCenterX + basketHalfW) &&
+            (item.y + item.h) > basketTop &&
+            item.y < basketBottom;
 
         if (hit) {
             item.el.remove();
             catchItems.splice(i, 1);
-            handleCatchCollision(item, itemRect.left + itemRect.width / 2, itemRect.top);
-        } else if (item.y > areaHeight + 20) {
+            handleCatchCollision(item, item.xPx, item.y);
+        } else if (item.y > catchAreaH + 20) {
             item.el.remove();
             catchItems.splice(i, 1);
         }
@@ -1891,7 +1942,7 @@ function showCatchPop(text, color, x, y) {
     pop.style.top = y + 'px';
     pop.style.color = color;
     pop.textContent = text;
-    document.body.appendChild(pop);
+    $('catch-area').appendChild(pop);
     setTimeout(() => pop.remove(), 600);
 }
 
@@ -1901,7 +1952,7 @@ function handleCatchCollision(item, x, y) {
         catchCurrentIdx++;
         catchCombo++;
         catchScore += 10 + (catchCombo * 2);
-        catchSpeed = Math.min(5.2, catchSpeed + 0.12);
+        catchSpeed = Math.min(290, catchSpeed + 7);
         saveCatchBest(catchScore);
 
         if (navigator.vibrate) navigator.vibrate(18);
@@ -1989,8 +2040,6 @@ let moveBasket = (e) => {
 $('catch-area').addEventListener('touchmove', moveBasket, { passive: false });
 $('catch-area').addEventListener('mousemove', moveBasket);
 
-// Desktop keyboard controls (Arrow keys or A/D)
-const catchKeys = { left: false, right: false };
 window.addEventListener('keydown', (e) => {
     if (!catchIsActive) return;
     if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') { catchKeys.left = true; e.preventDefault(); }
@@ -2000,12 +2049,12 @@ window.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') catchKeys.left = false;
     if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') catchKeys.right = false;
 });
-setInterval(() => {
-    if (!catchIsActive) return;
-    if (catchKeys.left) catchBasketX = Math.max(10, catchBasketX - 2.4);
-    if (catchKeys.right) catchBasketX = Math.min(90, catchBasketX + 2.4);
-    if (catchKeys.left || catchKeys.right) $('catch-basket').style.left = catchBasketX + '%';
-}, 16);
+window.addEventListener('resize', () => {
+    if (catchIsActive) {
+        catchAreaW = $('catch-area').clientWidth || 360;
+        catchAreaH = $('catch-area').clientHeight || 430;
+    }
+});
 
 $('c-next-game-btn').onclick = () => {
     $('c-next-game-btn').hidden = true;
