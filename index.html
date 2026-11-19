@@ -1052,7 +1052,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v3.1'; 
+const VERSION = 'v3.11'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -1539,6 +1539,7 @@ function createGamePart(text, index) {
     const word = document.createElement('button');
     word.type = 'button';
     word.className = 'word-btn';
+    word.style.touchAction = 'none';
     word.dir = 'auto';
 
     const label = document.createElement('span');
@@ -1553,36 +1554,41 @@ function createGamePart(text, index) {
     word.append(label, handle);
     item.append(word);
 
-    let pointerId = null;
-
     word.addEventListener('pointerdown', (e) => {
         if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
+        e.preventDefault();
         initAudio();
-        pointerId = e.pointerId;
-        word.setPointerCapture(pointerId);
         item.classList.add('dragging');
         if (navigator.vibrate) navigator.vibrate(12);
-    });
 
-    word.addEventListener('pointermove', (e) => {
-        if (pointerId !== e.pointerId) return;
-        const ans = $('g-answer-area');
-        const siblings = [...ans.children].filter(el => el !== item);
-        const nextSibling = siblings.find(sib => {
-            const box = sib.getBoundingClientRect();
-            return e.clientY < box.top + box.height / 2;
-        });
-        ans.insertBefore(item, nextSibling || null);
-    });
+        const activePointerId = e.pointerId;
 
-    const endDrag = (e) => {
-        if (pointerId !== e.pointerId) return;
-        try { word.releasePointerCapture(pointerId); } catch (_) {}
-        pointerId = null;
-        item.classList.remove('dragging');
-    };
-    word.addEventListener('pointerup', endDrag);
-    word.addEventListener('pointercancel', endDrag);
+        const onMove = (ev) => {
+            if (ev.pointerId !== activePointerId) return;
+            const ans = $('g-answer-area');
+            const siblings = [...ans.children].filter(el => el !== item);
+            const nextSibling = siblings.find(sib => {
+                const box = sib.getBoundingClientRect();
+                return ev.clientY < box.top + box.height / 2;
+            }) || null;
+
+            if (item.nextElementSibling !== nextSibling) {
+                ans.insertBefore(item, nextSibling);
+            }
+        };
+
+        const onUp = (ev) => {
+            if (ev.pointerId !== activePointerId) return;
+            item.classList.remove('dragging');
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+            window.removeEventListener('pointercancel', onUp);
+        };
+
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
+    });
 
     return item;
 }
