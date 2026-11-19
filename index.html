@@ -399,7 +399,7 @@
   .s-rejected { color: #ef4444; background: rgba(239, 68, 68, 0.14); padding: 2px 8px; border-radius: 99px; font-size: 11.5px; font-weight: 800; white-space: nowrap; } 
   .h-comment { margin-top: 4px; font-size: 12.5px; color: var(--accent-bright); opacity: 0.92; background: var(--accent-light); padding: 4px 10px; border-radius: 8px; display: inline-block; }
 
-  #attendance-list { max-height: 165px; overflow-y: auto; padding-left: 4px; }
+  #attendance-list { max-height: 220px; overflow-y: auto; padding-left: 4px; }
   .att-card { padding: 9px 2px; border-bottom: 1px dashed var(--line); font-size: 13.5px; display: flex; justify-content: space-between; align-items: center; }
   .att-card:last-child { border-bottom: none; }
   .att-date { font-weight: 700; font-size: 13px; opacity: 0.85; }
@@ -477,7 +477,7 @@
   border-radius: 50px; 
   display: flex; 
   padding: 6px; 
-  gap: 8px; 
+  gap: 6px; 
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2); 
   z-index: 1000; 
 }
@@ -495,8 +495,8 @@
   color: #94a3b8; 
   cursor: pointer; 
   transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1); 
-  width: 82px; 
-  padding: 8px 12px;
+  width: 76px; 
+  padding: 8px 10px;
   border-radius: 40px;
   border: 1px solid transparent;
   user-select: none;
@@ -528,6 +528,42 @@
   transform: scale(1.1);
   filter: drop-shadow(0 2px 6px rgba(59, 130, 246, 0.6));
 }
+
+  /* --- Login Screen & Profile Header --- */
+  .login-card {
+    max-width: 420px;
+    margin: 24px auto;
+    padding: 26px 20px 30px;
+    text-align: center;
+  }
+  .login-icon {
+    width: 64px; height: 64px; margin: 0 auto 14px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+    display: grid; place-items: center; color: #fff;
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.32);
+  }
+  .login-icon svg { width: 34px; height: 34px; fill: currentColor; }
+  .login-title { font-size: 20px; font-weight: 900; color: var(--accent); margin: 0 0 6px; }
+  .login-sub { font-size: 13.5px; opacity: 0.78; margin: 0 0 22px; font-weight: 600; }
+  .login-card .combo { text-align: right; }
+
+  .profile-user-info {
+    flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px;
+    background: var(--input-bg); border: 1px solid var(--line);
+    border-radius: 16px; padding: 12px 14px; min-width: 0;
+  }
+  .profile-name-display {
+    font-size: 17px; font-weight: 900; color: var(--fg);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .switch-user-btn {
+    width: fit-content; padding: 4px 12px; font-size: 11.5px; font-weight: 800;
+    border-radius: 99px; border: 1px solid var(--line);
+    background: var(--accent-light); color: var(--accent-bright);
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  }
+  .switch-user-btn:active { transform: scale(0.95); }
   
   /* --- Word Game Styles --- */
   .area-box { min-height: 80px; background: var(--input-bg); border: 2px dashed var(--line); border-radius: 16px; margin-bottom: 16px; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
@@ -660,18 +696,20 @@
     .logo { width: 82px; height: 82px; }
     .header-text h1 { font-size: 26px; }
 
-    /* 2-Column Dashboard Grid for Main Tab */
-    #main-tab:not([hidden]) {
+    /* 2-Column Dashboard Grid for Recite & Profile Tabs */
+    #recite-tab:not([hidden]),
+    #profile-tab:not([hidden]) {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
       gap: 20px;
       align-items: start;
     }
-    #main-tab .section-card { margin-bottom: 0; height: fit-content; }
+    #recite-tab .section-card,
+    #profile-tab .section-card { margin-bottom: 0; height: fit-content; }
 
     /* More breathing room for lists on desktop */
-    #attendance-list { max-height: 260px; }
-    #history-list { max-height: 280px; }
+    #attendance-list { max-height: 280px; }
+    #history-list { max-height: 300px; }
 
     /* 3-Column Game Launcher Grid */
     #game-cards-container {
@@ -790,29 +828,22 @@
     </div>
   </div>
 
-  <!-- التاب الأساسية -->
-  <div id="main-tab" class="tab-content active-tab">
-    <div class="section-card">
-      <div class="section-title">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        بيانات الشماس
-      </div>
-      <div class="profile-row">
-        <div class="combo">
-          <label for="name">الاسم</label>
-          <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
-          <ul id="names" hidden></ul>
-        </div>
-        <div class="coupons-box" id="coupons-box">
-          <span class="c-label">كوبونات 🎟️</span>
-          <span id="c-val" class="c-val">0</span>
-        </div>
-      </div>
-      <div id="attendance" hidden>
-        <div id="attendance-list"></div>
-      </div>
+  <!-- شاشة تسجيل الدخول بالاسم -->
+  <div id="login-screen" class="section-card login-card">
+    <div class="login-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
     </div>
+    <h2 class="login-title">أهلاً بك يا بطل 👋</h2>
+    <p class="login-sub">اكتب اسمك واختاره من القائمة عشان تدخل على حسابك</p>
+    <div class="combo">
+      <label for="name">اسم الشماس</label>
+      <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
+      <ul id="names" hidden></ul>
+    </div>
+  </div>
 
+  <!-- تاب 1: التسميع وسجل التسميع -->
+  <div id="recite-tab" class="tab-content" hidden>
     <div class="section-card">
       <div class="section-title">
         <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
@@ -915,7 +946,30 @@
       </div>
       <div id="history-list"></div>
     </div>
-    
+  </div>
+
+  <!-- تاب 2: بيانات الشماس والحضور -->
+  <div id="profile-tab" class="tab-content" hidden>
+    <div class="section-card">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        بيانات الشماس والحضور
+      </div>
+      <div class="profile-row">
+        <div class="profile-user-info">
+          <div id="profile-name-display" class="profile-name-display">---</div>
+          <button type="button" id="btn-switch-user" class="switch-user-btn">⇄ تبديل الشماس</button>
+        </div>
+        <div class="coupons-box" id="coupons-box">
+          <span class="c-label">كوبونات 🎟️</span>
+          <span id="c-val" class="c-val">0</span>
+        </div>
+      </div>
+      <div id="attendance" hidden>
+        <div id="attendance-list"></div>
+      </div>
+    </div>
+
     <div class="section-card" id="graph-section" hidden>
       <div class="section-title">
         <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6h-6z"/></svg>
@@ -925,7 +979,7 @@
     </div>
   </div>
 
-  <!-- تاب الألعاب الجديدة -->
+  <!-- تاب 3: الألعاب -->
   <div id="games-tab" class="tab-content" hidden>
     <div class="section-card">
       <div class="section-title" style="justify-content: center; font-size: 18px;">
@@ -935,7 +989,7 @@
       
       <!-- شاشة اختيار اللعبة -->
       <div id="game-selector" style="padding: 10px 0;">
-        <p id="g-setup-msg" style="font-weight: bold; margin-bottom: 20px; text-align: center;">اختر اسمك من الرئيسية لتتمكن من اللعب.</p>
+        <p id="g-setup-msg" style="font-weight: bold; margin-bottom: 20px; text-align: center;">اختر اسمك أولاً لتتمكن من اللعب.</p>
         
         <div id="game-cards-container" style="display: flex; flex-direction: column;">
           
@@ -1038,12 +1092,16 @@
 </main>
 
 <!-- شريط Navigation السفلي ستايل iOS -->
-<div class="ios-bottom-bar">
-  <div class="tab-item active" onclick="switchTab('main')">
-    <svg viewBox="0 0 24 24"><path d="M12 3l10 9h-3v8H5v-8H2z"/></svg>
-    <span>الرئيسية</span>
+<div class="ios-bottom-bar" id="bottom-bar" hidden>
+  <div class="tab-item active" data-tab="recite" onclick="switchTab('recite')">
+    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+    <span>التسميع</span>
   </div>
-  <div class="tab-item" onclick="switchTab('games')">
+  <div class="tab-item" data-tab="profile" onclick="switchTab('profile')">
+    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+    <span>حسابي</span>
+  </div>
+  <div class="tab-item" data-tab="games" onclick="switchTab('games')">
     <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5S17.67 9 18.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
     <span>اللعب</span>
   </div>
@@ -1052,7 +1110,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v3.11'; 
+const VERSION = 'v3.2'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -1314,6 +1372,13 @@ function pickName(n) {
   try { localStorage.setItem('saved_deacon_name', n); } catch (e) {}
   
   $('name').value = n; $('names').hidden = true; $('name').blur();
+  $('profile-name-display').textContent = n;
+  
+  const wasLoggedOut = !$('login-screen').hidden;
+  $('login-screen').hidden = true;
+  $('bottom-bar').hidden = false;
+  if (wasLoggedOut) switchTab('recite');
+
   updatePieces(n); fetchHistory(n); fetchAttendance(n); loadChallenge(n);
   
   if ($('btn-load-game')) {
@@ -1323,6 +1388,25 @@ function pickName(n) {
     $('g-setup-msg').textContent = `أهلاً بك يا ${n}! اختار اللعبة اللي تعجبك:`;
   }
 }
+
+$('btn-switch-user').onclick = () => {
+  try { localStorage.removeItem('saved_deacon_name'); } catch (e) {}
+  backToGameSelector();
+  isChallengeRec = false;
+  $('regular-inputs').hidden = false;
+  $('chal-card').style.border = '1px solid rgba(165, 180, 252, 0.35)';
+  $('name').value = '';
+  $('profile-name-display').textContent = '---';
+  $('recite-tab').hidden = true;
+  $('profile-tab').hidden = true;
+  $('games-tab').hidden = true;
+  $('bottom-bar').hidden = true;
+  $('login-screen').hidden = false;
+  updatePieces(''); fetchHistory(''); fetchAttendance('');
+  $('graph-section').hidden = true;
+  $('name').focus();
+  showNames();
+};
 
 $('name').addEventListener('focus', () => { $('name').select(); showNames(); });
 $('name').addEventListener('input', () => { updatePieces(allNames.includes($('name').value) ? $('name').value : ''); showNames(); });
@@ -1388,22 +1472,21 @@ $('send').onclick = () => {
   fr.readAsDataURL(blob);
 };
 
-/* --- نظام التابات الجديد (iOS Tabs) --- */
+/* --- نظام التابات الجديد (3 iOS Tabs) --- */
 function switchTab(tabId) {
-  document.getElementById('main-tab').hidden = (tabId !== 'main');
-  document.getElementById('games-tab').hidden = (tabId !== 'games');
-  document.querySelectorAll('.tab-item').forEach((el, idx) => {
-    el.classList.toggle('active', (tabId === 'main' ? idx === 0 : idx === 1));
+  $('recite-tab').hidden = (tabId !== 'recite');
+  $('profile-tab').hidden = (tabId !== 'profile');
+  $('games-tab').hidden = (tabId !== 'games');
+  document.querySelectorAll('.tab-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tabId);
   });
-  
+
+  if (tabId === 'profile' && attChart) {
+    setTimeout(() => attChart.resize(), 40);
+  }
   if (tabId === 'games') {
     const n = $('name').value;
-    if (!allNames.includes(n)) {
-      $('btn-load-game').disabled = true;
-      $('btn-quiz-game').disabled = true;
-      $('btn-catch-game').disabled = true;
-      $('g-setup-msg').textContent = 'اختر اسمك من الرئيسية لتتمكن من اللعب.';
-    } else {
+    if (allNames.includes(n)) {
       $('btn-load-game').disabled = false;
       $('btn-quiz-game').disabled = false;
       $('btn-catch-game').disabled = false;
