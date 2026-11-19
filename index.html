@@ -591,12 +591,14 @@
 .card-catch:hover { border-color: #10b981; }
 
 #catch-area { 
-    position: relative; width: 100%; height: 420px; 
+    position: relative; width: 100%; height: 430px; 
     background: radial-gradient(circle at bottom, #0f172a 0%, #020617 100%); 
     border-radius: 18px; overflow: hidden; touch-action: none; 
-    margin-bottom: 16px; border: 2px solid #3b82f6; 
-    box-shadow: 0 12px 32px rgba(0,0,0,0.45), inset 0 0 30px rgba(59,130,246,0.2);
+    margin-bottom: 14px; border: 2px solid rgba(59, 130, 246, 0.55); 
+    box-shadow: 0 12px 32px rgba(0,0,0,0.45), inset 0 0 36px rgba(59,130,246,0.18);
+    user-select: none;
 }
+#catch-area.hit-shake { animation: shake 0.35s ease; border-color: #ef4444; }
 .catch-stars {
     position: absolute; width: 200%; height: 200%;
     background-image: radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, #ffffff, rgba(0,0,0,0));
@@ -604,6 +606,41 @@
     animation: starsScroll 5s linear infinite; opacity: 0.25;
 }
 @keyframes starsScroll { 0% { transform: translateY(-100px); } 100% { transform: translateY(100px); } }
+
+#catch-basket { 
+    position: absolute; bottom: 16px; left: 50%; 
+    width: 82px; height: 52px; 
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.55), rgba(37, 99, 235, 0.25));
+    border: 2px solid rgba(147, 197, 253, 0.75);
+    border-radius: 99px; transform: translateX(-50%); 
+    display: flex; justify-content: center; align-items: center; 
+    font-size: 26px; z-index: 10; 
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.55), inset 0 2px 6px rgba(255,255,255,0.4);
+    transition: background 0.18s, border-color 0.18s, transform 0.1s;
+    will-change: left;
+}
+.catch-item { 
+    position: absolute; top: 0; left: 50%;
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.92), rgba(59, 130, 246, 0.88)); 
+    color: #ffffff; padding: 9px 17px; border-radius: 99px; 
+    font-weight: 800; box-shadow: 0 6px 16px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.35); 
+    white-space: nowrap; font-size: 16px; z-index: 5; 
+    border: 1.5px solid rgba(147, 197, 253, 0.65); 
+    transform: translate3d(-50%, -50px, 0); 
+    will-change: transform;
+}
+.catch-stats { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 14px; background: var(--input-bg); border: 1.5px solid var(--line); border-radius: 14px; margin-bottom: 10px; font-weight: 800; font-size: 13.5px; }
+.catch-subbar { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; opacity: 0.85; margin-bottom: 8px; padding: 0 4px; }
+.catch-prog-bg { width: 100%; height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
+#c-prog-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #10b981); border-radius: 99px; transition: width 0.3s ease; }
+.catch-built { min-height: 26px; font-size: 12.5px; font-weight: 700; color: var(--accent-bright); background: var(--accent-light); border-radius: 10px; padding: 6px 10px; margin-bottom: 10px; text-align: center; line-height: 1.6; }
+#catch-overlay { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.65); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 56px; font-weight: 900; color: #fff; z-index: 25; text-shadow: 0 4px 20px rgba(59,130,246,0.8); }
+.c-pop {
+    position: absolute; color: #10b981; font-weight: 900; font-size: 22px;
+    animation: flyUp 0.6s ease-out forwards; z-index: 20; pointer-events: none;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+@keyframes flyUp { 0% { transform: translate(-50%, 0) scale(1); opacity: 1; } 100% { transform: translate(-50%, -44px) scale(1.4); opacity: 0; } }
 
 #catch-basket { 
     position: absolute; bottom: 15px; left: 50%; 
@@ -970,19 +1007,28 @@
         <div id="g-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 18px;"></div>
       </div>
       
-      <!-- واجهة لعبة صائد الكلمات -->
+     <!-- واجهة لعبة صائد الكلمات -->
       <div id="catch-board-wrap" hidden>
         <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">رجوع للساحة</button>
-        <h3 id="c-piece-title" style="color:var(--accent); text-align:center; font-family: 'Cairo', sans-serif; margin-top:0;"></h3>
+        <h3 id="c-piece-title" style="color:var(--accent); text-align:center; font-family: 'Cairo', sans-serif; margin: 0 0 10px 0;"></h3>
         
         <div class="catch-stats">
-           <span id="c-target-msg" style="color:#059669;">الكلمة القادمة: <span id="c-next-word" style="font-size:18px; color:var(--accent);">---</span></span>
-           <span id="c-lives" style="font-size:18px; filter: drop-shadow(0 2px 4px rgba(220,38,38,0.3));">❤️❤️❤️</span>
+           <span id="c-target-msg" style="color:#10b981;">القادمة: <span id="c-next-word" style="font-size:17px; color:var(--accent-bright);">---</span></span>
+           <span id="c-lives" style="font-size:17px;">❤️❤️❤️</span>
         </div>
+
+        <div class="catch-subbar">
+           <span id="c-progress-txt">0 / 0</span>
+           <span id="c-combo" style="color:#f59e0b;"></span>
+           <span id="c-best">أفضل نتيجة: 0</span>
+        </div>
+        <div class="catch-prog-bg"><div id="c-prog-fill"></div></div>
+        <div id="c-built" class="catch-built" hidden></div>
         
         <div id="catch-area">
            <div class="catch-stars"></div>
-           <div id="catch-basket">✨</div>
+           <div id="catch-overlay" hidden>3</div>
+           <div id="catch-basket">🧺</div>
         </div>
         
         <button id="c-next-game-btn" class="action-btn" style="background:#3b82f6; margin-top:10px;" hidden>جرب لحن جديد</button>
@@ -1660,15 +1706,29 @@ $('g-next-game-btn').onclick = () => {
 /* ==================================================
    لعبة 2: صائد الكلمات (Catch The Melody Pro)
 ================================================== */
-let catchAnimationFrame, catchSpawner;
-let catchBasketX = 50; 
+let catchAnimationFrame, catchSpawner, catchCountdownTimer;
+let catchBasketX = 50;
 let catchItems = [];
 let catchTargetWords = [];
 let catchCurrentIdx = 0;
 let catchLives = 3;
-let catchSpeed = 2.5;
+let catchSpeed = 2.4;
 let catchIsActive = false;
 let catchGamePiece = "";
+let catchCombo = 0;
+let catchScore = 0;
+let catchMissSinceTarget = 0;
+let catchLastX = 50;
+
+function getCatchBest() {
+    try { return Number(localStorage.getItem('catch_best_score') || 0); } catch (e) { return 0; }
+}
+function saveCatchBest(score) {
+    if (score > getCatchBest()) {
+        try { localStorage.setItem('catch_best_score', String(score)); } catch (e) {}
+    }
+    $('c-best').textContent = 'أفضل نتيجة: ' + Math.max(score, getCatchBest());
+}
 
 $('btn-catch-game').onclick = () => {
    $('game-selector').hidden = true;
@@ -1694,89 +1754,129 @@ $('btn-catch-game').onclick = () => {
 };
 
 function initCatchGame(game) {
+    if (catchAnimationFrame) cancelAnimationFrame(catchAnimationFrame);
+    if (catchSpawner) clearInterval(catchSpawner);
+    if (catchCountdownTimer) clearInterval(catchCountdownTimer);
+
     catchGamePiece = game.title;
     $('c-piece-title').textContent = catchGamePiece;
-    
+
     let fullWords = normGameText(game.text).split(' ').filter(Boolean);
     catchTargetWords = fullWords.length > 20 ? fullWords.slice(0, 20) : fullWords;
-    
-    if(catchTargetWords.length === 0) {
+
+    if (catchTargetWords.length === 0) {
         alert("لا توجد كلمات لهذا اللحن.");
         backToGameSelector();
         return;
     }
-    
+
     catchCurrentIdx = 0;
     catchLives = 3;
-    catchSpeed = window.innerHeight < 700 ? 2 : 2.8; 
+    catchCombo = 0;
+    catchScore = 0;
+    catchMissSinceTarget = 0;
+    catchSpeed = window.innerHeight < 700 ? 2.1 : 2.6;
     catchItems.forEach(i => i.el.remove());
     catchItems = [];
-    catchIsActive = true;
-    
+    catchIsActive = false;
+
+    $('c-target-msg').innerHTML = 'القادمة: <span id="c-next-word" style="font-size:17px; color:var(--accent-bright);"></span>';
+    $('c-next-word').textContent = catchTargetWords[0];
     $('c-lives').textContent = '❤️❤️❤️';
-    $('c-next-word').textContent = catchTargetWords[catchCurrentIdx];
+    $('c-progress-txt').textContent = `0 / ${catchTargetWords.length}`;
+    $('c-prog-fill').style.width = '0%';
+    $('c-combo').textContent = '';
+    $('c-best').textContent = 'أفضل نتيجة: ' + getCatchBest();
+    $('c-built').textContent = '';
+    $('c-built').hidden = true;
     $('c-msg').textContent = '';
     $('c-next-game-btn').hidden = true;
     $('catch-board-wrap').hidden = false;
-    
+
     catchBasketX = 50;
     $('catch-basket').style.left = '50%';
-    $('catch-basket').style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)';
-    
     initAudio();
-    catchAnimationFrame = requestAnimationFrame(catchLoop);
-    catchSpawner = setInterval(spawnCatchItem, 1000); 
+
+    // 3-2-1 Countdown before words drop
+    let count = 3;
+    const ov = $('catch-overlay');
+    ov.textContent = count;
+    ov.hidden = false;
+    playTick();
+
+    catchCountdownTimer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            ov.textContent = count;
+            playTick();
+        } else {
+            clearInterval(catchCountdownTimer);
+            ov.hidden = true;
+            catchIsActive = true;
+            catchAnimationFrame = requestAnimationFrame(catchLoop);
+            spawnCatchItem();
+            catchSpawner = setInterval(spawnCatchItem, 950);
+        }
+    }, 650);
 }
 
 function spawnCatchItem() {
-    if(!catchIsActive) return;
-    let isCorrect = Math.random() < 0.45;
-    let wordToSpawn = "";
-    
-    if(isCorrect) {
-        wordToSpawn = catchTargetWords[catchCurrentIdx];
+    if (!catchIsActive) return;
+
+    // Guarantee the target word appears at least every 3 drops
+    let forceTarget = catchMissSinceTarget >= 2;
+    let isCorrect = forceTarget || Math.random() < 0.48;
+    let targetWord = catchTargetWords[catchCurrentIdx];
+    let wordToSpawn = targetWord;
+
+    if (isCorrect) {
+        catchMissSinceTarget = 0;
     } else {
-        let randomIdx = Math.floor(Math.random() * catchTargetWords.length);
-        wordToSpawn = catchTargetWords[randomIdx];
-        if(wordToSpawn === catchTargetWords[catchCurrentIdx] && catchTargetWords.length > 1) {
-            wordToSpawn = catchTargetWords[(randomIdx+1) % catchTargetWords.length];
-        }
+        catchMissSinceTarget++;
+        let distractors = catchTargetWords.filter(w => w !== targetWord);
+        wordToSpawn = distractors.length
+            ? distractors[Math.floor(Math.random() * distractors.length)]
+            : targetWord;
     }
 
     let el = document.createElement('div');
-    el.className = 'catch-item' + (isCorrect ? '' : ' wrong');
+    el.className = 'catch-item';
     el.textContent = wordToSpawn;
     el.dir = 'auto';
-    
-    let xPos = 15 + Math.random() * 70; 
+
+    // Keep consecutive drops spaced apart horizontally
+    let xPos = 16 + Math.random() * 68;
+    if (Math.abs(xPos - catchLastX) < 22) xPos = (xPos + 35) % 68 + 16;
+    catchLastX = xPos;
+
     el.style.left = xPos + '%';
     el.style.transform = `translate3d(-50%, -50px, 0)`;
     $('catch-area').appendChild(el);
 
-    catchItems.push({ el, x: xPos, y: -50, isCorrect, text: wordToSpawn });
+    catchItems.push({ el, x: xPos, y: -50, text: wordToSpawn });
 }
 
 function catchLoop() {
-    if(!catchIsActive) return;
+    if (!catchIsActive) return;
     let areaHeight = $('catch-area').clientHeight;
     let basketRect = $('catch-basket').getBoundingClientRect();
 
-    for(let i = catchItems.length - 1; i >= 0; i--) {
+    for (let i = catchItems.length - 1; i >= 0; i--) {
         let item = catchItems[i];
         item.y += catchSpeed;
         item.el.style.transform = `translate3d(-50%, ${item.y}px, 0)`;
 
         let itemRect = item.el.getBoundingClientRect();
-        let hit = !(itemRect.right < basketRect.left || 
-                    itemRect.left > basketRect.right || 
-                    itemRect.bottom < basketRect.top || 
+        let hit = !(itemRect.right < basketRect.left + 6 ||
+                    itemRect.left > basketRect.right - 6 ||
+                    itemRect.bottom < basketRect.top + 6 ||
                     itemRect.top > basketRect.bottom);
 
-        if(hit) {
+        if (hit) {
             item.el.remove();
             catchItems.splice(i, 1);
-            handleCatchCollision(item, itemRect.left, itemRect.top);
-        } else if (item.y > areaHeight) {
+            handleCatchCollision(item, itemRect.left + itemRect.width / 2, itemRect.top);
+        } else if (item.y > areaHeight + 20) {
             item.el.remove();
             catchItems.splice(i, 1);
         }
@@ -1796,15 +1896,35 @@ function showCatchPop(text, color, x, y) {
 }
 
 function handleCatchCollision(item, x, y) {
-    if(item.isCorrect && item.text === catchTargetWords[catchCurrentIdx]) {
+    const basket = $('catch-basket');
+    if (item.text === catchTargetWords[catchCurrentIdx]) {
         catchCurrentIdx++;
-        catchSpeed += 0.15; 
-        $('catch-basket').style.background = 'radial-gradient(circle, rgba(16, 185, 129, 0.7) 0%, transparent 70%)';
-        showCatchPop('+1', '#10b981', x + 30, y);
-        
-        setTimeout(() => { if($('catch-basket')) $('catch-basket').style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)'; }, 200);
-        
-        if(catchCurrentIdx >= catchTargetWords.length) {
+        catchCombo++;
+        catchScore += 10 + (catchCombo * 2);
+        catchSpeed = Math.min(5.2, catchSpeed + 0.12);
+        saveCatchBest(catchScore);
+
+        if (navigator.vibrate) navigator.vibrate(18);
+        basket.style.background = 'linear-gradient(180deg, rgba(16, 185, 129, 0.75), rgba(5, 150, 105, 0.4))';
+        basket.style.borderColor = '#34d399';
+        showCatchPop(catchCombo >= 3 ? `🔥 x${catchCombo}` : '+1', '#10b981', x, y);
+
+        setTimeout(() => {
+            if (basket) {
+                basket.style.background = 'linear-gradient(180deg, rgba(59, 130, 246, 0.55), rgba(37, 99, 235, 0.25))';
+                basket.style.borderColor = 'rgba(147, 197, 253, 0.75)';
+            }
+        }, 200);
+
+        const pct = Math.round((catchCurrentIdx / catchTargetWords.length) * 100);
+        $('c-progress-txt').textContent = `${catchCurrentIdx} / ${catchTargetWords.length}`;
+        $('c-prog-fill').style.width = pct + '%';
+        $('c-combo').textContent = catchCombo >= 2 ? `🔥 x${catchCombo}` : '';
+
+        $('c-built').hidden = false;
+        $('c-built').textContent = catchTargetWords.slice(0, catchCurrentIdx).join(' ');
+
+        if (catchCurrentIdx >= catchTargetWords.length) {
             winCatchGame();
         } else {
             $('c-next-word').textContent = catchTargetWords[catchCurrentIdx];
@@ -1812,16 +1932,26 @@ function handleCatchCollision(item, x, y) {
         }
     } else {
         catchLives--;
-        $('c-lives').textContent = '❤️'.repeat(catchLives) + '🤍'.repeat(3 - catchLives);
-        $('catch-basket').style.background = 'radial-gradient(circle, rgba(239, 68, 68, 0.7) 0%, transparent 70%)';
-        showCatchPop('❌', '#ef4444', x + 30, y);
-        
-        setTimeout(() => { if($('catch-basket')) $('catch-basket').style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)'; }, 200);
+        catchCombo = 0;
+        $('c-combo').textContent = '';
+        $('c-lives').textContent = '❤️'.repeat(Math.max(0, catchLives)) + '🤍'.repeat(3 - Math.max(0, catchLives));
+
+        if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+        basket.style.background = 'linear-gradient(180deg, rgba(239, 68, 68, 0.75), rgba(185, 28, 28, 0.4))';
+        basket.style.borderColor = '#f87171';
+        $('catch-area').classList.add('hit-shake');
+        showCatchPop('❌', '#ef4444', x, y);
+
+        setTimeout(() => {
+            $('catch-area').classList.remove('hit-shake');
+            if (basket) {
+                basket.style.background = 'linear-gradient(180deg, rgba(59, 130, 246, 0.55), rgba(37, 99, 235, 0.25))';
+                basket.style.borderColor = 'rgba(147, 197, 253, 0.75)';
+            }
+        }, 320);
         playLoseSound();
-        
-        if(catchLives <= 0) {
-            loseCatchGame();
-        }
+
+        if (catchLives <= 0) loseCatchGame();
     }
 }
 
@@ -1829,42 +1959,56 @@ function winCatchGame() {
     catchIsActive = false;
     clearInterval(catchSpawner);
     $('c-target-msg').innerHTML = '<span style="color:#10b981;">اكتمل اللحن! 🎉</span>';
-    $('c-msg').textContent = 'أداء ممتاز برافو عليك 👏';
+    $('c-msg').textContent = `أداء ممتاز برافو عليك 👏 (النقاط: ${catchScore})`;
     $('c-msg').style.color = '#10b981';
     playWinSound();
     launchConfetti();
-    
-    setTimeout(backToGameSelector, 3000);
+    $('c-next-game-btn').hidden = false;
+    $('c-next-game-btn').textContent = 'جرب لحن جديد 🎵';
 }
 
 function loseCatchGame() {
     catchIsActive = false;
     clearInterval(catchSpawner);
     $('c-target-msg').innerHTML = '<span style="color:#ef4444;">انتهت القلوب 💔</span>';
-    $('c-msg').textContent = 'حاول تركز أكتر المرة الجاية!';
+    $('c-msg').textContent = `حاول تركز أكتر المرة الجاية! (النقاط: ${catchScore})`;
     $('c-msg').style.color = '#ef4444';
-    
     $('c-next-game-btn').hidden = false;
     $('c-next-game-btn').textContent = 'حاول مرة تانية 🔄';
 }
 
 let moveBasket = (e) => {
-    if(!catchIsActive) return;
-    e.preventDefault();
+    if (!catchIsActive) return;
+    if (e.cancelable) e.preventDefault();
     let rect = $('catch-area').getBoundingClientRect();
     let clientX = e.touches ? e.touches[0].clientX : e.clientX;
     let x = clientX - rect.left;
     catchBasketX = Math.max(10, Math.min(90, (x / rect.width) * 100));
     $('catch-basket').style.left = catchBasketX + '%';
 };
-$('catch-area').addEventListener('touchmove', moveBasket, {passive:false});
-$('catch-area').addEventListener('mousemove', (e) => {
-    if(e.buttons === 1) moveBasket(e);
+$('catch-area').addEventListener('touchmove', moveBasket, { passive: false });
+$('catch-area').addEventListener('mousemove', moveBasket);
+
+// Desktop keyboard controls (Arrow keys or A/D)
+const catchKeys = { left: false, right: false };
+window.addEventListener('keydown', (e) => {
+    if (!catchIsActive) return;
+    if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') { catchKeys.left = true; e.preventDefault(); }
+    if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') { catchKeys.right = true; e.preventDefault(); }
 });
+window.addEventListener('keyup', (e) => {
+    if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') catchKeys.left = false;
+    if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') catchKeys.right = false;
+});
+setInterval(() => {
+    if (!catchIsActive) return;
+    if (catchKeys.left) catchBasketX = Math.max(10, catchBasketX - 2.4);
+    if (catchKeys.right) catchBasketX = Math.min(90, catchBasketX + 2.4);
+    if (catchKeys.left || catchKeys.right) $('catch-basket').style.left = catchBasketX + '%';
+}, 16);
 
 $('c-next-game-btn').onclick = () => {
     $('c-next-game-btn').hidden = true;
-    backToGameSelector();
     $('btn-catch-game').click();
 };
 
