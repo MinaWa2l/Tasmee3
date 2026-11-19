@@ -540,12 +540,20 @@
   
 #g-answer-area,
 #g-words-area { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; direction: ltr; }
-.game-part { display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: center; gap: 6px; width: 100%; min-width: 0; direction: ltr; }
-.game-part .word-btn { width: 100%; min-width: 0; padding: 10px 8px; white-space: normal; overflow-wrap: anywhere; line-height: 1.6; text-align: center; unicode-bidi: plaintext; }
-#g-words-area .game-part .word-btn { grid-column: 1 / -1; }
-.move-arrow { display: none; align-items: center; justify-content: center; width: 36px; min-width: 36px; height: 44px; padding: 0; font-size: 20px; border: none; border-radius: 10px; background: #6366f1; color: white; cursor: pointer; }
-#g-answer-area .move-arrow { display: inline-flex; }
-.move-arrow:disabled { opacity: 0.25; cursor: default; }
+.game-part { width: 100%; min-width: 0; position: relative; transition: transform 0.15s ease; }
+.game-part .word-btn {
+  width: 100%; min-width: 0; padding: 10px 14px;
+  white-space: normal; overflow-wrap: anywhere; line-height: 1.6;
+  text-align: center; unicode-bidi: plaintext;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  user-select: none; -webkit-user-select: none;
+}
+.drag-handle { display: none; opacity: 0.7; font-size: 16px; letter-spacing: -2px; flex-shrink: 0; }
+#g-answer-area .game-part { touch-action: none; }
+#g-answer-area .game-part .word-btn { cursor: grab; justify-content: space-between; }
+#g-answer-area .drag-handle { display: inline-block; }
+.game-part.dragging { opacity: 0.85; transform: scale(1.03); z-index: 20; }
+.game-part.dragging .word-btn { cursor: grabbing; box-shadow: 0 10px 24px rgba(37, 99, 235, 0.45); outline: 2px solid #93c5fd; }
 
 /* --- Quiz Styles --- */
   .quiz-choice { background: var(--input-bg); border: 1.5px solid var(--line); color: var(--fg); padding: 14px 16px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; text-align: right; font-family: inherit; margin-bottom: 10px; }
@@ -1051,7 +1059,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v3.03'; 
+const VERSION = 'v3.1'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -1536,26 +1544,73 @@ function createGamePart(text, index) {
     item.dataset.text = text;
     item.dataset.index = String(index);
 
-    const up = document.createElement('button');
-    up.type = 'button';
-    up.className = 'move-arrow';
-    up.textContent = '↑';
-    up.onclick = () => shiftGamePart(item, -1);
-
     const word = document.createElement('button');
     word.type = 'button';
     word.className = 'word-btn';
-    word.textContent = text;
     word.dir = 'auto';
-    word.onclick = () => moveWord(item);
 
-    const down = document.createElement('button');
-    down.type = 'button';
-    down.className = 'move-arrow';
-    down.textContent = '↓';
-    down.onclick = () => shiftGamePart(item, 1);
+    const label = document.createElement('span');
+    label.textContent = text;
+    label.style.flex = '1';
 
-    item.append(up, word, down);
+    const handle = document.createElement('span');
+    handle.className = 'drag-handle';
+    handle.textContent = '⋮⋮';
+    handle.setAttribute('aria-hidden', 'true');
+
+    word.append(label, handle);
+    item.append(word);
+
+    // Tap to move between boxes; drag to reorder inside #g-answer-area
+    let startY = 0, isDragging = false, pointerId = null;
+
+    word.addEventListener('pointerdown', (e) => {
+        if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
+        if (item.parentElement !== $('g-answer-area')) return;
+        startY = e.clientY;
+        isDragging = false;
+        pointerId = e.pointerId;
+        word.setPointerCapture(pointerId);
+    });
+
+    word.addEventListener('pointermove', (e) => {
+        if (pointerId !== e.pointerId) return;
+        if (!isDragging && Math.abs(e.clientY - startY) > 8) {
+            isDragging = true;
+            item.classList.add('dragging');
+            if (navigator.vibrate) navigator.vibrate(12);
+        }
+        if (!isDragging) return;
+
+        const ans = $('g-answer-area');
+        const siblings = [...ans.children].filter(el => el !== item);
+        const nextSibling = siblings.find(sib => {
+            const box = sib.getBoundingClientRect();
+            return e.clientY < box.top + box.height / 2;
+        });
+        ans.insertBefore(item, nextSibling || null);
+    });
+
+    const endDrag = (e) => {
+        if (pointerId !== e.pointerId) return;
+        try { word.releasePointerCapture(pointerId); } catch (_) {}
+        pointerId = null;
+        if (isDragging) {
+            item.classList.remove('dragging');
+            // Prevent the click event from firing right after a drag
+            item.dataset.justDragged = '1';
+            setTimeout(() => { delete item.dataset.justDragged; }, 60);
+        }
+        isDragging = false;
+    };
+    word.addEventListener('pointerup', endDrag);
+    word.addEventListener('pointercancel', endDrag);
+
+    word.onclick = () => {
+        if (item.dataset.justDragged) return;
+        moveWord(item);
+    };
+
     return item;
 }
 
@@ -1566,29 +1621,7 @@ function moveWord(item) {
     const wrd = $('g-words-area');
     if (item.parentElement === wrd) ans.appendChild(item);
     else if (item.parentElement === ans) wrd.appendChild(item);
-    updateMoveButtons();
     updateGameCheckButton();
-}
-
-function shiftGamePart(item, direction) {
-    if (gameSubmitting || gameFinished || remainingGameTries <= 0) return;
-    const ans = $('g-answer-area');
-    if (item.parentElement !== ans) return;
-    if (direction === -1 && item.previousElementSibling) {
-        ans.insertBefore(item, item.previousElementSibling);
-    } else if (direction === 1 && item.nextElementSibling) {
-        ans.insertBefore(item.nextElementSibling, item);
-    }
-    updateMoveButtons();
-}
-
-function updateMoveButtons() {
-    const items = [...$('g-answer-area').children];
-    items.forEach((item, i) => {
-        const arrows = item.querySelectorAll('.move-arrow');
-        arrows[0].disabled = i === 0;
-        arrows[1].disabled = i === items.length - 1;
-    });
 }
 
 function updateGameCheckButton() {
