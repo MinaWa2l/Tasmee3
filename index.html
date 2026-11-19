@@ -697,15 +697,7 @@
     main { max-width: 1140px; }
   }
 
-  /* --- Remember Me / Change Name Button --- */
-  .name-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .name-label-row label { margin: 0; }
-  .change-name-btn {
-    width: auto; padding: 2px 10px; font-size: 11.5px; font-weight: 800;
-    border-radius: 99px; border: 1px solid var(--line);
-    background: var(--accent-light); color: var(--accent-bright); cursor: pointer;
-  }
-  .change-name-btn:active { transform: scale(0.94); }
+
 
   /* --- Liquid Glass Install App Banner --- */
   .install-banner {
@@ -767,10 +759,7 @@
       </div>
       <div class="profile-row">
         <div class="combo">
-          <div class="name-label-row">
-            <label for="name">الاسم</label>
-            <button type="button" id="change-name-btn" class="change-name-btn" hidden>تغيير</button>
-          </div>
+          <label for="name">الاسم</label>
           <input id="name" type="text" autocomplete="off" placeholder="جارٍ التحميل..." disabled>
           <ul id="names" hidden></ul>
         </div>
@@ -1270,7 +1259,7 @@ function showNames() {
 }
 function pickName(n) {
   try { localStorage.setItem('saved_deacon_name', n); } catch (e) {}
-  $('change-name-btn').hidden = false;
+  
   $('name').value = n; $('names').hidden = true; $('name').blur();
   updatePieces(n); fetchHistory(n); fetchAttendance(n); loadChallenge(n);
   
@@ -2133,24 +2122,7 @@ window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
 });
 
-/* --- Change Saved Name Button --- */
-$('change-name-btn').onclick = () => {
-  try { localStorage.removeItem('saved_deacon_name'); } catch (e) {}
-  $('name').value = '';
-  $('change-name-btn').hidden = true;
-  updatePieces('');
-  fetchHistory('');
-  fetchAttendance('');
-  $('graph-section').hidden = true;
-  if ($('btn-load-game')) {
-    $('btn-load-game').disabled = true;
-    $('btn-quiz-game').disabled = true;
-    $('btn-catch-game').disabled = true;
-    $('g-setup-msg').textContent = 'اختر اسمك من الرئيسية لتتمكن من اللعب.';
-  }
-  $('name').focus();
-  showNames();
-};
+
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 </script>
