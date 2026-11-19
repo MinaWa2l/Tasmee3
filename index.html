@@ -155,11 +155,12 @@
     background: var(--card-solid);
   }
   
-  .input-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .input-row { display: flex; gap: 10px; margin-bottom: 16px; align-items: flex-end; }
+  .input-row > div { min-width: 0; }
   .input-row > div:first-child { flex: 1; } 
   .input-row > div:last-child { flex: 1.85; } 
 
-  .piece-row { display: flex; gap: 8px; align-items: stretch; }
+  .piece-row { display: flex; gap: 8px; align-items: stretch; width: 100%; min-width: 0; }
   .piece-row .c-select-wrap { flex: 1; min-width: 0; }
   
   .plink-btn { 
@@ -247,6 +248,14 @@
   .chal-title { font-size: 18px; font-weight: 900; margin: 0 0 16px; color: #c7d2fe; }
   .chal-rew { display: inline-block; background: linear-gradient(135deg, #f59e0b, #ea580c); padding: 10px 26px; border-radius: 30px; font-size: 17px; font-weight: 900; color: #fff; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5); margin-bottom: 20px; border: 1px solid rgba(254, 240, 138, 0.7); }
   .chal-piece { font-size: 26px; font-weight: 900; color: #ffffff; margin: 10px 0 22px 0; padding: 16px; background: rgba(255, 255, 255, 0.1); border-radius: 14px; border: 1px dashed rgba(255, 255, 255, 0.35); text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
+  .chal-video-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: rgba(59, 130, 246, 0.25); border: 1px solid rgba(147, 197, 253, 0.5);
+    color: #fff; text-decoration: none; font-weight: 800; font-size: 14px;
+    padding: 8px 18px; border-radius: 99px; margin: -12px 0 18px 0;
+    transition: all 0.2s;
+  }
+  .chal-video-btn:active { transform: scale(0.96); }
   
   .spinner-window { height: 70px; overflow: hidden; position: relative; background: rgba(0, 0, 0, 0.6); border-radius: 14px; border: 2px solid #fde68a; margin: 16px 0 24px 0; box-shadow: inset 0 0 25px rgba(0,0,0,0.9); transition: all 0.3s; }
   @keyframes win-pulse { 0% { box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 0 0 rgba(251, 191, 36, 0); } 50% { box-shadow: inset 0 0 15px rgba(251, 191, 36, 0.5), 0 0 40px rgba(251, 191, 36, 0.9); border-color: #fff; } 100% { box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 0 15px rgba(251, 191, 36, 0.3); } }
@@ -569,6 +578,7 @@
         <div id="chal-play" hidden>
           <div class="chal-rew">المكافأة: <span id="chal-cval"></span> 🎟️</div>
           <div id="chal-pname" class="chal-piece"></div>
+          <a id="chal-plink" class="chal-video-btn" target="_blank" rel="noopener" hidden>▶ استمع للمرد</a>
           
           <div id="spinner-window" class="spinner-window" hidden>
               <div id="spinner-track" class="spinner-track"></div>
@@ -1701,7 +1711,11 @@ function doRoll() {
   });
 }
 function applyChalState(d, fromSpin = false) {
-  chalPiece = d.piece; const pName = $('chal-pname'); pName.textContent = d.piece; $('chal-cval').textContent = d.coupons; const rem = 2 - d.rolls; $('chal-rem').textContent = rem; $('chal-reroll').disabled = (rem <= 0);
+  chalPiece = d.piece;
+  const chalUrl = linksMap && linksMap['مردات'] && linksMap['مردات'][d.piece];
+  $('chal-plink').hidden = !chalUrl;
+  if (chalUrl) $('chal-plink').href = chalUrl;
+  const pName = $('chal-pname'); pName.textContent = d.piece; $('chal-cval').textContent = d.coupons; const rem = 2 - d.rolls; $('chal-rem').textContent = rem; $('chal-reroll').disabled = (rem <= 0);
   $('chal-content').hidden = true; $('chal-play').hidden = false; if (!fromSpin) { $('spinner-window').hidden = true; pName.hidden = false; } $('chal-actions').hidden = false; document.querySelector('.chal-rew').style.transition = 'opacity 0.8s'; document.querySelector('.chal-rew').style.opacity = '1';
   if (fromSpin) { pName.style.color = '#fbbf24'; pName.style.transform = 'scale(1.15)'; pName.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; setTimeout(() => { pName.style.transform = 'scale(1)'; }, 400); } else { pName.style.color = '#ffffff'; }
 }
