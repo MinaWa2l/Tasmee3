@@ -954,8 +954,7 @@
       <div class="admin-sort-row">
         <button type="button" class="admin-sort-btn active" data-sort="name">الاسم</button>
         <button type="button" class="admin-sort-btn" data-sort="coupons">الكوبونات</button>
-        <button type="button" class="admin-sort-btn" data-sort="progress">الأقل حفظاً</button>
-        <button type="button" class="admin-sort-btn" data-sort="rem">المتبقي</button>
+        <button type="button" class="admin-sort-btn" data-sort="progress">الأكثر حفظاً</button>
       </div>
       <div id="admin-students-list"></div>
     </div>
@@ -2815,8 +2814,7 @@ function renderAdminList() {
 
   if (adminSortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
   else if (adminSortBy === 'coupons') list.sort((a, b) => b.coupons - a.coupons);
-  else if (adminSortBy === 'progress') list.sort((a, b) => a.progress - b.progress);
-  else if (adminSortBy === 'rem') list.sort((a, b) => (b.remMarad + b.remAlhan) - (a.remMarad + a.remAlhan));
+  else if (adminSortBy === 'progress') list.sort((a, b) => b.progress - a.progress);
 
   $('admin-count').textContent = list.length;
   const wrap = $('admin-students-list');
