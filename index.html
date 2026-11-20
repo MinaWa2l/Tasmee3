@@ -1486,7 +1486,10 @@ function applyLists(d) {
   }
   syncCustomSelect('piece');
 
-  if (!$('name').value && !$('login-screen').hidden && !pendingLoginName) {
+  let isAdminSaved = false;
+  try { isAdminSaved = !!localStorage.getItem('saved_admin_pin'); } catch (e) {}
+
+  if (!$('name').value && !$('login-screen').hidden && !pendingLoginName && !isAdminSaved) {
     let saved = '', savedPin = '';
     try {
       saved = localStorage.getItem('saved_deacon_name') || '';
@@ -2756,24 +2759,30 @@ $('admin-pin-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); $('admin-pin-submit').click(); }
 });
 
-$('admin-pin-submit').onclick = () => {
-  const pin = String($('admin-pin-input').value || '')
-    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
-  if (!pin) { $('admin-pin-error').textContent = 'اكتب الرقم السري'; return; }
-
-  $('admin-pin-submit').disabled = true;
-  $('admin-pin-submit').textContent = '⏳ جارٍ التحميل...';
-  $('admin-pin-error').textContent = '';
+function loginAsAdmin(pin, isAuto = false) {
+  if (!isAuto) {
+    $('admin-pin-submit').disabled = true;
+    $('admin-pin-submit').textContent = '⏳ جارٍ التحميل...';
+    $('admin-pin-error').textContent = '';
+  }
 
   fetch(API, { method: 'POST', body: JSON.stringify({ action: 'adminOverview', pin }) })
     .then(r => r.json())
     .then(d => {
-      $('admin-pin-submit').disabled = false;
-      $('admin-pin-submit').textContent = 'دخول للوحة المتابعة';
+      if (!isAuto) {
+        $('admin-pin-submit').disabled = false;
+        $('admin-pin-submit').textContent = 'دخول للوحة المتابعة';
+      }
       if (!d.ok) {
-        $('admin-pin-error').textContent = d.error || 'الرقم السري غير صحيح ❌';
+        if (isAuto) {
+          try { localStorage.removeItem('saved_admin_pin'); } catch (e) {}
+          $('login-screen').hidden = false;
+        } else {
+          $('admin-pin-error').textContent = d.error || 'الرقم السري غير صحيح ❌';
+        }
         return;
       }
+      try { localStorage.setItem('saved_admin_pin', pin); } catch (e) {}
       adminPinCache = pin;
       adminStudents = d.students || [];
       $('login-screen').hidden = true;
@@ -2786,17 +2795,36 @@ $('admin-pin-submit').onclick = () => {
       renderAdminList();
     })
     .catch(() => {
-      $('admin-pin-submit').disabled = false;
-      $('admin-pin-submit').textContent = 'دخول للوحة المتابعة';
-      $('admin-pin-error').textContent = '⚠️ خطأ في الاتصال بالانترنت';
+      if (!isAuto) {
+        $('admin-pin-submit').disabled = false;
+        $('admin-pin-submit').textContent = 'دخول للوحة المتابعة';
+        $('admin-pin-error').textContent = '⚠️ خطأ في الاتصال بالانترنت';
+      }
     });
+}
+
+$('admin-pin-submit').onclick = () => {
+  const pin = String($('admin-pin-input').value || '')
+    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
+  if (!pin) { $('admin-pin-error').textContent = 'اكتب الرقم السري'; return; }
+  loginAsAdmin(pin, false);
 };
 
 $('btn-admin-exit').onclick = () => {
+  try { localStorage.removeItem('saved_admin_pin'); } catch (e) {}
   adminPinCache = '';
   $('admin-dashboard').hidden = true;
   $('login-screen').hidden = false;
 };
+
+// دخول تلقائي للأدمن عند عمل ريفريش
+try {
+  const savedAdminPin = localStorage.getItem('saved_admin_pin');
+  if (savedAdminPin) {
+    $('login-screen').hidden = true;
+    loginAsAdmin(savedAdminPin, true);
+  }
+} catch (e) {}
 
 $('admin-search').addEventListener('input', renderAdminList);
 document.querySelectorAll('.admin-sort-btn').forEach(btn => {
@@ -2814,7 +2842,9 @@ function renderAdminList() {
 
   if (adminSortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
   else if (adminSortBy === 'coupons') list.sort((a, b) => b.coupons - a.coupons);
-  else if (adminSortBy === 'progress') list.sort((a, b) => b.progress - a.progress);
+  else if (adminSortBy === 'progress') {
+    list.sort((a, b) => (a.remMarad + a.remAlhan) - (b.remMarad + b.remAlhan) || b.progress - a.progress);
+  }
 
   $('admin-count').textContent = list.length;
   const wrap = $('admin-students-list');
