@@ -612,6 +612,22 @@
     flex-shrink: 0;
   }
   .game-back-btn:active { transform: scale(0.95); }
+  .qr-card {
+    background: var(--input-bg);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 16px;
+    text-align: center;
+    margin: 14px 0;
+  }
+  .qr-box {
+    display: inline-block;
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  }
+  .qr-box img { display: block; width: 170px; height: 170px; }
 </style>
 </head>
 <body>
@@ -882,7 +898,7 @@
     </div>
   </div>
 
-  <!-- تاب 2: بيانات الشماس والحضور -->
+<!-- تاب 2: بيانات الشماس والحضور -->
   <div id="profile-tab" class="tab-content" hidden>
     <div class="section-card">
       <div class="section-title">
@@ -901,6 +917,14 @@
       </div>
       <div id="attendance" hidden>
         <div id="attendance-list"></div>
+      </div>
+
+      <div class="qr-card" id="my-qr-card" hidden>
+        <div style="font-size:14px; font-weight:800; color:var(--accent); margin-bottom:10px;">🪪 كارت الحضور الرقمي</div>
+        <div class="qr-box">
+          <img id="my-qr-img" alt="QR Code" loading="lazy">
+        </div>
+        <div style="font-size:12px; opacity:0.75; margin-top:8px;">اعرض الكود للخادم لتسجيل الحضور</div>
       </div>
     </div>
 
@@ -1446,6 +1470,8 @@ function completeLogin(n, pin) {
   pendingLoginName = '';
   $('name').value = n; $('names').hidden = true; $('name').blur();
   $('profile-name-display').textContent = n;
+  $('my-qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=6&data=' + encodeURIComponent(n);
+  $('my-qr-card').hidden = false;
 
   const wasLoggedOut = !$('login-screen').hidden;
   $('login-screen').hidden = true;
@@ -1476,6 +1502,7 @@ function logoutUser() {
   $('chal-card').style.border = '1px solid rgba(165, 180, 252, 0.35)';
   $('name').value = '';
   $('profile-name-display').textContent = '---';
+  $('my-qr-card').hidden = true;
   $('recite-tab').hidden = true;
   $('profile-tab').hidden = true;
   $('games-tab').hidden = true;
