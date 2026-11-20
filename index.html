@@ -74,7 +74,6 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Subtle ambient glow for Liquid Glass depth */
   body::before {
     content: '';
     position: fixed;
@@ -118,8 +117,8 @@
     margin-bottom: 16px; 
     box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-inset);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
+    position: relative; z-index: 1;
   }
-  .section-card { position: relative; z-index: 1; }
   .section-card:has(#names:not([hidden])),
   .section-card:has(.c-select-wrap.open) { z-index: 50; }
   .section-title { 
@@ -132,7 +131,6 @@
   .profile-row { display: flex; gap: 12px; align-items: stretch; margin-bottom: 12px; }
   .profile-row .combo { flex: 1; }
   
-  /* Shimmering Brushed Gold Coupons Pill */
   .coupons-box { 
     position: relative; overflow: hidden;
     background: linear-gradient(135deg, #fde047 0%, #f59e0b 55%, #d97706 100%); 
@@ -186,7 +184,6 @@
   @keyframes link-pulse { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.3); opacity: 0; } }
   option.closed-opt { font-size: 11px; color: #7a8a85; }
 
-  /* Animated Name Search Dropdown */
   .combo { position: relative; }
   #names { 
     position: absolute; inset-inline: 0; top: calc(100% + 6px); margin: 0; padding: 6px; list-style: none; 
@@ -207,7 +204,6 @@
   #names li:hover, #names li.hit { background: var(--accent-light); color: var(--accent-bright); font-weight: 800; }
   #names li.none { color: #7a8a85; cursor: default; text-align: center; }
 
-  /* Custom Animated Liquid Glass Dropdowns for Category & Piece */
   .native-select-hidden { position: absolute !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; }
   .c-select-wrap { position: relative; width: 100%; }
   .c-select-trigger {
@@ -244,137 +240,39 @@
   .c-select-option.selected { background: var(--accent-light); color: var(--accent-bright); font-weight: 800; }
   .c-select-option.disabled { opacity: 0.45; cursor: not-allowed; font-size: 12px; }
 
-/* --- Liquid Glass Progress Bar (Words Inside) --- */
   #progwrap {
-    position: relative;
-    height: 44px;
-    margin-bottom: 16px;
-    border-radius: 99px;
-    overflow: hidden;
+    position: relative; height: 44px; margin-bottom: 16px; border-radius: 99px; overflow: hidden;
     background: rgba(148, 163, 184, 0.14);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.24);
-    box-shadow:
-      0 8px 22px rgba(15, 45, 89, 0.14),
-      inset 0 1px 1px rgba(255, 255, 255, 0.45),
-      inset 0 -2px 6px rgba(0, 0, 0, 0.12);
-    display: flex;
-    align-items: center;
+    box-shadow: 0 8px 22px rgba(15, 45, 89, 0.14), inset 0 1px 1px rgba(255, 255, 255, 0.45), inset 0 -2px 6px rgba(0, 0, 0, 0.12);
+    display: flex; align-items: center;
   }
-
-  .prog-bar-bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    border-radius: 99px;
-    overflow: hidden;
-    z-index: 1;
-  }
-
+  .prog-bar-bg { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; border-radius: 99px; overflow: hidden; z-index: 1; }
   #prog-bar-fill {
-    position: relative;
-    height: 100%;
-    width: 0%;
-    border-radius: 99px;
-    background: hsl(0, 70%, 42%);
-    opacity: 0.85;
-    box-shadow:
-      0 0 18px rgba(59, 130, 246, 0.35),
-      inset 0 1px 1px rgba(255, 255, 255, 0.6);
-    transition: width 0.85s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s;
-    overflow: hidden;
+    position: relative; height: 100%; width: 0%; border-radius: 99px; background: hsl(0, 70%, 42%); opacity: 0.85;
+    box-shadow: 0 0 18px rgba(59, 130, 246, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    transition: width 0.85s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.8s; overflow: hidden;
   }
-
-  /* Glossy liquid top highlight */
-  #prog-bar-fill::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 48% 0;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.04) 100%);
-    border-radius: 99px;
-    pointer-events: none;
-  }
-
-  /* Subtle liquid shimmer sweep */
-  #prog-bar-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.32), transparent);
-    transform: skewX(-22deg);
-    animation: liquidSweep 3.5s infinite;
-    pointer-events: none;
-  }
-  @keyframes liquidSweep {
-    0%, 55% { left: -100%; }
-    100% { left: 160%; }
-  }
-
-  .prog-text {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    padding: 0 16px;
-    margin: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 13.5px;
-    font-weight: 800;
-    color: var(--fg);
-    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
-    pointer-events: none;
-  }
-
-  .prog-text span:last-child {
-    font-weight: 900;
-    font-size: 13px;
-    padding: 2px 10px;
-    border-radius: 99px;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    text-shadow: none;
-    transition: color 0.8s;
-  }
-
-  :root[data-theme="dark"] #progwrap {
-    background: rgba(15, 23, 42, 0.45);
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow:
-      0 10px 26px rgba(0, 0, 0, 0.35),
-      inset 0 1px 1px rgba(255, 255, 255, 0.22),
-      inset 0 -2px 8px rgba(0, 0, 0, 0.35);
-  }
-  :root[data-theme="dark"] .prog-text span:last-child {
-    background: rgba(2, 11, 28, 0.6);
-    border-color: rgba(255, 255, 255, 0.16);
-  }
+  #prog-bar-fill::before { content: ''; position: absolute; inset: 0 0 48% 0; background: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.04) 100%); border-radius: 99px; pointer-events: none; }
+  #prog-bar-fill::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.32), transparent); transform: skewX(-22deg); animation: liquidSweep 3.5s infinite; pointer-events: none; }
+  @keyframes liquidSweep { 0%, 55% { left: -100%; } 100% { left: 160%; } }
+  .prog-text { position: relative; z-index: 2; width: 100%; padding: 0 16px; margin: 0; display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; font-weight: 800; color: var(--fg); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28); pointer-events: none; }
+  .prog-text span:last-child { font-weight: 900; font-size: 13px; padding: 2px 10px; border-radius: 99px; background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.5); text-shadow: none; transition: color 0.8s; }
+  :root[data-theme="dark"] #progwrap { background: rgba(15, 23, 42, 0.45); border-color: rgba(255, 255, 255, 0.16); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.22), inset 0 -2px 8px rgba(0, 0, 0, 0.35); }
+  :root[data-theme="dark"] .prog-text span:last-child { background: rgba(2, 11, 28, 0.6); border-color: rgba(255, 255, 255, 0.16); }
 
   @keyframes alert-glow { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35); border-color: rgba(220, 38, 38, 0.5); } 50% { box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15); border-color: #dc2626; } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.35); border-color: rgba(220, 38, 38, 0.5); } }
   .needs-attention { animation: alert-glow 1.8s infinite; }
 
-  /* --- Challenge Section UI --- */
   .challenge-trigger { background: linear-gradient(135deg, #6366f1, #8b5cf6); border: 1px solid rgba(255,255,255,0.25); color: white; padding: 14px; font-size: 15.5px; font-weight: 800; border-radius: 16px; box-shadow: 0 10px 24px rgba(139,92,246,0.35), inset 0 1px 0 rgba(255,255,255,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; animation: chal-pulse 2.2s infinite; margin-bottom: 16px; }
   @keyframes chal-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.018); } }
   .chal-card { background: linear-gradient(160deg, #1e1b4b, #312e81); border: 1px solid rgba(165, 180, 252, 0.35); padding: 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 16px; box-shadow: 0 14px 32px rgba(30, 27, 75, 0.4); position: relative; overflow: hidden; }
   .chal-title { font-size: 18px; font-weight: 900; margin: 0 0 16px; color: #c7d2fe; }
   .chal-rew { display: inline-block; background: linear-gradient(135deg, #f59e0b, #ea580c); padding: 10px 26px; border-radius: 30px; font-size: 17px; font-weight: 900; color: #fff; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5); margin-bottom: 20px; border: 1px solid rgba(254, 240, 138, 0.7); }
   .chal-piece { font-size: 26px; font-weight: 900; color: #ffffff; margin: 10px 0 22px 0; padding: 16px; background: rgba(255, 255, 255, 0.1); border-radius: 14px; border: 1px dashed rgba(255, 255, 255, 0.35); text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
-  .chal-video-btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    background: rgba(59, 130, 246, 0.25); border: 1px solid rgba(147, 197, 253, 0.5);
-    color: #fff; text-decoration: none; font-weight: 800; font-size: 14px;
-    padding: 8px 18px; border-radius: 99px; margin: -12px 0 18px 0;
-    transition: all 0.2s;
-  }
+  .chal-video-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: rgba(59, 130, 246, 0.25); border: 1px solid rgba(147, 197, 253, 0.5); color: #fff; text-decoration: none; font-weight: 800; font-size: 14px; padding: 8px 18px; border-radius: 99px; margin: -12px 0 18px 0; transition: all 0.2s; }
   .chal-video-btn:active { transform: scale(0.96); }
   
   .spinner-window { height: 70px; overflow: hidden; position: relative; background: rgba(0, 0, 0, 0.6); border-radius: 14px; border: 2px solid #fde68a; margin: 16px 0 24px 0; box-shadow: inset 0 0 25px rgba(0,0,0,0.9); transition: all 0.3s; }
@@ -404,13 +302,11 @@
   .att-card:last-child { border-bottom: none; }
   .att-date { font-weight: 700; font-size: 13px; opacity: 0.85; }
   .att-tags { display: flex; gap: 6px; }
-  /* Soft-tinted Modern Status Pills */
   .att-tag { padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 800; border: 1px solid transparent; }
   .att-yes { background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3); } 
   .att-no { background: rgba(239, 68, 68, 0.14); color: #ef4444; border-color: rgba(239, 68, 68, 0.28); }
   .att-na { background: transparent; color: var(--fg); opacity: 0.4; border: 1px dashed var(--line); }
 
-  /* Skeleton Shimmer Loader */
   .skel-row { height: 34px; border-radius: 10px; margin-bottom: 8px; background: linear-gradient(90deg, var(--line) 25%, rgba(148,163,184,0.12) 50%, var(--line) 75%); background-size: 200% 100%; animation: skelPulse 1.4s infinite; }
   @keyframes skelPulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
@@ -437,7 +333,6 @@
   button.mic.on .stopic { display: block; }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55); } 100% { box-shadow: 0 0 0 24px rgba(239, 68, 68, 0); } }
 
-  /* Live Voice Waveform */
   #wave-bars { display: flex; align-items: center; justify-content: center; gap: 5px; height: 32px; margin-top: 14px; }
   .wave-bar { width: 4px; height: 6px; border-radius: 99px; background: var(--rec); transition: height 0.08s ease; }
   
@@ -457,115 +352,53 @@
   [hidden] { display: none !important; }
   #ver { position: fixed; top: 6px; left: 8px; font-size: 10px; opacity: .45; pointer-events: none; z-index: 100; }
 
-  /* Smooth Tab Transition */
   .tab-content:not([hidden]) { animation: tabFadeUp 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
   @keyframes tabFadeUp {
     0% { opacity: 0; transform: translateY(10px); }
     100% { opacity: 1; transform: translateY(0); }
   }
   
-/* --- iOS 26 Liquid Glass Bottom Bar --- */
-.ios-bottom-bar { 
-  position: fixed; 
-  bottom: 20px; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  background: rgba(15, 45, 89, 0.72); 
-  backdrop-filter: blur(22px) saturate(180%); 
-  -webkit-backdrop-filter: blur(22px) saturate(180%); 
-  border: 1px solid rgba(255, 255, 255, 0.16); 
-  border-radius: 50px; 
-  display: flex; 
-  padding: 6px; 
-  gap: 6px; 
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2); 
-  z-index: 1000; 
-}
-
-:root[data-theme="dark"] .ios-bottom-bar { 
-  background: rgba(10, 29, 59, 0.75); 
-  border-color: rgba(59, 130, 246, 0.25);
-}
-
-.tab-item { 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  justify-content: center;
-  color: #94a3b8; 
-  cursor: pointer; 
-  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1); 
-  width: 76px; 
-  padding: 8px 10px;
-  border-radius: 40px;
-  border: 1px solid transparent;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.tab-item svg { 
-  width: 22px; 
-  height: 22px; 
-  fill: currentColor; 
-  margin-bottom: 3px; 
-  transition: transform 0.3s ease; 
-}
-
-.tab-item span { 
-  font-size: 11px; 
-  font-weight: 800; 
-}
-
-.tab-item.active { 
-  color: #ffffff; 
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.45) 0%, rgba(37, 99, 235, 0.28) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-  transform: scale(1.02);
-}
-
-.tab-item.active svg {
-  transform: scale(1.1);
-  filter: drop-shadow(0 2px 6px rgba(59, 130, 246, 0.6));
-}
-
-  /* --- Login Screen & Profile Header --- */
-  .login-card {
-    max-width: 420px;
-    margin: 24px auto;
-    padding: 26px 20px 30px;
-    text-align: center;
+  .ios-bottom-bar { 
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+    background: rgba(15, 45, 89, 0.72); 
+    backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); 
+    border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 50px; 
+    display: flex; padding: 6px; gap: 6px; 
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2); 
+    z-index: 1000; 
   }
-  .login-icon {
-    width: 64px; height: 64px; margin: 0 auto 14px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
-    display: grid; place-items: center; color: #fff;
-    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.32);
+  :root[data-theme="dark"] .ios-bottom-bar { background: rgba(10, 29, 59, 0.75); border-color: rgba(59, 130, 246, 0.25); }
+
+  .tab-item { 
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #94a3b8; cursor: pointer; transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1); 
+    width: 76px; padding: 8px 10px; border-radius: 40px; border: 1px solid transparent;
+    user-select: none; -webkit-tap-highlight-color: transparent;
   }
+  .tab-item svg { width: 22px; height: 22px; fill: currentColor; margin-bottom: 3px; transition: transform 0.3s ease; }
+  .tab-item span { font-size: 11px; font-weight: 800; }
+  .tab-item.active { 
+    color: #ffffff; 
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.45) 0%, rgba(37, 99, 235, 0.28) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    transform: scale(1.02);
+  }
+  .tab-item.active svg { transform: scale(1.1); filter: drop-shadow(0 2px 6px rgba(59, 130, 246, 0.6)); }
+
+  .login-card { max-width: 420px; margin: 24px auto; padding: 26px 20px 30px; text-align: center; }
+  .login-icon { width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 20px; background: linear-gradient(135deg, var(--accent), var(--accent-bright)); display: grid; place-items: center; color: #fff; box-shadow: 0 10px 24px rgba(37, 99, 235, 0.32); }
   .login-icon svg { width: 34px; height: 34px; fill: currentColor; }
   .login-title { font-size: 20px; font-weight: 900; color: var(--accent); margin: 0 0 6px; }
   .login-sub { font-size: 13.5px; opacity: 0.78; margin: 0 0 22px; font-weight: 600; }
   .login-card .combo { text-align: right; }
 
-  .profile-user-info {
-    flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px;
-    background: var(--input-bg); border: 1px solid var(--line);
-    border-radius: 16px; padding: 12px 14px; min-width: 0;
-  }
-  .profile-name-display {
-    font-size: 17px; font-weight: 900; color: var(--fg);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .switch-user-btn {
-    width: fit-content; padding: 4px 12px; font-size: 11.5px; font-weight: 800;
-    border-radius: 99px; border: 1px solid var(--line);
-    background: var(--accent-light); color: var(--accent-bright);
-    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
-  }
+  .profile-user-info { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px; background: var(--input-bg); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; min-width: 0; }
+  .profile-name-display { font-size: 17px; font-weight: 900; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .switch-user-btn { width: fit-content; padding: 4px 12px; font-size: 11.5px; font-weight: 800; border-radius: 99px; border: 1px solid var(--line); background: var(--accent-light); color: var(--accent-bright); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
   .switch-user-btn:active { transform: scale(0.95); }
   
-  /* --- Word Game Styles --- */
   .area-box { min-height: 80px; background: var(--input-bg); border: 2px dashed var(--line); border-radius: 16px; margin-bottom: 16px; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
   .word-btn { background: linear-gradient(135deg, var(--accent), var(--accent-bright)); color: white; border: none; padding: 8px 16px; border-radius: 12px; font-size: 17px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(15, 45, 89, 0.2); }
   .word-btn:active { transform: scale(0.95); }
@@ -574,171 +407,90 @@
   .wrong-anim { background-color: rgba(239, 68, 68, 0.16) !important; border-color: #ef4444 !important; animation: shake 0.4s; }
   @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
   
-#g-answer-area { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; direction: ltr; }
-.game-part { width: 100%; min-width: 0; position: relative; touch-action: none; transition: transform 0.15s ease; }
-.game-part .word-btn {
-  width: 100%; min-width: 0; padding: 11px 14px;
-  white-space: normal; overflow-wrap: anywhere; line-height: 1.6;
-  text-align: center; unicode-bidi: plaintext;
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  cursor: grab; user-select: none; -webkit-user-select: none;
-}
-.drag-handle { opacity: 0.75; font-size: 16px; letter-spacing: -2px; flex-shrink: 0; }
-.game-part.dragging { opacity: 0.9; transform: scale(1.03); z-index: 20; }
-.game-part.dragging .word-btn { cursor: grabbing; box-shadow: 0 10px 24px rgba(37, 99, 235, 0.45); outline: 2px solid #93c5fd; }
+  #g-answer-area { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; direction: ltr; }
+  .game-part { width: 100%; min-width: 0; position: relative; touch-action: none; transition: transform 0.15s ease; }
+  .game-part .word-btn { width: 100%; min-width: 0; padding: 11px 14px; white-space: normal; overflow-wrap: anywhere; line-height: 1.6; text-align: center; unicode-bidi: plaintext; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: grab; user-select: none; -webkit-user-select: none; }
+  .drag-handle { opacity: 0.75; font-size: 16px; letter-spacing: -2px; flex-shrink: 0; }
+  .game-part.dragging { opacity: 0.9; transform: scale(1.03); z-index: 20; }
+  .game-part.dragging .word-btn { cursor: grabbing; box-shadow: 0 10px 24px rgba(37, 99, 235, 0.45); outline: 2px solid #93c5fd; }
 
-/* --- Quiz Styles --- */
   .quiz-choice { background: var(--input-bg); border: 1.5px solid var(--line); color: var(--fg); padding: 14px 16px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; text-align: right; font-family: inherit; margin-bottom: 10px; }
   .quiz-choice:hover { border-color: #8b5cf6; background: rgba(139, 92, 246, 0.08); }
   .quiz-choice.correct { background: rgba(16, 185, 129, 0.15) !important; border-color: #10b981 !important; color: #10b981 !important; }
   .quiz-choice.wrong { background: rgba(239, 68, 68, 0.15) !important; border-color: #ef4444 !important; color: #ef4444 !important; animation: shake 0.4s; }
   .quiz-correct-ans { border-color: #10b981 !important; color: #10b981 !important; }
 
-/* --- Game Arena Enhancements (New Cards) --- */
-.game-mode-card { 
-  background: var(--input-bg); 
-  border: 1.5px solid var(--line); 
-  border-radius: 18px; padding: 18px; margin-bottom: 14px; cursor: pointer; 
-  display: flex; align-items: center; gap: 16px; 
-  transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1); 
-  text-align: right; position: relative; overflow: hidden; width: 100%; color: var(--fg); box-sizing: border-box; 
-  box-shadow: 0 4px 14px rgba(0,0,0,0.03), inset 0 1px 0 var(--glass-inset);
-}
-.game-mode-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.08); }
-.game-mode-card:active { transform: scale(0.97); }
-.game-mode-icon { width: 52px; height: 52px; border-radius: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; box-shadow: 0 6px 14px rgba(0,0,0,0.18); }
-.game-mode-icon svg { width: 26px; height: 26px; fill: currentColor; }
-.game-mode-details { flex: 1; }
-.game-mode-title { font-size: 16.5px; font-weight: 900; margin: 0 0 3px 0; }
-.game-mode-desc { font-size: 12px; opacity: 0.72; margin: 0; line-height: 1.45; font-weight: 600; }
-.game-badge { position: absolute; top: 12px; left: 12px; background: rgba(245, 158, 11, 0.16); color: #d97706; font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 99px; border: 1px solid rgba(245, 158, 11, 0.35); }
-.game-mode-card:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
-.game-mode-card:disabled:hover { transform: none; box-shadow: none; }
+  .game-mode-card { background: var(--input-bg); border: 1.5px solid var(--line); border-radius: 18px; padding: 18px; margin-bottom: 14px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1); text-align: right; position: relative; overflow: hidden; width: 100%; color: var(--fg); box-sizing: border-box; box-shadow: 0 4px 14px rgba(0,0,0,0.03), inset 0 1px 0 var(--glass-inset); }
+  .game-mode-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.08); }
+  .game-mode-card:active { transform: scale(0.97); }
+  .game-mode-icon { width: 52px; height: 52px; border-radius: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; box-shadow: 0 6px 14px rgba(0,0,0,0.18); }
+  .game-mode-icon svg { width: 26px; height: 26px; fill: currentColor; }
+  .game-mode-details { flex: 1; }
+  .game-mode-title { font-size: 16.5px; font-weight: 900; margin: 0 0 3px 0; }
+  .game-mode-desc { font-size: 12px; opacity: 0.72; margin: 0; line-height: 1.45; font-weight: 600; }
+  .game-badge { position: absolute; top: 12px; left: 12px; background: rgba(245, 158, 11, 0.16); color: #d97706; font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 99px; border: 1px solid rgba(245, 158, 11, 0.35); }
+  .game-mode-card:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+  .game-mode-card:disabled:hover { transform: none; box-shadow: none; }
 
-.card-sort { border-color: rgba(59, 130, 246, 0.3); }
-.card-sort .game-mode-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-.card-sort .game-mode-title { color: #2563eb; }
-.card-sort:hover { border-color: #3b82f6; }
+  .card-sort { border-color: rgba(59, 130, 246, 0.3); }
+  .card-sort .game-mode-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+  .card-sort .game-mode-title { color: #2563eb; }
+  .card-sort:hover { border-color: #3b82f6; }
 
-.card-quiz { border-color: rgba(139, 92, 246, 0.3); }
-.card-quiz .game-mode-icon { background: linear-gradient(135deg, #a855f7, #7e22ce); }
-.card-quiz .game-mode-title { color: #8b5cf6; }
-.card-quiz:hover { border-color: #8b5cf6; }
+  .card-quiz { border-color: rgba(139, 92, 246, 0.3); }
+  .card-quiz .game-mode-icon { background: linear-gradient(135deg, #a855f7, #7e22ce); }
+  .card-quiz .game-mode-title { color: #8b5cf6; }
+  .card-quiz:hover { border-color: #8b5cf6; }
 
-.card-catch { border-color: rgba(16, 185, 129, 0.3); }
-.card-catch .game-mode-icon { background: linear-gradient(135deg, #10b981, #047857); }
-.card-catch .game-mode-title { color: #10b981; }
-.card-catch:hover { border-color: #10b981; }
+  .card-catch { border-color: rgba(16, 185, 129, 0.3); }
+  .card-catch .game-mode-icon { background: linear-gradient(135deg, #10b981, #047857); }
+  .card-catch .game-mode-title { color: #10b981; }
+  .card-catch:hover { border-color: #10b981; }
 
-#catch-area { 
-    position: relative; width: 100%; height: 430px; 
-    background: radial-gradient(circle at bottom, #0f172a 0%, #020617 100%); 
-    border-radius: 18px; overflow: hidden; touch-action: none; 
-    margin-bottom: 14px; border: 2px solid rgba(59, 130, 246, 0.55); 
-    box-shadow: 0 12px 32px rgba(0,0,0,0.45), inset 0 0 36px rgba(59,130,246,0.18);
-    user-select: none;
-}
-#catch-area.hit-shake { animation: shake 0.35s ease; border-color: #ef4444; }
-.catch-stars {
-    position: absolute; width: 200%; height: 200%;
-    background-image: radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, #ffffff, rgba(0,0,0,0));
-    background-repeat: repeat; background-size: 200px 200px;
-    animation: starsScroll 5s linear infinite; opacity: 0.25;
-}
-@keyframes starsScroll { 0% { transform: translateY(-100px); } 100% { transform: translateY(100px); } }
+  #catch-area { position: relative; width: 100%; height: 430px; background: radial-gradient(circle at bottom, #0f172a 0%, #020617 100%); border-radius: 18px; overflow: hidden; touch-action: none; margin-bottom: 14px; border: 2px solid rgba(59, 130, 246, 0.55); box-shadow: 0 12px 32px rgba(0,0,0,0.45), inset 0 0 36px rgba(59,130,246,0.18); user-select: none; }
+  #catch-area.hit-shake { animation: shake 0.35s ease; border-color: #ef4444; }
+  .catch-stars { position: absolute; width: 200%; height: 200%; background-image: radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ffffff, rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, #ffffff, rgba(0,0,0,0)); background-repeat: repeat; background-size: 200px 200px; animation: starsScroll 5s linear infinite; opacity: 0.25; }
+  @keyframes starsScroll { 0% { transform: translateY(-100px); } 100% { transform: translateY(100px); } }
+  #catch-basket { position: absolute; bottom: 14px; left: 50%; width: 54px; height: 38px; background: linear-gradient(180deg, rgba(59, 130, 246, 0.55), rgba(37, 99, 235, 0.25)); border: 1.5px solid rgba(147, 197, 253, 0.8); border-radius: 99px; transform: translateX(-50%); display: flex; justify-content: center; align-items: center; font-size: 20px; z-index: 10; box-shadow: 0 0 16px rgba(59, 130, 246, 0.5), inset 0 2px 4px rgba(255,255,255,0.35); transition: background 0.18s, border-color 0.18s; will-change: left; }
+  .catch-item { position: absolute; top: 0; left: 50%; background: linear-gradient(135deg, rgba(30, 64, 175, 0.92), rgba(59, 130, 246, 0.88)); color: #ffffff; padding: 5px 12px; border-radius: 99px; font-weight: 800; box-shadow: 0 4px 12px rgba(0,0,0,0.35), inset 0 1px 2px rgba(255,255,255,0.3); white-space: nowrap; font-size: 13.5px; z-index: 5; border: 1.5px solid rgba(147, 197, 253, 0.65); transform: translate3d(-50%, -50px, 0); will-change: transform; }
+  .catch-stats { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 14px; background: var(--input-bg); border: 1.5px solid var(--line); border-radius: 14px; margin-bottom: 10px; font-weight: 800; font-size: 13.5px; }
+  .catch-subbar { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; opacity: 0.85; margin-bottom: 8px; padding: 0 4px; }
+  .catch-prog-bg { width: 100%; height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
+  #c-prog-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #10b981); border-radius: 99px; transition: width 0.3s ease; }
+  .catch-built { min-height: 26px; font-size: 12.5px; font-weight: 700; color: var(--accent-bright); background: var(--accent-light); border-radius: 10px; padding: 6px 10px; margin-bottom: 10px; text-align: center; line-height: 1.6; }
+  #catch-overlay { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.65); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 56px; font-weight: 900; color: #fff; z-index: 25; text-shadow: 0 4px 20px rgba(59,130,246,0.8); }
+  .c-pop { position: absolute; color: #10b981; font-weight: 900; font-size: 20px; animation: flyUp 0.6s ease-out forwards; z-index: 20; pointer-events: none; text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
+  @keyframes flyUp { 0% { transform: translate(-50%, 0) scale(1); opacity: 1; } 100% { transform: translate(-50%, -44px) scale(1.4); opacity: 0; } }
 
-#catch-basket { 
-    position: absolute; bottom: 14px; left: 50%; 
-    width: 54px; height: 38px; 
-    background: linear-gradient(180deg, rgba(59, 130, 246, 0.55), rgba(37, 99, 235, 0.25));
-    border: 1.5px solid rgba(147, 197, 253, 0.8);
-    border-radius: 99px; transform: translateX(-50%); 
-    display: flex; justify-content: center; align-items: center; 
-    font-size: 20px; z-index: 10; 
-    box-shadow: 0 0 16px rgba(59, 130, 246, 0.5), inset 0 2px 4px rgba(255,255,255,0.35);
-    transition: background 0.18s, border-color 0.18s;
-    will-change: left;
-}
-.catch-item { 
-    position: absolute; top: 0; left: 50%;
-    background: linear-gradient(135deg, rgba(30, 64, 175, 0.92), rgba(59, 130, 246, 0.88)); 
-    color: #ffffff; padding: 5px 12px; border-radius: 99px; 
-    font-weight: 800; box-shadow: 0 4px 12px rgba(0,0,0,0.35), inset 0 1px 2px rgba(255,255,255,0.3); 
-    white-space: nowrap; font-size: 13.5px; z-index: 5; 
-    border: 1.5px solid rgba(147, 197, 253, 0.65); 
-    transform: translate3d(-50%, -50px, 0); 
-    will-change: transform;
-}
-.catch-stats { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 14px; background: var(--input-bg); border: 1.5px solid var(--line); border-radius: 14px; margin-bottom: 10px; font-weight: 800; font-size: 13.5px; }
-.catch-subbar { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; opacity: 0.85; margin-bottom: 8px; padding: 0 4px; }
-.catch-prog-bg { width: 100%; height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
-#c-prog-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #10b981); border-radius: 99px; transition: width 0.3s ease; }
-.catch-built { min-height: 26px; font-size: 12.5px; font-weight: 700; color: var(--accent-bright); background: var(--accent-light); border-radius: 10px; padding: 6px 10px; margin-bottom: 10px; text-align: center; line-height: 1.6; }
-#catch-overlay { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.65); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 56px; font-weight: 900; color: #fff; z-index: 25; text-shadow: 0 4px 20px rgba(59,130,246,0.8); }
-.c-pop {
-    position: absolute; color: #10b981; font-weight: 900; font-size: 20px;
-    animation: flyUp 0.6s ease-out forwards; z-index: 20; pointer-events: none;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-}
-@keyframes flyUp { 0% { transform: translate(-50%, 0) scale(1); opacity: 1; } 100% { transform: translate(-50%, -44px) scale(1.4); opacity: 0; } }
-  /* --- Sleek Custom Scrollbars (Desktop Polish) --- */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--accent-bright); }
 
-  /* --- Desktop & Large Screen Layout --- */
   @media (min-width: 860px) {
     body { padding: 24px 32px; }
     main { max-width: 1020px; padding: 10px 0 110px 0; }
-
     .top-header { padding: 18px 28px; margin-bottom: 24px; border-radius: 24px; }
     .logo { width: 82px; height: 82px; }
     .header-text h1 { font-size: 26px; }
 
-    /* 2-Column Dashboard Grid for Recite & Profile Tabs */
     #recite-tab:not([hidden]),
-    #profile-tab:not([hidden]) {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-      gap: 20px;
-      align-items: start;
-    }
+    #profile-tab:not([hidden]) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px; align-items: start; }
     #recite-tab .section-card,
     #profile-tab .section-card { margin-bottom: 0; height: fit-content; }
-
-    /* More breathing room for lists on desktop */
     #attendance-list { max-height: 280px; }
     #history-list { max-height: 300px; }
 
-    /* 3-Column Game Launcher Grid */
-    #game-cards-container {
-      display: grid !important;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-    .game-mode-card {
-      flex-direction: column;
-      text-align: center;
-      padding: 28px 18px 22px;
-      margin-bottom: 0;
-      height: 100%;
-    }
+    #game-cards-container { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .game-mode-card { flex-direction: column; text-align: center; padding: 28px 18px 22px; margin-bottom: 0; height: 100%; }
     .game-mode-icon { width: 64px; height: 64px; border-radius: 18px; }
     .game-mode-icon svg { width: 32px; height: 32px; }
     .game-mode-title { font-size: 18px; margin-top: 6px; }
     .game-mode-desc { font-size: 13px; }
 
-    /* Keep active game boards comfortably centered instead of over-stretched */
-    #game-board-wrap,
-    #catch-board-wrap,
-    #quiz-board-wrap {
-      max-width: 620px;
-      margin: 0 auto;
-    }
+    #game-board-wrap, #catch-board-wrap, #quiz-board-wrap { max-width: 620px; margin: 0 auto; }
     #catch-area { height: 480px; cursor: crosshair; }
 
-    /* Wider Floating Dock on Desktop */
     .ios-bottom-bar { bottom: 26px; padding: 8px; gap: 10px; }
     .tab-item { width: 110px; padding: 10px 16px; flex-direction: row; gap: 8px; }
     .tab-item svg { margin-bottom: 0; width: 20px; height: 20px; }
@@ -746,116 +498,43 @@
     .tab-item:hover:not(.active) { color: #e2e8f0; background: rgba(255, 255, 255, 0.08); }
   }
 
-  @media (min-width: 1280px) {
-    main { max-width: 1140px; }
-  }
+  @media (min-width: 1280px) { main { max-width: 1140px; } }
 
-  /* --- Dark / Light Theme Toggle Button --- */
-  .theme-toggle {
-    width: 44px; height: 44px; padding: 0; flex-shrink: 0;
-    display: grid; place-items: center;
-    border-radius: 50%; font-size: 20px; line-height: 1; cursor: pointer;
-  }
+  .theme-toggle { width: 44px; height: 44px; padding: 0; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; font-size: 20px; line-height: 1; cursor: pointer; }
   .theme-toggle:active { transform: scale(0.92); }
   .theme-toggle .icon-sun { display: none; }
   :root[data-theme="dark"] .theme-toggle .icon-sun { display: inline; }
   :root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 
-  /* --- Liquid Glass Install App Banner --- */
-  .install-banner {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    padding: 12px 16px; margin-bottom: 16px; border-radius: 18px;
-    background: var(--card);
-    backdrop-filter: blur(22px) saturate(160%);
-    -webkit-backdrop-filter: blur(22px) saturate(160%);
-    border: 1px solid rgba(59, 130, 246, 0.35);
-    box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-inset);
-    animation: dropIn 0.3s ease;
-  }
+  .install-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; margin-bottom: 16px; border-radius: 18px; background: var(--card); backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%); border: 1px solid rgba(59, 130, 246, 0.35); box-shadow: var(--shadow-soft), inset 0 1px 0 var(--glass-inset); animation: dropIn 0.3s ease; }
   .install-info { display: flex; flex-direction: column; gap: 2px; }
   .install-title { font-size: 13.5px; font-weight: 800; color: var(--accent); }
   .install-sub { font-size: 11.5px; opacity: 0.72; font-weight: 600; }
   .install-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  .install-btn {
-    width: auto; padding: 7px 16px; font-size: 13px; font-weight: 800;
-    border-radius: 99px; border: none; color: #fff; cursor: pointer;
-    background: linear-gradient(135deg, var(--accent), var(--accent-bright));
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-  }
+  .install-btn { width: auto; padding: 7px 16px; font-size: 13px; font-weight: 800; border-radius: 99px; border: none; color: #fff; cursor: pointer; background: linear-gradient(135deg, var(--accent), var(--accent-bright)); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
   .install-btn:active { transform: scale(0.95); }
-  .install-close {
-    width: 30px; height: 30px; padding: 0; border-radius: 50%;
-    border: 1px solid var(--line); background: var(--input-bg);
-    color: var(--fg); font-size: 13px; cursor: pointer;
-    display: grid; place-items: center;
-  }
-  /* --- Game Loading State --- */
-  #game-loader {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 14px; padding: 54px 16px; text-align: center;
-  }
-  .g-spinner {
-    width: 44px; height: 44px; border-radius: 50%;
-    border: 3.5px solid var(--line);
-    border-top-color: var(--accent-bright);
-    animation: icon-spin 0.8s linear infinite;
-    box-shadow: 0 0 18px var(--accent-light);
-  }
+  .install-close { width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: var(--input-bg); color: var(--fg); font-size: 13px; cursor: pointer; display: grid; place-items: center; }
+
+  #game-loader { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 54px 16px; text-align: center; }
+  .g-spinner { width: 44px; height: 44px; border-radius: 50%; border: 3.5px solid var(--line); border-top-color: var(--accent-bright); animation: icon-spin 0.8s linear infinite; box-shadow: 0 0 18px var(--accent-light); }
   .g-loader-txt { font-size: 14.5px; font-weight: 800; color: var(--accent); }
+
   /* --- PIN Login Flow --- */
-  .pin-input {
-    text-align: center; font-size: 24px; font-weight: 900;
-    letter-spacing: 12px; direction: ltr; padding: 12px 14px;
-    margin-bottom: 12px;
-  }
-  .pin-error {
-    color: #ef4444; font-size: 13px; font-weight: 800;
-    min-height: 20px; margin: 6px 0 10px; text-align: center;
-  }
-  .pin-hint {
-    font-size: 11.5px; opacity: 0.7; margin-top: 12px; line-height: 1.5; font-weight: 600;
-  }
-  .pin-loading {
-    font-size: 13.5px; font-weight: 700; color: var(--accent-bright);
-    margin-top: 12px; text-align: center;
-  }
-  /* --- PIN Login Flow --- */
-  .pin-input {
-    text-align: center; font-size: 24px; font-weight: 900;
-    letter-spacing: 12px; direction: ltr; padding: 12px 14px;
-    margin-bottom: 12px;
-  }
-  .pin-error {
-    color: #ef4444; font-size: 13px; font-weight: 800;
-    min-height: 20px; margin: 6px 0 10px; text-align: center;
-  }
-  .pin-hint {
-    font-size: 11.5px; opacity: 0.7; margin-top: 12px; line-height: 1.5; font-weight: 600;
-  }
-  .pin-loading {
-    font-size: 13.5px; font-weight: 700; color: var(--accent-bright);
-    margin-top: 12px; text-align: center;
-  }
-  /* --- Admin Dashboard --- */
-  .admin-entry-btn {
-    margin-top: 18px; width: auto; padding: 6px 14px; font-size: 12px; font-weight: 800;
-    border-radius: 99px; background: transparent; border: 1px dashed var(--line);
-    color: var(--fg); opacity: 0.72; cursor: pointer;
-  }
+  .pin-input { text-align: center; font-size: 24px; font-weight: 900; letter-spacing: 12px; direction: ltr; padding: 12px 14px; margin-bottom: 12px; }
+  .pin-error { color: #ef4444; font-size: 13px; font-weight: 800; min-height: 20px; margin: 6px 0 10px; text-align: center; }
+  .pin-hint { font-size: 11.5px; opacity: 0.7; margin-top: 12px; line-height: 1.5; font-weight: 600; }
+  .pin-loading { font-size: 13.5px; font-weight: 700; color: var(--accent-bright); margin-top: 12px; text-align: center; }
+
+  /* --- Admin Dashboard, Audit & Curriculum --- */
+  .admin-entry-btn { margin-top: 18px; width: auto; padding: 6px 14px; font-size: 12px; font-weight: 800; border-radius: 99px; background: transparent; border: 1px dashed var(--line); color: var(--fg); opacity: 0.72; cursor: pointer; }
   .admin-entry-btn:hover { opacity: 1; border-color: var(--accent-bright); color: var(--accent-bright); }
 
-  .admin-topbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .admin-topbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
   .admin-sort-row { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
-  .admin-sort-btn {
-    width: auto; flex: 1; min-width: 72px; padding: 7px 10px; font-size: 12px; font-weight: 800;
-    border-radius: 99px; border: 1px solid var(--line); background: var(--input-bg); color: var(--fg); cursor: pointer;
-  }
+  .admin-sort-btn { width: auto; flex: 1; min-width: 72px; padding: 7px 10px; font-size: 12px; font-weight: 800; border-radius: 99px; border: 1px solid var(--line); background: var(--input-bg); color: var(--fg); cursor: pointer; }
   .admin-sort-btn.active { background: var(--accent-bright); color: #fff; border-color: transparent; }
 
-  .admin-student-card {
-    background: var(--input-bg); border: 1px solid var(--line); border-radius: 16px;
-    padding: 12px 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;
-  }
+  .admin-student-card { background: var(--input-bg); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
   .admin-student-card:hover { border-color: var(--accent-bright); transform: translateY(-2px); }
   .admin-st-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
   .admin-st-name { font-size: 15px; font-weight: 900; color: var(--fg); }
@@ -870,6 +549,46 @@
   .admin-chip { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--accent-light); color: var(--accent-bright); }
   .admin-subsec { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
   .admin-subsec h4 { margin: 0 0 8px; font-size: 14px; color: var(--accent); }
+
+  .tab-badge { position: absolute; top: 4px; right: 12px; background: #ef4444; color: #fff; font-size: 10px; font-weight: 900; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 99px; display: grid; place-items: center; box-shadow: 0 2px 6px rgba(239,68,68,0.5); }
+
+  .audit-card { background: var(--input-bg); border: 1px solid var(--line); border-radius: 18px; padding: 14px; margin-bottom: 12px; }
+  .audit-who { font-weight: 900; font-size: 16px; color: var(--accent-bright); }
+  .audit-meta { font-size: 12.5px; opacity: 0.78; margin: 4px 0 10px; font-weight: 700; }
+  .quick-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .q-chip { width: auto; padding: 4px 10px; font-size: 11.5px; font-weight: 700; border-radius: 99px; border: 1px solid var(--line); background: var(--card-solid); color: var(--fg); cursor: pointer; }
+  .q-chip:active { transform: scale(0.95); }
+  .audit-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .audit-actions button { flex: 1; padding: 10px; font-size: 13.5px; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; color: #fff; }
+  .btn-play-aud { background: linear-gradient(135deg, var(--accent), var(--accent-bright)); }
+  .btn-ok-aud { background: linear-gradient(135deg, #10b981, #059669); }
+  .btn-no-aud { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+  .speed-controls { display: flex; gap: 6px; justify-content: center; margin: 8px 0; }
+  .speed-btn { width: auto; padding: 4px 12px; font-size: 12px; font-weight: 800; border-radius: 99px; border: 1px solid var(--line); background: var(--input-bg); color: var(--fg); cursor: pointer; }
+  .speed-btn.active { background: var(--accent-bright); color: #fff; border-color: transparent; }
+
+  .done-item { padding: 8px 4px; border-bottom: 1px dashed var(--line); font-weight: 700; font-size: 14px; }
+  .done-item:last-child { border-bottom: none; }
+
+  .year-card { background: var(--input-bg); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-bottom: 10px; }
+  .year-card.expanded { border-color: var(--accent-bright); }
+  .year-header { padding: 14px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; user-select: none; }
+  .year-title-row { display: flex; justify-content: space-between; align-items: center; }
+  .year-title { font-size: 15px; font-weight: 900; margin: 0; color: var(--fg); }
+  .year-fraction { font-size: 12px; font-weight: 800; padding: 2px 10px; border-radius: 99px; background: var(--accent-light); color: var(--accent-bright); }
+  .curr-prog-bg { width: 100%; height: 7px; background: var(--line); border-radius: 99px; overflow: hidden; }
+  .curr-prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent-bright), #10b981); width: 0%; transition: width 0.35s ease; }
+  .year-details { padding: 0 14px 14px; border-top: 1px dashed var(--line); display: none; }
+  .year-card.expanded .year-details { display: block; }
+  .term-title { font-weight: 800; font-size: 13.5px; margin: 12px 0 8px; color: var(--accent-bright); }
+  .term-items { display: flex; flex-wrap: wrap; gap: 6px; }
+  .curr-item { padding: 6px 12px; background: var(--card-solid); border: 1px solid var(--line); border-radius: 99px; font-size: 12.5px; font-weight: 700; cursor: pointer; user-select: none; transition: 0.2s; }
+  .curr-item.done { background: #10b981; border-color: #10b981; color: #fff; }
+  .curr-item.done::before { content: '✓ '; font-weight: 900; }
+  .curr-item-split { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; background: var(--card-solid); border: 1px solid var(--line); border-radius: 99px; font-size: 12.5px; font-weight: 700; }
+  .split-btn { width: auto; padding: 3px 10px; font-size: 12px; font-weight: 800; border-radius: 99px; border: 1px solid var(--line); background: var(--input-bg); color: var(--fg); cursor: pointer; }
+  .split-btn.done { background: #10b981; border-color: #10b981; color: #fff; }
 </style>
 </head>
 <body>
@@ -896,7 +615,7 @@
     </div>
   </div>
 
-<!-- شاشة تسجيل الدخول بالاسم + الرقم السري -->
+  <!-- شاشة تسجيل الدخول بالاسم + الرقم السري -->
   <div id="login-screen" class="section-card login-card">
     <div class="login-icon">
       <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -915,7 +634,7 @@
       <button type="button" id="btn-admin-entry" class="admin-entry-btn">🔐 دخول الخدام</button>
     </div>
 
-    <!-- الخطوة 2: الرقم السري (تعيين أول مرة أو دخول) -->
+    <!-- الخطوة 2: الرقم السري للشماس -->
     <div id="login-step-pin" hidden>
       <h2 id="pin-title" class="login-title">---</h2>
       <p id="pin-sub" class="login-sub"></p>
@@ -932,59 +651,104 @@
       <button type="button" id="pin-back-btn" class="alt">← تغيير الاسم</button>
       <p id="pin-forgot-hint" class="pin-hint" hidden>نسيت الرقم السري؟ اطلب من الخادم يمسحه عشان تعمل واحد جديد.</p>
     </div>
+
     <!-- الخطوة 3: دخول الخدام -->
     <div id="login-step-admin" hidden>
       <h2 class="login-title">وضع الخدام 🔐</h2>
-      <p class="login-sub">اكتب الرقم السري الخاص بالخدام</p>
-      <input id="admin-pin-input" class="pin-input" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="••••">
+      <p class="login-sub">اكتب اسمك (أول مرة) أو كلمة السر بتاعتك</p>
+      <input id="admin-pin-input" class="pin-input" style="letter-spacing:2px; font-size:18px;" type="password" maxlength="24" autocomplete="off" placeholder="كلمة السر">
       <div id="admin-pin-error" class="pin-error"></div>
       <button type="button" id="admin-pin-submit" class="send-btn" style="margin-top:4px;">دخول للوحة المتابعة</button>
       <button type="button" id="admin-pin-back" class="alt">← رجوع</button>
     </div>
   </div>
-  <!-- لوحة متابعة الخدام -->
-  <div id="admin-dashboard" class="tab-content" hidden>
-    <!-- قائمة كل الشمامسة -->
-    <div id="admin-list-view" class="section-card">
-      <div class="admin-topbar">
-        <div class="section-title" style="margin:0; border:none; padding:0;">📋 متابعة الشمامسة (<span id="admin-count">0</span>)</div>
-        <button type="button" id="btn-admin-exit" class="switch-user-btn">خروج</button>
+
+  <!-- لوحة متابعة الخدام (3 تابات) -->
+  <div id="admin-dashboard" hidden>
+    <!-- كارت تغيير كلمة سر الخادم -->
+    <div id="admin-change-pin-box" class="section-card" hidden>
+      <div class="section-title">🔑 تغيير كلمة السر (<span id="admin-name-lbl"></span>)</div>
+      <input id="admin-new-pin" class="pin-input" style="letter-spacing:2px; font-size:17px;" type="password" maxlength="24" autocomplete="off" placeholder="كلمة السر الجديدة">
+      <input id="admin-new-pin-conf" class="pin-input" style="letter-spacing:2px; font-size:17px;" type="password" maxlength="24" autocomplete="off" placeholder="تأكيد كلمة السر الجديدة">
+      <div id="admin-cpin-msg" class="pin-error"></div>
+      <div style="display:flex; gap:8px;">
+        <button type="button" id="btn-save-admin-pin" class="send-btn" style="margin-top:0;">حفظ كلمة السر</button>
+        <button type="button" id="btn-cancel-admin-pin" class="alt" style="margin-top:0;">إلغاء</button>
       </div>
-      <input id="admin-search" type="text" placeholder="ابحث باسم الشماس..." autocomplete="off">
-      <div class="admin-sort-row">
-        <button type="button" class="admin-sort-btn active" data-sort="name">الاسم</button>
-        <button type="button" class="admin-sort-btn" data-sort="coupons">الكوبونات</button>
-        <button type="button" class="admin-sort-btn" data-sort="progress">الأكثر حفظاً</button>
-      </div>
-      <div id="admin-students-list"></div>
     </div>
 
-    <!-- تفاصيل شماس واحد -->
-    <div id="admin-detail-view" class="section-card" hidden>
-      <div class="admin-topbar">
-        <button type="button" id="btn-admin-back" class="switch-user-btn">→ رجوع للقائمة</button>
-        <button type="button" id="btn-admin-reset-pin" class="switch-user-btn" style="color:#ef4444;">🔓 مسح الرقم السري</button>
-      </div>
-      <div class="admin-st-top" style="margin-bottom:10px;">
-        <div id="ad-name" style="font-size:19px; font-weight:900; color:var(--accent);"></div>
-        <span id="ad-coupons" class="a-badge a-gold" style="font-size:14px;"></span>
-      </div>
-      <div id="ad-prog-text" style="font-size:13px; font-weight:800; margin-bottom:6px;"></div>
-
-      <div class="admin-subsec">
-        <h4>📌 المحفوظات المتبقية</h4>
-        <div id="ad-rem-marad"></div>
-        <div id="ad-rem-alhan" style="margin-top:8px;"></div>
+    <!-- تاب 1: مراجعة التسجيلات -->
+    <div id="admin-tab-audit" class="tab-content">
+      <div class="section-card">
+        <div class="admin-topbar">
+          <div class="section-title" style="margin:0; border:none; padding:0;">🎙️ التسجيلات المنتظرة</div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button type="button" id="btn-audit-refresh" class="switch-user-btn">↻ تحديث</button>
+            <button type="button" id="btn-open-admin-cpin" class="switch-user-btn">🔑 كودي</button>
+            <button type="button" class="switch-user-btn btn-admin-exit-all">خروج</button>
+          </div>
+        </div>
+        <div id="admin-audit-list"></div>
+        <div id="admin-audit-empty" style="text-align:center; opacity:0.7; font-weight:700; padding:24px 0;" hidden>لا توجد تسجيلات منتظرة حالياً ✅</div>
       </div>
 
-      <div class="admin-subsec">
-        <h4>📅 سجل الحضور</h4>
-        <div id="ad-att-list" style="max-height:200px; overflow-y:auto;"></div>
+      <div class="section-card" id="admin-done-card" hidden>
+        <div class="section-title">⭐ أسامي لخدمة المذبح</div>
+        <div id="admin-done-list"></div>
+      </div>
+    </div>
+
+    <!-- تاب 2: متابعة الشمامسة -->
+    <div id="admin-tab-students" class="tab-content" hidden>
+      <div id="admin-list-view" class="section-card">
+        <div class="admin-topbar">
+          <div class="section-title" style="margin:0; border:none; padding:0;">📋 الشمامسة (<span id="admin-count">0</span>)</div>
+          <button type="button" class="switch-user-btn btn-admin-exit-all">خروج</button>
+        </div>
+        <input id="admin-search" type="text" placeholder="ابحث باسم الشماس..." autocomplete="off">
+        <div class="admin-sort-row">
+          <button type="button" class="admin-sort-btn active" data-sort="name">الاسم</button>
+          <button type="button" class="admin-sort-btn" data-sort="coupons">الكوبونات</button>
+          <button type="button" class="admin-sort-btn" data-sort="progress">الأكثر حفظاً</button>
+        </div>
+        <div id="admin-students-list"></div>
       </div>
 
-      <div class="admin-subsec">
-        <h4>🎙️ سجل التسميع</h4>
-        <div id="ad-hist-list" style="max-height:240px; overflow-y:auto;"></div>
+      <div id="admin-detail-view" class="section-card" hidden>
+        <div class="admin-topbar">
+          <button type="button" id="btn-admin-back" class="switch-user-btn">→ رجوع للقائمة</button>
+          <button type="button" id="btn-admin-reset-pin" class="switch-user-btn" style="color:#ef4444;">🔓 مسح الرقم السري</button>
+        </div>
+        <div class="admin-st-top" style="margin-bottom:10px;">
+          <div id="ad-name" style="font-size:19px; font-weight:900; color:var(--accent);"></div>
+          <span id="ad-coupons" class="a-badge a-gold" style="font-size:14px;"></span>
+        </div>
+        <div id="ad-prog-text" style="font-size:13px; font-weight:800; margin-bottom:6px;"></div>
+
+        <div class="admin-subsec">
+          <h4>📌 المحفوظات المتبقية</h4>
+          <div id="ad-rem-marad"></div>
+          <div id="ad-rem-alhan" style="margin-top:8px;"></div>
+        </div>
+        <div class="admin-subsec">
+          <h4>📅 سجل الحضور</h4>
+          <div id="ad-att-list" style="max-height:200px; overflow-y:auto;"></div>
+        </div>
+        <div class="admin-subsec">
+          <h4>🎙️ سجل التسميع</h4>
+          <div id="ad-hist-list" style="max-height:240px; overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- تاب 3: المنهج الدراسي -->
+    <div id="admin-tab-curr" class="tab-content" hidden>
+      <div class="section-card">
+        <div class="admin-topbar">
+          <div class="section-title" style="margin:0; border:none; padding:0;">📚 المنهج الدراسي</div>
+          <button type="button" class="switch-user-btn btn-admin-exit-all">خروج</button>
+        </div>
+        <div id="admin-curr-container"></div>
       </div>
     </div>
   </div>
@@ -1134,13 +898,10 @@
         ساحة الألعاب
       </div>
       
-      <!-- شاشة اختيار اللعبة -->
       <div id="game-selector" style="padding: 10px 0;">
         <p id="g-setup-msg" style="font-weight: bold; margin-bottom: 20px; text-align: center;">اختر اسمك أولاً لتتمكن من اللعب.</p>
         
         <div id="game-cards-container" style="display: flex; flex-direction: column;">
-          
-          <!-- 1. ترتيب الكلمات -->
           <button id="btn-load-game" class="game-mode-card card-sort" disabled>
             <div class="game-badge">مكافأة كوبونات</div>
             <div class="game-mode-icon">
@@ -1152,7 +913,6 @@
             </div>
           </button>
           
-          <!-- 2. صائد الكلمات -->
           <button id="btn-catch-game" class="game-mode-card card-catch" disabled>
             <div class="game-mode-icon">
               <svg viewBox="0 0 24 24"><path d="M4 11h16v2H4zm14-4H6V5h12v2zm-2-4H8v2h8V3zM3 15h18v6c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-6zm3 2v4h12v-4H6z"/></svg>
@@ -1163,7 +923,6 @@
             </div>
           </button>
 
-          <!-- 3. المرد وردّه -->
           <button id="btn-quiz-game" class="game-mode-card card-quiz" disabled>
             <div class="game-mode-icon">
               <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
@@ -1173,16 +932,14 @@
               <p class="game-mode-desc">تدريب عملي على مردات القداس استجابةً لصلاة الكاهن.</p>
             </div>
           </button>
-
         </div>
       </div>
-      <!-- شاشة التحميل -->
+
       <div id="game-loader" hidden>
         <div class="g-spinner"></div>
         <div class="g-loader-txt">جارٍ تحضير اللحن...</div>
       </div>
       
-      <!-- واجهة ترتيب الكلمات -->
       <div id="game-board-wrap" hidden>
         <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">رجوع للساحة</button>
         <h3 id="g-piece-title" style="color:var(--accent); text-align:center; font-family: 'Cairo', sans-serif;"></h3>
@@ -1194,7 +951,6 @@
         <div id="g-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 18px;"></div>
       </div>
       
-     <!-- واجهة لعبة صائد الكلمات -->
       <div id="catch-board-wrap" hidden>
         <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">رجوع للساحة</button>
         <h3 id="c-piece-title" style="color:var(--accent); text-align:center; font-family: 'Cairo', sans-serif; margin: 0 0 10px 0;"></h3>
@@ -1222,7 +978,6 @@
         <div id="c-msg" style="text-align:center; margin-top:12px; font-weight:bold; font-size: 16px;"></div>
       </div>
 
-      <!-- واجهة المرد ورده -->
       <div id="quiz-board-wrap" hidden>
         <button class="alt" onclick="backToGameSelector()" style="margin-bottom: 12px; padding: 6px 12px; font-size: 13px;">رجوع للساحة</button>
         <div style="background: rgba(139,92,246,0.1); border: 1px solid #8b5cf6; border-radius: 16px; padding: 16px; text-align: center; margin-bottom: 16px;">
@@ -1233,12 +988,11 @@
         <div id="q-msg" style="text-align:center; margin-top:16px; font-weight:bold; font-size: 16px;"></div>
         <button id="btn-next-quiz" class="action-btn" style="background:#8b5cf6; margin-top:16px;" hidden>السؤال التالي</button>
       </div>
-
     </div>
   </div>
 </main>
 
-<!-- شريط Navigation السفلي ستايل iOS -->
+<!-- شريط Navigation السفلي للشمامسة -->
 <div class="ios-bottom-bar" id="bottom-bar" hidden>
   <div class="tab-item active" data-tab="recite" onclick="switchTab('recite')">
     <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
@@ -1254,10 +1008,27 @@
   </div>
 </div>
 
+<!-- شريط Navigation السفلي للخدام -->
+<div class="ios-bottom-bar" id="admin-bottom-bar" hidden>
+  <div class="tab-item active" data-atab="audit" onclick="switchAdminTab('audit')">
+    <span id="admin-pending-badge" class="tab-badge" hidden>0</span>
+    <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    <span>المراجعة</span>
+  </div>
+  <div class="tab-item" data-atab="students" onclick="switchAdminTab('students')">
+    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+    <span>الشمامسة</span>
+  </div>
+  <div class="tab-item" data-atab="curr" onclick="switchAdminTab('curr')">
+    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+    <span>المنهج</span>
+  </div>
+</div>
+
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v3.2'; 
+const VERSION = 'v3.3'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -1271,7 +1042,6 @@ let closedMap = {};
 let isChallengeRec = false;
 let chalPiece = null;
 
-/* --- Custom Animated Dropdown UI Mirror (Non-Invasive) --- */
 function syncCustomSelect(id) {
   const sel = $(id), wrap = $('wrap-' + id), trig = $('trig-' + id), menu = $('menu-' + id);
   if (!sel || !wrap || !trig || !menu) return;
@@ -1317,7 +1087,6 @@ document.addEventListener('click', () => {
   document.querySelectorAll('.c-select-wrap.open').forEach(w => w.classList.remove('open'));
 });
 
-/* --- Live Voice Waveform Visual --- */
 let waveAnimId = null, waveSource = null, waveAnalyser = null;
 function startWaveform(stream) {
   try {
@@ -1460,7 +1229,7 @@ function updatePieces(name) {
 
 let listsLoaded = false;
 let pendingLoginName = '';
-let pinMode = 'verify'; // 'setup' | 'verify'
+let pinMode = 'verify';
 
 const cleanPin = v => String(v || '')
   .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
@@ -1498,7 +1267,6 @@ function applyLists(d) {
     if (saved && allNames.includes(saved)) {
       if (savedPin) {
         completeLogin(saved, savedPin);
-        // Silent background check in case admin cleared/reset PIN in sheet
         fetch(API, { method: 'POST', body: JSON.stringify({ action: 'verifyPin', name: saved, pin: savedPin }) })
           .then(r => r.json())
           .then(res => { if (!res.ok) logoutUser(); })
@@ -1509,6 +1277,7 @@ function applyLists(d) {
     }
   }
 }
+
 function refreshLists() {
   return fetch(API + '?action=lists&t=' + Date.now()).then(r => r.json()).then(d => {
     if (!d.userPieces) throw new Error('bad response');
@@ -1545,6 +1314,7 @@ function showNames() {
   const found = matches(), items = found.length ? found.map(n => Object.assign(document.createElement('li'), { textContent: n })) : [Object.assign(document.createElement('li'), { className: 'none', textContent: 'لا يوجد اسم مطابق' })];
   $('names').replaceChildren(...items); $('names').hidden = false;
 }
+
 function startPinFlow(n) {
   pendingLoginName = n;
   $('name').value = n;
@@ -1608,16 +1378,8 @@ $('pin-submit-btn').onclick = () => {
   const conf = cleanPin($('pin-confirm').value);
   $('pin-error').textContent = '';
 
-  if (pin.length !== 4) {
-    $('pin-error').textContent = 'اكتب 4 أرقام';
-    $('pin-input').focus();
-    return;
-  }
-  if (pinMode === 'setup' && pin !== conf) {
-    $('pin-error').textContent = 'الرقمين مش متطابقين، جرب تاني';
-    $('pin-confirm').focus();
-    return;
-  }
+  if (pin.length !== 4) { $('pin-error').textContent = 'اكتب 4 أرقام'; $('pin-input').focus(); return; }
+  if (pinMode === 'setup' && pin !== conf) { $('pin-error').textContent = 'الرقمين مش متطابقين، جرب تاني'; $('pin-confirm').focus(); return; }
 
   $('pin-submit-btn').disabled = true;
   $('pin-submit-btn').textContent = '⏳ جارٍ التحقق...';
@@ -1772,18 +1534,15 @@ $('send').onclick = () => {
   fr.readAsDataURL(blob);
 };
 
-/* --- نظام التابات الجديد (3 iOS Tabs) --- */
 function switchTab(tabId) {
   $('recite-tab').hidden = (tabId !== 'recite');
   $('profile-tab').hidden = (tabId !== 'profile');
   $('games-tab').hidden = (tabId !== 'games');
-  document.querySelectorAll('.tab-item').forEach(el => {
+  document.querySelectorAll('#bottom-bar .tab-item').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === tabId);
   });
 
-  if (tabId === 'profile' && attChart) {
-    setTimeout(() => attChart.resize(), 40);
-  }
+  if (tabId === 'profile' && attChart) setTimeout(() => attChart.resize(), 40);
   if (tabId === 'games') {
     const n = $('name').value;
     if (allNames.includes(n)) {
@@ -1795,7 +1554,6 @@ function switchTab(tabId) {
   }
 }
 
-/* --- التحكم العام للألعاب --- */
 function backToGameSelector() {
     $('game-board-wrap').hidden = true;
     $('quiz-board-wrap').hidden = true;
@@ -1818,7 +1576,7 @@ function normGameText(txt) {
 }
 
 /* ==================================================
-   لعبة 1: ترتيب الكلمات (Word Sorting - Single Box Drag & Drop)
+   لعبة 1: ترتيب الكلمات
 ================================================== */
 let currentGameTarget = "";
 let currentWords = [];
@@ -1844,7 +1602,7 @@ $('btn-load-game').onclick = () => {
       }
       setupGameBoard(d.game);
    })
-   .catch(e => {
+   .catch(() => {
       $('game-loader').hidden = true;
       $('game-selector').hidden = false;
       alert('⚠️ خطأ في الاتصال بالانترنت');
@@ -1955,9 +1713,7 @@ function createGamePart(text, index) {
                 return ev.clientY < box.top + box.height / 2;
             }) || null;
 
-            if (item.nextElementSibling !== nextSibling) {
-                ans.insertBefore(item, nextSibling);
-            }
+            if (item.nextElementSibling !== nextSibling) ans.insertBefore(item, nextSibling);
         };
 
         const onUp = (ev) => {
@@ -2052,7 +1808,7 @@ $('g-check-btn').onclick = () => {
             setTimeout(() => ansBox.classList.remove('wrong-anim'), 1000);
         }
     })
-    .catch(e => {
+    .catch(() => {
         gameSubmitting = false;
         $('g-check-btn').disabled = false;
         $('g-check-btn').textContent = 'تحقق من الإجابة';
@@ -2076,7 +1832,7 @@ $('g-next-game-btn').onclick = () => {
 };
 
 /* ==================================================
-   لعبة 2: صائد الكلمات (Catch The Melody Pro - Smooth 60/120fps)
+   لعبة 2: صائد الكلمات
 ================================================== */
 let catchAnimationFrame, catchSpawner, catchCountdownTimer;
 let catchBasketX = 50;
@@ -2084,7 +1840,7 @@ let catchItems = [];
 let catchTargetWords = [];
 let catchCurrentIdx = 0;
 let catchLives = 3;
-let catchSpeed = 145; // pixels per second (consistent on 60Hz & 120Hz)
+let catchSpeed = 145;
 let catchIsActive = false;
 let catchGamePiece = "";
 let catchCombo = 0;
@@ -2123,7 +1879,7 @@ $('btn-catch-game').onclick = () => {
       }
       initCatchGame(d.game);
    })
-   .catch(e => {
+   .catch(() => {
       $('game-loader').hidden = true;
       $('game-selector').hidden = false;
       alert('⚠️ خطأ في الاتصال بالانترنت');
@@ -2152,7 +1908,7 @@ function initCatchGame(game) {
     catchCombo = 0;
     catchScore = 0;
     catchMissSinceTarget = 0;
-    catchSpeed = 145; // px/sec
+    catchSpeed = 145;
     catchItems.forEach(i => i.el.remove());
     catchItems = [];
     catchIsActive = false;
@@ -2170,7 +1926,6 @@ function initCatchGame(game) {
     $('c-next-game-btn').hidden = true;
     $('catch-board-wrap').hidden = false;
 
-    // Measure playfield once
     catchAreaW = $('catch-area').clientWidth || 360;
     catchAreaH = $('catch-area').clientHeight || 430;
 
@@ -2232,7 +1987,6 @@ function spawnCatchItem() {
     el.style.transform = `translate3d(-50%, -50px, 0)`;
     $('catch-area').appendChild(el);
 
-    // Measure item size ONCE on spawn (no layout reads in the game loop)
     catchItems.push({
         el,
         xPx: (xPos / 100) * catchAreaW,
@@ -2245,12 +1999,9 @@ function spawnCatchItem() {
 
 function catchLoop(now) {
     if (!catchIsActive) return;
-
-    // Delta time in seconds (clamped so tab switches never cause a jump)
     const dt = Math.min((now - catchLastTime) / 1000, 0.05);
     catchLastTime = now;
 
-    // Smooth keyboard movement tied to dt
     if (catchKeys.left || catchKeys.right) {
         const move = 115 * dt;
         if (catchKeys.left) catchBasketX = Math.max(10, catchBasketX - move);
@@ -2412,9 +2163,8 @@ $('c-next-game-btn').onclick = () => {
     $('btn-catch-game').click();
 };
 
-
 /* ==================================================
-   لعبة 3: المرد وردّه (Quiz)
+   لعبة 3: المرد وردّه
 ================================================== */
 let currentQuizAnswer = "";
 
@@ -2455,7 +2205,7 @@ function loadQuiz() {
          $('q-choices').appendChild(btn);
       });
    })
-   .catch(e => {
+   .catch(() => {
       $('q-situation').textContent = '⚠️ خطأ في الاتصال بالانترنت';
    });
 }
@@ -2474,21 +2224,18 @@ function checkQuizAnswer(btn, chosen) {
       $('q-msg').style.color = '#ef4444';
       
       Array.from($('q-choices').children).forEach(b => {
-         if (b.textContent === currentQuizAnswer) {
-            b.classList.add('quiz-correct-ans');
-         }
+         if (b.textContent === currentQuizAnswer) b.classList.add('quiz-correct-ans');
       });
    }
    $('btn-next-quiz').hidden = false;
 }
 
-/* --- دوال Challenge State الخاصة بتحدي المردات القديم --- */
+/* --- تحدي المردات --- */
 $('chal-trig').onclick = () => { $('chal-card').hidden = false; $('chal-trig').hidden = true; };
 function loadChallenge(name) {
   $('chal-content').hidden = true; $('chal-play').hidden = true; $('chal-msg').hidden = true;
   fetch(API + '?action=getChallenge&name=' + encodeURIComponent(name)).then(r => r.json()).then(d => {
-    if(d.error) return;
-    if(!d.active) return;
+    if(d.error || !d.active) return;
     if(d.status === 'None' || d.status === 'Submitted' || d.status === 'Approved') { $('chal-content').hidden = false; $('chal-open').textContent = 'افتح الصندوق الآن!'; }
     else if(d.status === 'Pending') { applyChalState(d); }
   });
@@ -2520,11 +2267,10 @@ function applyChalState(d, fromSpin = false) {
 $('chal-open').onclick = () => doRoll(); $('chal-reroll').onclick = () => doRoll();
 $('chal-rec-btn').onclick = () => { isChallengeRec = true; $('regular-inputs').hidden = true; $('chal-card').style.border = '2px solid #10b981'; say('تحدي المردات: ' + chalPiece, 'ok', 'اضغط على الميكروفون للتسجيل.'); };
 
-/* --- دوال مساعدة أخرى (السجل والحضور) --- */
+/* --- السجل والحضور --- */
 const iconPlay = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
 const iconPause = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
 const iconLoad = `<svg viewBox="0 0 24 24" class="spin-icon"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg>`;
-const iconErr = `<svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
 
 function fetchHistory(name) {
   if (!name) { $('history').hidden = true; return; }
@@ -2585,14 +2331,7 @@ function fetchAttendance(name) {
           const cls = held === false ? 'att-na' : (isPresent ? 'att-yes' : 'att-no');
           return `<span class="att-tag ${cls}">${eventName}</span>`;
         };
-        card.innerHTML = `
-          <span class="att-date">${item.date}</span>
-          <div class="att-tags">
-            ${getTag('عشية', item.vespers, item.vespersHeld)}
-            ${getTag('ألحان', item.hymns, item.hymnsHeld)}
-            ${getTag('قداس', item.liturgy, item.liturgyHeld)}
-          </div>
-        `;
+        card.innerHTML = `<span class="att-date">${item.date}</span><div class="att-tags">${getTag('عشية', item.vespers, item.vespersHeld)}${getTag('ألحان', item.hymns, item.hymnsHeld)}${getTag('قداس', item.liturgy, item.liturgyHeld)}</div>`;
         $('attendance-list').append(card);
       });
   });
@@ -2609,7 +2348,6 @@ $('history-list').addEventListener('click', e => {
   sharedAudio.onended = () => { btn.innerHTML = iconPlay; };
 });
 
-/* --- Confetti Celebration (Lightweight Canvas) --- */
 function launchConfetti() {
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
@@ -2617,58 +2355,34 @@ function launchConfetti() {
   const ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#fde047'];
   const pieces = Array.from({ length: 85 }, () => ({
-    x: canvas.width * (0.2 + Math.random() * 0.6),
-    y: canvas.height * 0.35 + (Math.random() - 0.5) * 60,
-    vx: (Math.random() - 0.5) * 14,
-    vy: -6 - Math.random() * 10,
-    size: 6 + Math.random() * 6,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    rot: Math.random() * Math.PI * 2,
-    vrot: (Math.random() - 0.5) * 0.25,
-    life: 1
+    x: canvas.width * (0.2 + Math.random() * 0.6), y: canvas.height * 0.35 + (Math.random() - 0.5) * 60,
+    vx: (Math.random() - 0.5) * 14, vy: -6 - Math.random() * 10,
+    size: 6 + Math.random() * 6, color: colors[Math.floor(Math.random() * colors.length)],
+    rot: Math.random() * Math.PI * 2, vrot: (Math.random() - 0.5) * 0.25, life: 1
   }));
-
   function frame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let alive = false;
     pieces.forEach(p => {
       if (p.life <= 0) return;
       alive = true;
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.35;
-      p.vx *= 0.99;
-      p.rot += p.vrot;
-      p.life -= 0.012;
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, p.life);
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
-      ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.vy += 0.35; p.vx *= 0.99; p.rot += p.vrot; p.life -= 0.012;
+      ctx.save(); ctx.globalAlpha = Math.max(0, p.life); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6); ctx.restore();
     });
-    if (alive) requestAnimationFrame(frame);
-    else canvas.remove();
+    if (alive) requestAnimationFrame(frame); else canvas.remove();
   }
   requestAnimationFrame(frame);
 }
 
-/* --- PWA Install App Prompt --- */
 let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  try {
-    if (!localStorage.getItem('install_dismissed')) $('install-banner').hidden = false;
-  } catch (err) {
-    $('install-banner').hidden = false;
-  }
+  try { if (!localStorage.getItem('install_dismissed')) $('install-banner').hidden = false; } catch (err) { $('install-banner').hidden = false; }
 });
-
 $('btn-install-app').onclick = async () => {
   if (!deferredInstallPrompt) return;
   deferredInstallPrompt.prompt();
@@ -2676,57 +2390,37 @@ $('btn-install-app').onclick = async () => {
   deferredInstallPrompt = null;
   $('install-banner').hidden = true;
 };
-
 $('btn-dismiss-install').onclick = () => {
   $('install-banner').hidden = true;
   try { localStorage.setItem('install_dismissed', '1'); } catch (e) {}
 };
+window.addEventListener('appinstalled', () => { $('install-banner').hidden = true; deferredInstallPrompt = null; });
 
-window.addEventListener('appinstalled', () => {
-  $('install-banner').hidden = true;
-  deferredInstallPrompt = null;
-});
-
-/* --- Dark / Light theme toggle --- */
 function applyTheme(t) {
   const dark = t === 'dark';
   document.documentElement.setAttribute('data-theme', t);
-
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', dark ? '#020b1c' : '#0f2d59');
-
   const btn = $('theme-toggle');
   if (btn) btn.setAttribute('aria-label', dark ? 'التبديل للوضع الفاتح' : 'التبديل للوضع الداكن');
-
-  // keep the attendance chart readable in both modes
   if (typeof Chart !== 'undefined') {
     const text = dark ? '#cbd5e1' : '#475569';
     const grid = dark ? 'rgba(148,163,184,0.18)' : 'rgba(15,23,42,0.1)';
-    Chart.defaults.color = text;
-    Chart.defaults.borderColor = grid;
+    Chart.defaults.color = text; Chart.defaults.borderColor = grid;
     if (attChart) {
       const o = attChart.options;
-      o.plugins.legend.labels.color = text;
-      o.scales.x.ticks.color = text;
-      o.scales.y.ticks.color = text;
-      o.scales.x.grid = { color: grid };
-      o.scales.y.grid = { color: grid };
-      attChart.update();
+      o.plugins.legend.labels.color = text; o.scales.x.ticks.color = text; o.scales.y.ticks.color = text;
+      o.scales.x.grid = { color: grid }; o.scales.y.grid = { color: grid }; attChart.update();
     }
   }
 }
-
-function toggleTheme() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const next = isDark ? 'light' : 'dark';
+$('theme-toggle').onclick = () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   try { localStorage.setItem('theme', next); } catch (e) {}
   applyTheme(next);
-}
-
-$('theme-toggle').onclick = toggleTheme;
+};
 applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
 
-// if the kid never chose manually, follow the phone's setting live
 try {
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
     let saved = null;
@@ -2736,7 +2430,10 @@ try {
 } catch (e) {}
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
-/* --- Admin Dashboard (In-App) --- */
+
+/* ==================================================
+   Admin Dashboard (In-App: Review + Students + Curriculum)
+================================================== */
 let adminPinCache = '';
 let adminStudents = [];
 let adminSortBy = 'name';
@@ -2778,27 +2475,33 @@ function loginAsAdmin(pin, isAuto = false) {
           try { localStorage.removeItem('saved_admin_pin'); } catch (e) {}
           $('login-screen').hidden = false;
         } else {
-          $('admin-pin-error').textContent = d.error || 'الرقم السري غير صحيح ❌';
+          $('admin-pin-error').textContent = d.error || 'كلمة السر غير صحيحة ❌';
         }
         return;
       }
       try { localStorage.setItem('saved_admin_pin', pin); } catch (e) {}
       adminPinCache = pin;
+      $('admin-name-lbl').textContent = d.adminName || '';
       adminStudents = d.students || [];
       $('login-screen').hidden = true;
       $('login-step-admin').hidden = true;
       $('login-step-name').hidden = false;
       $('admin-dashboard').hidden = false;
+      $('admin-bottom-bar').hidden = false;
       $('admin-list-view').hidden = false;
       $('admin-detail-view').hidden = true;
       $('admin-search').value = '';
       renderAdminList();
+      switchAdminTab('audit');
+      loadAdminAudit();
     })
     .catch(() => {
       if (!isAuto) {
         $('admin-pin-submit').disabled = false;
         $('admin-pin-submit').textContent = 'دخول للوحة المتابعة';
         $('admin-pin-error').textContent = '⚠️ خطأ في الاتصال بالانترنت';
+      } else {
+        $('login-screen').hidden = false;
       }
     });
 }
@@ -2806,18 +2509,21 @@ function loginAsAdmin(pin, isAuto = false) {
 $('admin-pin-submit').onclick = () => {
   const pin = String($('admin-pin-input').value || '')
     .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
-  if (!pin) { $('admin-pin-error').textContent = 'اكتب الرقم السري'; return; }
+  if (!pin) { $('admin-pin-error').textContent = 'اكتب كلمة السر'; return; }
   loginAsAdmin(pin, false);
 };
 
-$('btn-admin-exit').onclick = () => {
-  try { localStorage.removeItem('saved_admin_pin'); } catch (e) {}
-  adminPinCache = '';
-  $('admin-dashboard').hidden = true;
-  $('login-screen').hidden = false;
-};
+document.querySelectorAll('.btn-admin-exit-all').forEach(btn => {
+  btn.onclick = () => {
+    try { localStorage.removeItem('saved_admin_pin'); } catch (e) {}
+    adminPinCache = '';
+    $('admin-change-pin-box').hidden = true;
+    $('admin-dashboard').hidden = true;
+    $('admin-bottom-bar').hidden = true;
+    $('login-screen').hidden = false;
+  };
+});
 
-// دخول تلقائي للأدمن عند عمل ريفريش
 try {
   const savedAdminPin = localStorage.getItem('saved_admin_pin');
   if (savedAdminPin) {
@@ -2949,7 +2655,6 @@ $('btn-admin-reset-pin').onclick = () => {
     });
 };
 
-// تشغيل التسجيلات الصوتية من جوه صفحة الخدام أيضاً
 $('ad-hist-list').addEventListener('click', e => {
   const btn = e.target.closest('.mini-play'); if (!btn) return;
   const idMatch = btn.dataset.url.match(/[-\w]{25,}/); if (!idMatch) return;
@@ -2962,6 +2667,337 @@ $('ad-hist-list').addEventListener('click', e => {
     .then(() => { btn.innerHTML = iconPause; });
   sharedAudio.onended = () => { btn.innerHTML = iconPlay; };
 });
+
+/* --- Admin Tabs, Audit, Change Password & Curriculum --- */
+function switchAdminTab(tab) {
+  $('admin-tab-audit').hidden = (tab !== 'audit');
+  $('admin-tab-students').hidden = (tab !== 'students');
+  $('admin-tab-curr').hidden = (tab !== 'curr');
+  document.querySelectorAll('#admin-bottom-bar .tab-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.atab === tab);
+  });
+  if (tab === 'curr' && !$('admin-curr-container').children.length) initAdminCurriculum();
+}
+
+$('btn-open-admin-cpin').onclick = () => {
+  $('admin-new-pin').value = '';
+  $('admin-new-pin-conf').value = '';
+  $('admin-cpin-msg').textContent = '';
+  $('admin-change-pin-box').hidden = !$('admin-change-pin-box').hidden;
+  if (!$('admin-change-pin-box').hidden) $('admin-new-pin').focus();
+};
+
+$('btn-cancel-admin-pin').onclick = () => { $('admin-change-pin-box').hidden = true; };
+
+$('btn-save-admin-pin').onclick = () => {
+  const clean = v => String(v || '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
+  const p1 = clean($('admin-new-pin').value);
+  const p2 = clean($('admin-new-pin-conf').value);
+  $('admin-cpin-msg').textContent = '';
+
+  if (p1.length < 4 || p1.length > 24) { $('admin-cpin-msg').textContent = 'كلمة السر لازم تكون من 4 إلى 24 حرف أو رقم'; return; }
+  if (p1 !== p2) { $('admin-cpin-msg').textContent = 'كلمتين السر مش متطابقين'; return; }
+
+  $('btn-save-admin-pin').disabled = true;
+  $('btn-save-admin-pin').textContent = '⏳ جارٍ الحفظ...';
+
+  fetch(API, { method: 'POST', body: JSON.stringify({ action: 'adminChangePin', pin: adminPinCache, newPin: p1 }) })
+    .then(r => r.json())
+    .then(d => {
+      $('btn-save-admin-pin').disabled = false;
+      $('btn-save-admin-pin').textContent = 'حفظ كلمة السر';
+      if (!d.ok) { $('admin-cpin-msg').textContent = d.error || 'حدث خطأ'; return; }
+      adminPinCache = p1;
+      try { localStorage.setItem('saved_admin_pin', p1); } catch (e) {}
+      $('admin-change-pin-box').hidden = true;
+      alert('تم تغيير كلمة السر بنجاح ✅');
+    })
+    .catch(() => {
+      $('btn-save-admin-pin').disabled = false;
+      $('btn-save-admin-pin').textContent = 'حفظ كلمة السر';
+      $('admin-cpin-msg').textContent = '⚠️ خطأ في الاتصال بالانترنت';
+    });
+};
+
+const QUICK_COMMENTS = [
+  'تحفة برافو 🌟',
+  'جيد، لكن راجع النطق',
+  'جيد، لكن راجع لحن المرد',
+  'حاول مرة أخرى بتركيز أكثر',
+  'محتاج نحفظه من الأول تاني'
+];
+
+function updatePendingBadge(count) {
+  const b = $('admin-pending-badge');
+  b.textContent = count;
+  b.hidden = count <= 0;
+}
+
+function loadAdminAudit() {
+  if (!adminPinCache) return;
+  $('admin-audit-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
+  $('admin-audit-empty').hidden = true;
+
+  fetch(API, { method: 'POST', body: JSON.stringify({ action: 'adminPending', pin: adminPinCache }) })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) return;
+      renderAdminAudit(d.pending || []);
+      renderAdminDone(d.completed || []);
+    })
+    .catch(() => { $('admin-audit-list').textContent = '⚠️ تعذر تحميل التسجيلات'; });
+}
+$('btn-audit-refresh').onclick = loadAdminAudit;
+
+function renderAdminDone(names) {
+  const box = $('admin-done-list');
+  box.replaceChildren(...names.map(n => Object.assign(document.createElement('div'), { className: 'done-item', textContent: n })));
+  $('admin-done-card').hidden = names.length === 0;
+}
+
+function renderAdminAudit(items) {
+  const list = $('admin-audit-list');
+  list.replaceChildren();
+  updatePendingBadge(items.length);
+  $('admin-audit-empty').hidden = items.length > 0;
+
+  items.forEach(it => {
+    const c = document.createElement('div');
+    c.className = 'audit-card';
+    c.innerHTML = `
+      <div class="audit-who"></div>
+      <div class="audit-meta"></div>
+      <div class="audit-slot"></div>
+      <div class="quick-chips"></div>
+      <input class="audit-comment" type="text" placeholder="اكتب تعليقاً (اختياري)...">
+      <div class="audit-actions">
+        <button type="button" class="btn-play-aud">▶ تشغيل</button>
+        <button type="button" class="btn-ok-aud">✓ قبول</button>
+        <button type="button" class="btn-no-aud">✕ رفض</button>
+      </div>
+    `;
+    c.querySelector('.audit-who').textContent = it.name;
+    c.querySelector('.audit-meta').textContent = `${it.category} — ${it.piece} — ${it.time}`;
+
+    const commentInput = c.querySelector('.audit-comment');
+    const chipsWrap = c.querySelector('.quick-chips');
+    QUICK_COMMENTS.forEach(txt => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'q-chip';
+      chip.textContent = txt;
+      chip.onclick = () => { commentInput.value = txt; };
+      chipsWrap.appendChild(chip);
+    });
+
+    c.querySelector('.btn-play-aud').onclick = e => playAdminAudio(it.row, c, e.target);
+    c.querySelector('.btn-ok-aud').onclick = () => actAdminAudit('adminApprove', it.row, c, commentInput.value);
+    c.querySelector('.btn-no-aud').onclick = () => actAdminAudit('adminReject', it.row, c, commentInput.value);
+    list.appendChild(c);
+  });
+}
+
+function playAdminAudio(row, card, btn) {
+  btn.disabled = true; btn.textContent = '⏳...';
+  fetch(API, { method: 'POST', body: JSON.stringify({ action: 'adminAudio', pin: adminPinCache, row }) })
+    .then(r => r.json())
+    .then(a => {
+      if (!a.ok) throw new Error(a.error || 'خطأ');
+      const slot = card.querySelector('.audit-slot');
+      slot.replaceChildren();
+      const au = document.createElement('audio');
+      au.controls = true; au.autoplay = true;
+      au.src = 'data:' + a.mime + ';base64,' + a.data;
+
+      const spWrap = document.createElement('div');
+      spWrap.className = 'speed-controls';
+      [1, 1.5, 2].forEach(sp => {
+        const spBtn = document.createElement('button');
+        spBtn.type = 'button';
+        spBtn.className = 'speed-btn' + (sp === 1 ? ' active' : '');
+        spBtn.textContent = sp + 'x';
+        spBtn.onclick = () => {
+          au.playbackRate = sp;
+          spWrap.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+          spBtn.classList.add('active');
+        };
+        spWrap.appendChild(spBtn);
+      });
+      slot.append(au, spWrap);
+      btn.remove();
+    })
+    .catch(e => { alert(e.message); btn.disabled = false; btn.textContent = '▶ تشغيل'; });
+}
+
+function actAdminAudit(action, row, card, comment) {
+  const list = $('admin-audit-list');
+  const next = card.nextSibling;
+  card.remove();
+  updatePendingBadge(list.children.length);
+  $('admin-audit-empty').hidden = list.children.length > 0;
+
+  fetch(API, { method: 'POST', body: JSON.stringify({ action, pin: adminPinCache, row, comment }) })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) throw new Error(d.error || 'حدث خطأ');
+      refreshLists().catch(() => {});
+    })
+    .catch(e => {
+      alert(e.message);
+      list.insertBefore(card, next && next.parentNode === list ? next : null);
+      updatePendingBadge(list.children.length);
+      $('admin-audit-empty').hidden = true;
+    });
+}
+
+const curriculumData = {
+  "الصف الأول الابتدائي": {
+    "الترم الأول": ["بشفاعات (عربي)", "الشيروبيم (عربي)", "امين امين (عربي)", "مراجعة"],
+    "الترم الثاني": ["بركتهم المقدسة (عربي)", "كما كان (عربي)", "سوتيس امين (دمج)", "تين اواوشت (دمج)", "مراجعة"],
+    "الترم الثالث": ["اجيوس (٣)", "مرد الانجيل (٣)", "كرحمتك يا رب ٢", "و ننتظر قيامة ١", "مراجعة ١"]
+  },
+  "الصف الثاني الابتدائي": {
+    "الترم الأول": ["الليلويا جي اف افميفني", "اريبو اسمو", "و ننتظر", "تين جوشت (باسيلي عشية / غريغوري)", "مراجعة"],
+    "الترم الثاني": ["الليلويا فاي بي بي", "بشفاعات (قبطي)", "ذوكصاباتر (دمج)", "المسيح قام (زفة)", "مراجعة"],
+    "الترم الثالث": ["مزمور ١٥٠ دمج", "الهيتينيات سنوي"]
+  },
+  "الصف الثالث الابتدائي": {
+    "الترم الأول": ["ني شيروبيم", "امين امين طون", "مردات صلاة الصلح ق+ع", "الانافورا ق+ع", "مراجعة"],
+    "الترم الثاني": ["اوس بيرين", "مردات مقدمة القسمة ق+ع", "مردات مستحق و عادل ق+ع", "مرد القارئون ق+ع", "الاعتراف عربي"],
+    "الترم الثالث": ["مقدمة الذكصولوجيات", "مرد دورة القرابين ١", "طلبتك من عمق قلبي", "رشومات الحمل ٣", "مردات صلاة الشكر ٣", "مرد اوشية الانجيل ١"]
+  },
+  "الصف الرابع الابتدائي": {
+    "الترم الأول": ["تي شوري", "مرد الابركسيس العذراء", "لحن سوتيس", "مرد المزمور السنوي", "مراجعة"],
+    "الترم الثاني": ["طاي شوري", "مردات حلول الروح القدس ق+ع", "مرد قبلو ع", "مردات بعد القسمة ق+ع", "مراجعة"],
+    "الترم الثالث": ["مقدمة ارباع الناقوس", "ارباع الناقوس", "ذ عذراء", "مراحمك يا الهي", "ذ يوحنا الحبيب", "كيرياليصون التسبحة", "ذ الرسل + السمائيين", "مرد انجيل عشية"]
+  },
+  "الصف الخامس الابتدائي": {
+    "الترم الأول": ["ذ كيهك", "مردات انجيل كيهك", "اي بارثينوس", "بي جين ميسي", "مراجعة"],
+    "الترم الثاني": ["ال اي ايه اي", "تي نيستيا", "نيف سينتي", "ايها الوحيد الجنس", "غلغوثا ع"],
+    "الترم الثالث": ["ذ باكر", "هوس الثاني", "اجيوس استين", "هوس ثالث", "راشي ني", "حل و اغفر ع", "ختامات القداس السنوي"]
+  },
+  "الصف السادس الابتدائي": {
+    "الترم الأول": ["مردات ابركسيس + هيتينيات كيهك", "الطريقة الاولي", "ذ الميلاد", "المحير", "مرد انجيل / مزمور / ابركسيس الميلاد"],
+    "الترم الثاني": ["سوماتوس", "تي هيريني", "ايفلوجيمينوس كامل", "خريستوس الصغير", "مراجعة"],
+    "الترم الثالث": ["سينا اتشو", "هوس الرابع", "فاي بي ابليمين", "اريبصالين", "بي نيشتي", "تين اويه انسوك (د)", "ال توزيع السنوي", "مجمع التسبحة"]
+  },
+  "الصف الأول الإعدادي": {
+    "الترم الأول": ["ال التوزيع الكيهكي", "الطريقة التانية", "ابورو", "هيتين الصغير"],
+    "الترم الثاني": ["شاريه افنوتي", "فاي ايطاف انف", "ذ القيامة", "مرد مزمور / انجیل / ابركسيس قيامة", "مراجعة"],
+    "الترم الثالث": ["ايها الرب", "هوس الأول", "افرحي", "لبش الهوس الاول", "بي اويك", "لبش الهوس الثاني", "ال توزيع السنوي", "ثيؤطوكية ١ - ٢ - ٣"]
+  },
+  "الصف الثاني الإعدادي": {
+    "الترم الأول": ["طريقة تالتة", "الطريقة الرابعة", "الطريقة الخامسة", "اجيوس الفرايحي", "بي اهموت غار"],
+    "الترم الثاني": ["انثو تي تي شوري", "اجيوس الحزايني", "مردات الطرح", "خريستوس الكبير", "مراجعة"],
+    "الترم الثالث": ["شيريه ثي اوطوكيه", "تين ثينو", "لحن البركة", "ای ناهتی", "مرد اطلبوا ق", "اي كوتي", "الاعتراف قبطي", "ثيؤطوكية ٤ - ٥ - ٦", "قبلوا قبطي"]
+  },
+  "الصف الثالث الإعدادي": {
+    "الترم الأول": ["طريقة السادسة", "الطريقة السابعة", "التوزيع الفرايحي", "ني سافيف"],
+    "الترم الثاني": ["التوزيع الصيامي", "كي اي بيرتو", "اثفيتي + تي ابيستولي", "جلجثة قبطي"],
+    "الترم الثالث": ["ذفتي بانتيس", "شيريه القطعة ٧", "برلكس البركة", "سيموتی", "تون سينا", "اي كوتي", "توليثوس", "تكملة الثيؤطوكيات"]
+  },
+  "الصف الأول الثانوي": {
+    "الترم الأول": ["سنجاري الميلاد", "اوران انشوشو + امويني", "التوزيع الفرايحي"],
+    "الترم الثاني": ["اسبسمس انا اعرف", "اومونوجينيس", "تي شوري الحزايني", "طاي شوري الحزايني", "تمثيلية القيامة"],
+    "الترم الثالث": ["كاتا ني خوروس", "اسمو ابتشويس", "خريستوس اناليمبسيس", "لحن ارى", "خريستوس افطونف", "لحن ليبون", "ابتجيك ايفول"]
+  },
+  "الصف الثاني الثانوي": {
+    "الترم الأول": ["ال القربان", "مرد الابركسيس الكبير", "ذ الغطاس"],
+    "الترم الثاني": ["بيك اثرونوس + افتشنون", "اوكاتي", "اونيم ناي", "جي افزماروؤت الصيامي", "مراجعة"],
+    "الترم الثالث": ["بي ابنفما", "لحن تين ثينو", "اسباذيستي", "افشولیم", "افريك اتفي", "نيك ناي او بانوتي"]
+  },
+  "الصف الثالث الثانوي": {
+    "الترم الأول": ["كيرياليصون الصيامي", "ابيك ران"],
+    "الترم الثاني": ["بي مايرومي", "اونيشتي اميستيريون", "مراجعة"],
+    "الترم الثالث": ["اطاي بارثينوس", "ميغالو", "بولس فرايحي", "الكاثوليكون الفرايحي", "الابركسيس الفرايحي"]
+  }
+};
+
+function initAdminCurriculum() {
+  const container = $('admin-curr-container');
+  container.replaceChildren();
+  for (const grade in curriculumData) {
+    let totalItems = 0, doneItems = 0;
+    const card = document.createElement('div');
+    card.className = 'year-card';
+    const detailsDiv = document.createElement('div');
+    detailsDiv.className = 'year-details';
+
+    const terms = curriculumData[grade];
+    for (const term in terms) {
+      if (!terms[term].length) continue;
+      const tTitle = document.createElement('div');
+      tTitle.className = 'term-title';
+      tTitle.textContent = term;
+      detailsDiv.appendChild(tTitle);
+
+      const tItems = document.createElement('div');
+      tItems.className = 'term-items';
+
+      terms[term].forEach(item => {
+        if (item.includes('ق+ع') || item.includes('ق + ع')) {
+          totalItems += 2;
+          const baseName = item.replace(/ق\s*\+\s*ع/g, '').trim();
+          const el = document.createElement('div');
+          el.className = 'curr-item-split';
+          el.innerHTML = `<span>${baseName}</span>`;
+          const mkBtn = (lbl, suf) => {
+            const b = document.createElement('button');
+            b.type = 'button'; b.className = 'split-btn'; b.textContent = lbl;
+            const key = `curr_${grade}_${term}_${baseName}_${suf}`;
+            if (localStorage.getItem(key) === 'true') { b.classList.add('done'); doneItems++; }
+            b.onclick = e => {
+              e.stopPropagation();
+              const isDone = b.classList.toggle('done');
+              localStorage.setItem(key, isDone);
+              updateAdminCurrProgress(card, isDone ? 1 : -1);
+            };
+            return b;
+          };
+          el.append(mkBtn('ق', 'coptic'), mkBtn('ع', 'arabic'));
+          tItems.appendChild(el);
+        } else {
+          totalItems += 1;
+          const el = document.createElement('div');
+          el.className = 'curr-item'; el.textContent = item;
+          const key = `curr_${grade}_${term}_${item}`;
+          if (localStorage.getItem(key) === 'true') { el.classList.add('done'); doneItems++; }
+          el.onclick = e => {
+            e.stopPropagation();
+            const isDone = el.classList.toggle('done');
+            localStorage.setItem(key, isDone);
+            updateAdminCurrProgress(card, isDone ? 1 : -1);
+          };
+          tItems.appendChild(el);
+        }
+      });
+      detailsDiv.appendChild(tItems);
+    }
+
+    const header = document.createElement('div');
+    header.className = 'year-header';
+    header.innerHTML = `
+      <div class="year-title-row">
+        <h3 class="year-title">${grade}</h3>
+        <span class="year-fraction">${doneItems} / ${totalItems}</span>
+      </div>
+      <div class="curr-prog-bg"><div class="curr-prog-fill" style="width:${(doneItems / totalItems) * 100}%"></div></div>
+    `;
+    header.onclick = () => card.classList.toggle('expanded');
+    card.dataset.done = doneItems;
+    card.dataset.total = totalItems;
+    card.append(header, detailsDiv);
+    container.appendChild(card);
+  }
+}
+
+function updateAdminCurrProgress(card, change) {
+  const done = Number(card.dataset.done) + change;
+  const total = Number(card.dataset.total);
+  card.dataset.done = done;
+  card.querySelector('.year-fraction').textContent = `${done} / ${total}`;
+  card.querySelector('.curr-prog-fill').style.width = `${(done / total) * 100}%`;
+}
 </script>
 </body>
 </html>
