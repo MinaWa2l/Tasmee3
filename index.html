@@ -836,6 +836,40 @@
     font-size: 13.5px; font-weight: 700; color: var(--accent-bright);
     margin-top: 12px; text-align: center;
   }
+  /* --- Admin Dashboard --- */
+  .admin-entry-btn {
+    margin-top: 18px; width: auto; padding: 6px 14px; font-size: 12px; font-weight: 800;
+    border-radius: 99px; background: transparent; border: 1px dashed var(--line);
+    color: var(--fg); opacity: 0.72; cursor: pointer;
+  }
+  .admin-entry-btn:hover { opacity: 1; border-color: var(--accent-bright); color: var(--accent-bright); }
+
+  .admin-topbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .admin-sort-row { display: flex; gap: 6px; margin: 10px 0 14px; flex-wrap: wrap; }
+  .admin-sort-btn {
+    width: auto; flex: 1; min-width: 72px; padding: 7px 10px; font-size: 12px; font-weight: 800;
+    border-radius: 99px; border: 1px solid var(--line); background: var(--input-bg); color: var(--fg); cursor: pointer;
+  }
+  .admin-sort-btn.active { background: var(--accent-bright); color: #fff; border-color: transparent; }
+
+  .admin-student-card {
+    background: var(--input-bg); border: 1px solid var(--line); border-radius: 16px;
+    padding: 12px 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;
+  }
+  .admin-student-card:hover { border-color: var(--accent-bright); transform: translateY(-2px); }
+  .admin-st-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .admin-st-name { font-size: 15px; font-weight: 900; color: var(--fg); }
+  .admin-st-badges { display: flex; gap: 6px; flex-wrap: wrap; font-size: 11.5px; font-weight: 800; }
+  .a-badge { padding: 2px 9px; border-radius: 99px; }
+  .a-gold { background: rgba(245, 158, 11, 0.16); color: #d97706; }
+  .a-prog { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+  .a-rem  { background: rgba(239, 68, 68, 0.14); color: #ef4444; }
+  .a-ok   { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+
+  .admin-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .admin-chip { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: var(--accent-light); color: var(--accent-bright); }
+  .admin-subsec { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .admin-subsec h4 { margin: 0 0 8px; font-size: 14px; color: var(--accent); }
 </style>
 </head>
 <body>
@@ -878,6 +912,7 @@
         <ul id="names" hidden></ul>
       </div>
       <div id="pin-loading" class="pin-loading" hidden>⏳ جارٍ التحقق من الحساب...</div>
+      <button type="button" id="btn-admin-entry" class="admin-entry-btn">🔐 دخول الخدام</button>
     </div>
 
     <!-- الخطوة 2: الرقم السري (تعيين أول مرة أو دخول) -->
@@ -896,6 +931,62 @@
       <button type="button" id="pin-submit-btn" class="send-btn" style="margin-top:4px;">دخول</button>
       <button type="button" id="pin-back-btn" class="alt">← تغيير الاسم</button>
       <p id="pin-forgot-hint" class="pin-hint" hidden>نسيت الرقم السري؟ اطلب من الخادم يمسحه عشان تعمل واحد جديد.</p>
+    </div>
+    <!-- الخطوة 3: دخول الخدام -->
+    <div id="login-step-admin" hidden>
+      <h2 class="login-title">وضع الخدام 🔐</h2>
+      <p class="login-sub">اكتب الرقم السري الخاص بالخدام</p>
+      <input id="admin-pin-input" class="pin-input" type="password" inputmode="numeric" maxlength="8" autocomplete="off" placeholder="••••">
+      <div id="admin-pin-error" class="pin-error"></div>
+      <button type="button" id="admin-pin-submit" class="send-btn" style="margin-top:4px;">دخول للوحة المتابعة</button>
+      <button type="button" id="admin-pin-back" class="alt">← رجوع</button>
+    </div>
+  </div>
+  <!-- لوحة متابعة الخدام -->
+  <div id="admin-dashboard" class="tab-content" hidden>
+    <!-- قائمة كل الشمامسة -->
+    <div id="admin-list-view" class="section-card">
+      <div class="admin-topbar">
+        <div class="section-title" style="margin:0; border:none; padding:0;">📋 متابعة الشمامسة (<span id="admin-count">0</span>)</div>
+        <button type="button" id="btn-admin-exit" class="switch-user-btn">خروج</button>
+      </div>
+      <input id="admin-search" type="text" placeholder="ابحث باسم الشماس..." autocomplete="off">
+      <div class="admin-sort-row">
+        <button type="button" class="admin-sort-btn active" data-sort="name">الاسم</button>
+        <button type="button" class="admin-sort-btn" data-sort="coupons">الكوبونات</button>
+        <button type="button" class="admin-sort-btn" data-sort="progress">الأقل حفظاً</button>
+        <button type="button" class="admin-sort-btn" data-sort="rem">المتبقي</button>
+      </div>
+      <div id="admin-students-list"></div>
+    </div>
+
+    <!-- تفاصيل شماس واحد -->
+    <div id="admin-detail-view" class="section-card" hidden>
+      <div class="admin-topbar">
+        <button type="button" id="btn-admin-back" class="switch-user-btn">→ رجوع للقائمة</button>
+        <button type="button" id="btn-admin-reset-pin" class="switch-user-btn" style="color:#ef4444;">🔓 مسح الرقم السري</button>
+      </div>
+      <div class="admin-st-top" style="margin-bottom:10px;">
+        <div id="ad-name" style="font-size:19px; font-weight:900; color:var(--accent);"></div>
+        <span id="ad-coupons" class="a-badge a-gold" style="font-size:14px;"></span>
+      </div>
+      <div id="ad-prog-text" style="font-size:13px; font-weight:800; margin-bottom:6px;"></div>
+
+      <div class="admin-subsec">
+        <h4>📌 المحفوظات المتبقية</h4>
+        <div id="ad-rem-marad"></div>
+        <div id="ad-rem-alhan" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="admin-subsec">
+        <h4>📅 سجل الحضور</h4>
+        <div id="ad-att-list" style="max-height:200px; overflow-y:auto;"></div>
+      </div>
+
+      <div class="admin-subsec">
+        <h4>🎙️ سجل التسميع</h4>
+        <div id="ad-hist-list" style="max-height:240px; overflow-y:auto;"></div>
+      </div>
     </div>
   </div>
 
@@ -2643,6 +2734,206 @@ try {
 } catch (e) {}
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+/* --- Admin Dashboard (In-App) --- */
+let adminPinCache = '';
+let adminStudents = [];
+let adminSortBy = 'name';
+let adminCurrentStudent = '';
+
+$('btn-admin-entry').onclick = () => {
+  $('login-step-name').hidden = true;
+  $('login-step-admin').hidden = false;
+  $('admin-pin-input').value = '';
+  $('admin-pin-error').textContent = '';
+  $('admin-pin-input').focus();
+};
+
+$('admin-pin-back').onclick = () => {
+  $('login-step-admin').hidden = true;
+  $('login-step-name').hidden = false;
+};
+
+$('admin-pin-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); $('admin-pin-submit').click(); }
+});
+
+$('admin-pin-submit').onclick = () => {
+  const pin = String($('admin-pin-input').value || '')
+    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
+  if (!pin) { $('admin-pin-error').textContent = 'اكتب الرقم السري'; return; }
+
+  $('admin-pin-submit').disabled = true;
+  $('admin-pin-submit').textContent = '⏳ جارٍ التحميل...';
+  $('admin-pin-error').textContent = '';
+
+  fetch(API, { method: 'POST', body: JSON.stringify({ action: 'adminOverview', pin }) })
+    .then(r => r.json())
+    .then(d => {
+      $('admin-pin-submit').disabled = false;
+      $('admin-pin-submit').textContent = 'دخول للوحة المتابعة';
+      if (!d.ok) {
+        $('admin-pin-error').textContent = d.error || 'الرقم السري غير صحيح ❌';
+        return;
+      }
+      adminPinCache = pin;
+      adminStudents = d.students || [];
+      $('login-screen').hidden = true;
+      $('login-step-admin').hidden = true;
+      $('login-step-name').hidden = false;
+      $('admin-dashboard').hidden = false;
+      $('admin-list-view').hidden = false;
+      $('admin-detail-view').hidden = true;
+      $('admin-search').value = '';
+      renderAdminList();
+    })
+    .catch(() => {
+      $('admin-pin-submit').disabled = false;
+      $('admin-pin-submit').textContent = 'دخول للوحة المتابعة';
+      $('admin-pin-error').textContent = '⚠️ خطأ في الاتصال بالانترنت';
+    });
+};
+
+$('btn-admin-exit').onclick = () => {
+  adminPinCache = '';
+  $('admin-dashboard').hidden = true;
+  $('login-screen').hidden = false;
+};
+
+$('admin-search').addEventListener('input', renderAdminList);
+document.querySelectorAll('.admin-sort-btn').forEach(btn => {
+  btn.onclick = () => {
+    adminSortBy = btn.dataset.sort;
+    document.querySelectorAll('.admin-sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderAdminList();
+  };
+});
+
+function renderAdminList() {
+  const q = norm($('admin-search').value);
+  const words = q.split(' ').filter(Boolean);
+  let list = adminStudents.filter(s => words.every(w => norm(s.name).includes(w)));
+
+  if (adminSortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+  else if (adminSortBy === 'coupons') list.sort((a, b) => b.coupons - a.coupons);
+  else if (adminSortBy === 'progress') list.sort((a, b) => a.progress - b.progress);
+  else if (adminSortBy === 'rem') list.sort((a, b) => (b.remMarad + b.remAlhan) - (a.remMarad + a.remAlhan));
+
+  $('admin-count').textContent = list.length;
+  const wrap = $('admin-students-list');
+  wrap.replaceChildren();
+
+  list.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'admin-student-card';
+    const totalRem = s.remMarad + s.remAlhan;
+    card.innerHTML = `
+      <div class="admin-st-top">
+        <span class="admin-st-name">${s.name}</span>
+        <span class="a-badge a-gold">🎟️ ${s.coupons}</span>
+      </div>
+      <div class="admin-st-badges">
+        <span class="a-badge a-prog">مردات: ${s.progress}%</span>
+        <span class="a-badge ${totalRem ? 'a-rem' : 'a-ok'}">${totalRem ? `متبقي: ${s.remMarad} مرد، ${s.remAlhan} لحن` : 'مخلّص كله 🎉'}</span>
+        ${s.hasPin ? '<span class="a-badge a-ok">🔐</span>' : ''}
+      </div>
+    `;
+    card.onclick = () => openAdminStudent(s);
+    wrap.appendChild(card);
+  });
+}
+
+function openAdminStudent(s) {
+  adminCurrentStudent = s.name;
+  $('admin-list-view').hidden = true;
+  $('admin-detail-view').hidden = false;
+  $('ad-name').textContent = s.name;
+  $('ad-coupons').textContent = `🎟️ ${s.coupons}`;
+  $('ad-prog-text').textContent = `نسبة حفظ مردات الهيكل: ${s.progress}%`;
+  $('btn-admin-reset-pin').hidden = !s.hasPin;
+
+  const maradRem = (userPiecesMap[s.name] && userPiecesMap[s.name]['مردات']) || [];
+  const alhanRem = (userPiecesMap[s.name] && userPiecesMap[s.name]['ألحان']) || [];
+
+  $('ad-rem-marad').innerHTML = `<div style="font-size:12.5px;font-weight:800;opacity:0.8;">مردات (${maradRem.length}):</div>` +
+    (maradRem.length ? `<div class="admin-chips">${maradRem.map(p => `<span class="admin-chip">${p}</span>`).join('')}</div>` : '<div style="font-size:12.5px;color:#10b981;font-weight:700;">مخلّص كل المردات ✅</div>');
+
+  $('ad-rem-alhan').innerHTML = `<div style="font-size:12.5px;font-weight:800;opacity:0.8;">ألحان (${alhanRem.length}):</div>` +
+    (alhanRem.length ? `<div class="admin-chips">${alhanRem.map(p => `<span class="admin-chip">${p}</span>`).join('')}</div>` : '<div style="font-size:12.5px;color:#10b981;font-weight:700;">مخلّص كل الألحان ✅</div>');
+
+  $('ad-att-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
+  $('ad-hist-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
+
+  fetch(API + '?action=attendance&name=' + encodeURIComponent(s.name))
+    .then(r => r.json())
+    .then(data => {
+      const records = data.records || [];
+      $('ad-att-list').replaceChildren();
+      if (!records.length) { $('ad-att-list').textContent = 'لا يوجد سجل حضور'; return; }
+      records.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'att-card';
+        const tag = (lbl, ok, held) => `<span class="att-tag ${held === false ? 'att-na' : (ok ? 'att-yes' : 'att-no')}">${lbl}</span>`;
+        card.innerHTML = `<span class="att-date">${item.date}</span><div class="att-tags">${tag('عشية', item.vespers, item.vespersHeld)}${tag('ألحان', item.hymns, item.hymnsHeld)}${tag('قداس', item.liturgy, item.liturgyHeld)}</div>`;
+        $('ad-att-list').appendChild(card);
+      });
+    });
+
+  fetch(API + '?action=history&name=' + encodeURIComponent(s.name))
+    .then(r => r.json())
+    .then(data => {
+      $('ad-hist-list').replaceChildren();
+      if (!data || !data.length) { $('ad-hist-list').textContent = 'لا يوجد سجل تسميع'; return; }
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'h-card';
+        let st = 'قيد المراجعة', cls = 's-pending';
+        if (item.status === 'Approved') { st = 'مقبول'; cls = 's-approved'; }
+        if (item.status === 'Rejected') { st = 'يحتاج إعادة'; cls = 's-rejected'; }
+        const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
+        card.innerHTML = `<div class="h-title"><div style="display:flex;align-items:center;gap:6px;">${playBtn}<span>${item.category} - ${item.piece}</span></div><span class="${cls}">${st}</span></div>` +
+          (item.comment ? `<div class="h-comment">تعليق: ${item.comment}</div>` : '');
+        $('ad-hist-list').appendChild(card);
+      });
+    });
+}
+
+$('btn-admin-back').onclick = () => {
+  $('admin-detail-view').hidden = true;
+  $('admin-list-view').hidden = false;
+};
+
+$('btn-admin-reset-pin').onclick = () => {
+  if (!confirm(`مسح الرقم السري بتاع ${adminCurrentStudent}؟`)) return;
+  $('btn-admin-reset-pin').disabled = true;
+  fetch(API, { method: 'POST', body: JSON.stringify({ action: 'adminResetPin', pin: adminPinCache, name: adminCurrentStudent }) })
+    .then(r => r.json())
+    .then(d => {
+      $('btn-admin-reset-pin').disabled = false;
+      if (d.ok) {
+        const st = adminStudents.find(x => x.name === adminCurrentStudent);
+        if (st) st.hasPin = false;
+        $('btn-admin-reset-pin').hidden = true;
+        renderAdminList();
+        alert('تم مسح الرقم السري بنجاح ✅');
+      } else {
+        alert(d.error || 'حدث خطأ');
+      }
+    });
+};
+
+// تشغيل التسجيلات الصوتية من جوه صفحة الخدام أيضاً
+$('ad-hist-list').addEventListener('click', e => {
+  const btn = e.target.closest('.mini-play'); if (!btn) return;
+  const idMatch = btn.dataset.url.match(/[-\w]{25,}/); if (!idMatch) return;
+  if (currentPlayBtn === btn && !sharedAudio.paused) { sharedAudio.pause(); btn.innerHTML = iconPlay; return; }
+  if (currentPlayBtn && currentPlayBtn !== btn) currentPlayBtn.innerHTML = iconPlay;
+  currentPlayBtn = btn; btn.innerHTML = iconLoad;
+  fetch(API + '?action=play&id=' + idMatch[0])
+    .then(r => r.json())
+    .then(d => { sharedAudio.src = 'data:' + d.mime + ';base64,' + d.data; sharedAudio.load(); return sharedAudio.play(); })
+    .then(() => { btn.innerHTML = iconPause; });
+  sharedAudio.onended = () => { btn.innerHTML = iconPlay; };
+});
 </script>
 </body>
 </html>
