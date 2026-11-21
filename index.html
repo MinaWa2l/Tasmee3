@@ -796,17 +796,17 @@
         </div>
         <div id="ad-prog-text" style="font-size:13px; font-weight:800; margin-bottom:6px;"></div>
 <div class="admin-subsec">
-          <h4>🎮 التحدي والألعاب (هذا الأسبوع)</h4>
+          <h4>🎮 التحدي والألعاب</h4>
           <div class="admin-games-grid">
             <div class="admin-game-stat">
-              <div class="ags-title">🎲 تحدي المردات</div>
+              <div class="ags-title">🎲 تحدي المردات (الأسبوع)</div>
               <div class="ags-nums">
                 <span class="a-badge a-prog">تم: <span id="ad-chal-done">0</span></span>
                 <span class="a-badge a-rem">متبقي: <span id="ad-chal-rem">0</span></span>
               </div>
             </div>
             <div class="admin-game-stat">
-              <div class="ags-title">🧩 لعبة الكلمات</div>
+              <div class="ags-title">🧩 لعبة الكلمات (الإجمالي)</div>
               <div class="ags-nums">
                 <span class="a-badge a-prog">تم: <span id="ad-game-done">0</span></span>
                 <span class="a-badge a-rem">متبقي: <span id="ad-game-rem">0</span></span>
@@ -2687,7 +2687,7 @@ function renderAdminList() {
         <span class="a-badge a-prog">مردات: ${s.progress}%</span>
         <span class="a-badge ${totalRem ? 'a-rem' : 'a-ok'}">${totalRem ? `متبقي: ${s.remMarad} مرد، ${s.remAlhan} لحن` : 'مخلّص كله 🎉'}</span>
         <span class="a-badge a-ok">🎲 ${s.chalDone ?? 0} / متبقي ${s.chalRem ?? 0}</span>
-        <span class="a-badge a-ok">🧩 ${s.gameWeekDone ?? 0} / متبقي ${s.gameRem ?? 0}</span>
+        <span class="a-badge a-ok">🧩 ${s.gameDone ?? 0} / متبقي ${s.gameRem ?? 0}</span>
         ${s.hasPin ? '<span class="a-badge a-ok">🔐</span>' : ''}
       </div>
     `;
@@ -2706,7 +2706,7 @@ function openAdminStudent(s) {
   $('btn-admin-reset-pin').hidden = !s.hasPin;
   $('ad-chal-done').textContent = s.chalDone ?? 0;
   $('ad-chal-rem').textContent = s.chalRem ?? 0;
-  $('ad-game-done').textContent = s.gameWeekDone ?? 0;
+  $('ad-game-done').textContent = s.gameDone ?? 0;
   $('ad-game-rem').textContent = s.gameRem ?? 0;
 
   const maradRem = (userPiecesMap[s.name] && userPiecesMap[s.name]['مردات']) || [];
