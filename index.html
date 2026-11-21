@@ -628,6 +628,32 @@
     box-shadow: 0 4px 16px rgba(0,0,0,0.18);
   }
   .qr-box img { display: block; width: 170px; height: 170px; }
+  .admin-games-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .admin-game-stat {
+    background: var(--input-bg);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .ags-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--fg);
+    margin-bottom: 8px;
+  }
+  .ags-nums {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 11.5px;
+    font-weight: 800;
+  }
 </style>
 </head>
 <body>
@@ -727,6 +753,12 @@
             <button type="button" class="switch-user-btn btn-admin-exit-all">خروج</button>
           </div>
         </div>
+        <div class="admin-sort-row">
+          <button type="button" class="admin-sort-btn admin-audit-sort-btn active" data-asort="time">الوقت</button>
+          <button type="button" class="admin-sort-btn admin-audit-sort-btn" data-asort="priority">الأساسي أولاً</button>
+          <button type="button" class="admin-sort-btn admin-audit-sort-btn" data-asort="piece">المحفوظ</button>
+          <button type="button" class="admin-sort-btn admin-audit-sort-btn" data-asort="student">الشماس</button>
+        </div>
         <div id="admin-audit-list"></div>
         <div id="admin-audit-empty" style="text-align:center; opacity:0.7; font-weight:700; padding:24px 0;" hidden>لا توجد تسجيلات منتظرة حالياً ✅</div>
       </div>
@@ -763,7 +795,25 @@
           <span id="ad-coupons" class="a-badge a-gold" style="font-size:14px;"></span>
         </div>
         <div id="ad-prog-text" style="font-size:13px; font-weight:800; margin-bottom:6px;"></div>
-
+<div class="admin-subsec">
+          <h4>🎮 التحدي والألعاب (هذا الأسبوع)</h4>
+          <div class="admin-games-grid">
+            <div class="admin-game-stat">
+              <div class="ags-title">🎲 تحدي المردات</div>
+              <div class="ags-nums">
+                <span class="a-badge a-prog">تم: <span id="ad-chal-done">0</span></span>
+                <span class="a-badge a-rem">متبقي: <span id="ad-chal-rem">0</span></span>
+              </div>
+            </div>
+            <div class="admin-game-stat">
+              <div class="ags-title">🧩 لعبة الكلمات</div>
+              <div class="ags-nums">
+                <span class="a-badge a-prog">تم: <span id="ad-game-done">0</span></span>
+                <span class="a-badge a-rem">متبقي: <span id="ad-game-rem">0</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="admin-subsec">
           <h4>📌 المحفوظات المتبقية</h4>
           <div id="ad-rem-marad"></div>
@@ -2636,6 +2686,8 @@ function renderAdminList() {
       <div class="admin-st-badges">
         <span class="a-badge a-prog">مردات: ${s.progress}%</span>
         <span class="a-badge ${totalRem ? 'a-rem' : 'a-ok'}">${totalRem ? `متبقي: ${s.remMarad} مرد، ${s.remAlhan} لحن` : 'مخلّص كله 🎉'}</span>
+        <span class="a-badge a-ok">🎲 ${s.chalDone ?? 0} / متبقي ${s.chalRem ?? 0}</span>
+        <span class="a-badge a-ok">🧩 ${s.gameWeekDone ?? 0} / متبقي ${s.gameRem ?? 0}</span>
         ${s.hasPin ? '<span class="a-badge a-ok">🔐</span>' : ''}
       </div>
     `;
@@ -2652,6 +2704,10 @@ function openAdminStudent(s) {
   $('ad-coupons').textContent = `🎟️ ${s.coupons}`;
   $('ad-prog-text').textContent = `نسبة حفظ مردات الهيكل: ${s.progress}%`;
   $('btn-admin-reset-pin').hidden = !s.hasPin;
+  $('ad-chal-done').textContent = s.chalDone ?? 0;
+  $('ad-chal-rem').textContent = s.chalRem ?? 0;
+  $('ad-game-done').textContent = s.gameWeekDone ?? 0;
+  $('ad-game-rem').textContent = s.gameRem ?? 0;
 
   const maradRem = (userPiecesMap[s.name] && userPiecesMap[s.name]['مردات']) || [];
   const alhanRem = (userPiecesMap[s.name] && userPiecesMap[s.name]['ألحان']) || [];
@@ -2801,6 +2857,17 @@ function updatePendingBadge(count) {
   b.hidden = count <= 0;
 }
 
+let adminPendingItems = [];
+let adminAuditSortBy = 'time';
+
+document.querySelectorAll('.admin-audit-sort-btn').forEach(btn => {
+  btn.onclick = () => {
+    adminAuditSortBy = btn.dataset.asort;
+    document.querySelectorAll('.admin-audit-sort-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderAdminAudit();
+  };
+});
+
 function loadAdminAudit() {
   if (!adminPinCache) return;
   $('admin-audit-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
@@ -2810,7 +2877,8 @@ function loadAdminAudit() {
     .then(r => r.json())
     .then(d => {
       if (!d.ok) return;
-      renderAdminAudit(d.pending || []);
+      adminPendingItems = d.pending || [];
+      renderAdminAudit();
       renderAdminDone(d.completed || []);
     })
     .catch(() => { $('admin-audit-list').textContent = '⚠️ تعذر تحميل التسجيلات'; });
@@ -2823,9 +2891,23 @@ function renderAdminDone(names) {
   $('admin-done-card').hidden = names.length === 0;
 }
 
-function renderAdminAudit(items) {
+function renderAdminAudit() {
   const list = $('admin-audit-list');
   list.replaceChildren();
+
+  const items = [...adminPendingItems];
+  const isChal = it => it.category === 'تحدي المردات' ? 1 : 0;
+
+  if (adminAuditSortBy === 'time') {
+    items.sort((a, b) => a.row - b.row);
+  } else if (adminAuditSortBy === 'priority') {
+    items.sort((a, b) => isChal(a) - isChal(b) || a.row - b.row);
+  } else if (adminAuditSortBy === 'piece') {
+    items.sort((a, b) => a.piece.localeCompare(b.piece, 'ar') || a.row - b.row);
+  } else if (adminAuditSortBy === 'student') {
+    items.sort((a, b) => a.name.localeCompare(b.name, 'ar') || a.row - b.row);
+  }
+
   updatePendingBadge(items.length);
   $('admin-audit-empty').hidden = items.length > 0;
 
@@ -2900,9 +2982,12 @@ function playAdminAudio(row, card, btn) {
 function actAdminAudit(action, row, card, comment) {
   const list = $('admin-audit-list');
   const next = card.nextSibling;
+  const removedIdx = adminPendingItems.findIndex(x => x.row === row);
+  const removedItem = removedIdx > -1 ? adminPendingItems.splice(removedIdx, 1)[0] : null;
+
   card.remove();
-  updatePendingBadge(list.children.length);
-  $('admin-audit-empty').hidden = list.children.length > 0;
+  updatePendingBadge(adminPendingItems.length);
+  $('admin-audit-empty').hidden = adminPendingItems.length > 0;
 
   fetch(API, { method: 'POST', body: JSON.stringify({ action, pin: adminPinCache, row, comment }) })
     .then(r => r.json())
@@ -2912,8 +2997,9 @@ function actAdminAudit(action, row, card, comment) {
     })
     .catch(e => {
       alert(e.message);
+      if (removedItem) adminPendingItems.splice(removedIdx, 0, removedItem);
       list.insertBefore(card, next && next.parentNode === list ? next : null);
-      updatePendingBadge(list.children.length);
+      updatePendingBadge(adminPendingItems.length);
       $('admin-audit-empty').hidden = true;
     });
 }
