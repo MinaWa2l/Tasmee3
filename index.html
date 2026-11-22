@@ -795,7 +795,8 @@
           <span id="ad-coupons" class="a-badge a-gold" style="font-size:14px;"></span>
         </div>
         <div id="ad-prog-text" style="font-size:13px; font-weight:800; margin-bottom:6px;"></div>
-<div class="admin-subsec">
+
+        <div class="admin-subsec">
           <h4>🎮 التحدي والألعاب</h4>
           <div class="admin-games-grid">
             <div class="admin-game-stat">
@@ -814,6 +815,7 @@
             </div>
           </div>
         </div>
+
         <div class="admin-subsec">
           <h4>📌 المحفوظات المتبقية</h4>
           <div id="ad-rem-marad"></div>
@@ -1037,7 +1039,7 @@
         <div class="g-loader-txt">جارٍ تحضير اللحن...</div>
       </div>
       
-<div id="game-board-wrap" hidden>
+      <div id="game-board-wrap" hidden>
         <div class="game-top-bar">
           <button type="button" class="game-back-btn" onclick="backToGameSelector()">→ رجوع</button>
           <h3 id="g-piece-title" style="color:var(--accent); font-family: 'Cairo', sans-serif;"></h3>
@@ -1132,7 +1134,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v3.3'; 
+const VERSION = 'v3.4'; 
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -1145,6 +1147,7 @@ let progressMap = {};
 let closedMap = {};
 let isChallengeRec = false;
 let chalPiece = null;
+let lastDisplayedCoupons = 0;
 
 function syncCustomSelect(id) {
   const sel = $(id), wrap = $('wrap-' + id), trig = $('trig-' + id), menu = $('menu-' + id);
@@ -1518,6 +1521,7 @@ function completeLogin(n, pin) {
   } catch (e) {}
 
   pendingLoginName = '';
+  lastDisplayedCoupons = 0;
   $('name').value = n; $('names').hidden = true; $('name').blur();
   $('profile-name-display').textContent = n;
   $('my-qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=6&data=' + encodeURIComponent(n);
@@ -1530,7 +1534,8 @@ function completeLogin(n, pin) {
   $('bottom-bar').hidden = false;
   if (wasLoggedOut) switchTab('recite');
 
-  updatePieces(n); fetchHistory(n); fetchAttendance(n); loadChallenge(n);
+  updatePieces(n);
+  fetchStudentBundle(n);
 
   if ($('btn-load-game')) {
     $('btn-load-game').disabled = false;
@@ -1546,6 +1551,7 @@ function logoutUser() {
     localStorage.removeItem('saved_deacon_pin');
   } catch (e) {}
   pendingLoginName = '';
+  lastDisplayedCoupons = 0;
   backToGameSelector();
   isChallengeRec = false;
   $('regular-inputs').hidden = false;
@@ -2350,13 +2356,18 @@ function checkQuizAnswer(btn, chosen) {
 
 /* --- تحدي المردات --- */
 $('chal-trig').onclick = () => { $('chal-card').hidden = false; $('chal-trig').hidden = true; };
+function renderChallengeData(d) {
+  $('chal-content').hidden = true; $('chal-play').hidden = true; $('chal-msg').hidden = true;
+  if (!d || d.error || !d.active) return;
+  if (d.status === 'None' || d.status === 'Submitted' || d.status === 'Approved') {
+    $('chal-content').hidden = false; $('chal-open').textContent = 'افتح الصندوق الآن!';
+  } else if (d.status === 'Pending') {
+    applyChalState(d);
+  }
+}
 function loadChallenge(name) {
   $('chal-content').hidden = true; $('chal-play').hidden = true; $('chal-msg').hidden = true;
-  fetch(API + '?action=getChallenge&name=' + encodeURIComponent(name)).then(r => r.json()).then(d => {
-    if(d.error || !d.active) return;
-    if(d.status === 'None' || d.status === 'Submitted' || d.status === 'Approved') { $('chal-content').hidden = false; $('chal-open').textContent = 'افتح الصندوق الآن!'; }
-    else if(d.status === 'Pending') { applyChalState(d); }
-  });
+  fetch(API + '?action=getChallenge&name=' + encodeURIComponent(name)).then(r => r.json()).then(renderChallengeData);
 }
 function doRoll() {
   initAudio(); const btn = $('chal-reroll'); btn.disabled = true; $('chal-open').textContent = 'جارٍ تشغيل العجلة...';
@@ -2385,32 +2396,42 @@ function applyChalState(d, fromSpin = false) {
 $('chal-open').onclick = () => doRoll(); $('chal-reroll').onclick = () => doRoll();
 $('chal-rec-btn').onclick = () => { isChallengeRec = true; $('regular-inputs').hidden = true; $('chal-card').style.border = '2px solid #10b981'; say('تحدي المردات: ' + chalPiece, 'ok', 'اضغط على الميكروفون للتسجيل.'); };
 
-/* --- السجل والحضور --- */
+/* --- السجل والحضور (مع Bundling + Cache) --- */
 const iconPlay = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
 const iconPause = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
 const iconLoad = `<svg viewBox="0 0 24 24" class="spin-icon"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg>`;
+
+function renderHistoryData(data) {
+  $('history').hidden = false;
+  $('history-list').replaceChildren();
+  if (!data || !data.length) {
+    const empty = document.createElement('div');
+    empty.className = 'h-card'; empty.style.textAlign = 'center'; empty.style.opacity = '0.7';
+    empty.textContent = 'لا يوجد سجل سابق';
+    $('history-list').append(empty);
+    return;
+  }
+  data.forEach(item => {
+    const card = document.createElement('div'); card.className = 'h-card';
+    let statusText = 'قيد المراجعة', statusClass = 's-pending';
+    if (item.status === 'Approved') { statusText = 'مقبول'; statusClass = 's-approved'; }
+    if (item.status === 'Rejected') { statusText = (item.category === 'تحدي المردات') ? 'محاولة خاسرة' : 'يحتاج إعادة'; statusClass = 's-rejected'; }
+    const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
+    let html = `<div class="h-title"><div style="display: flex; align-items: center; gap: 6px;">${playBtn}<span>${item.category} - ${item.piece}</span></div><span class="${statusClass}">${statusText}</span></div>`;
+    if (item.comment) html += `<div class="h-comment">تعليق: ${item.comment}</div>`;
+    card.innerHTML = html; $('history-list').append(card);
+  });
+}
 
 function fetchHistory(name) {
   if (!name) { $('history').hidden = true; return; }
   $('history').hidden = false;
   $('history-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
-  fetch(API + '?action=history&name=' + encodeURIComponent(name)).then(r => r.json()).then(data => {
-    $('history-list').replaceChildren();
-    if (!data || !data.length) { const empty = document.createElement('div'); empty.className = 'h-card'; empty.style.textAlign = 'center'; empty.style.opacity = '0.7'; empty.textContent = 'لا يوجد سجل سابق'; $('history-list').append(empty); return; }
-    data.forEach(item => {
-      const card = document.createElement('div'); card.className = 'h-card';
-      let statusText = 'قيد المراجعة', statusClass = 's-pending';
-      if (item.status === 'Approved') { statusText = 'مقبول'; statusClass = 's-approved'; }
-      if (item.status === 'Rejected') { statusText = (item.category === 'تحدي المردات') ? 'محاولة خاسرة' : 'يحتاج إعادة'; statusClass = 's-rejected'; }
-      const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
-      let html = `<div class="h-title"><div style="display: flex; align-items: center; gap: 6px;">${playBtn}<span>${item.category} - ${item.piece}</span></div><span class="${statusClass}">${statusText}</span></div>`;
-      if (item.comment) html += `<div class="h-comment">تعليق: ${item.comment}</div>`;
-      card.innerHTML = html; $('history-list').append(card);
-    });
-  });
+  fetch(API + '?action=history&name=' + encodeURIComponent(name)).then(r => r.json()).then(renderHistoryData);
 }
 
 function animateValue(obj, start, end, duration) {
+  if (start === end) { obj.textContent = end; return; }
   let startTimestamp = null;
   const step = (timestamp) => {
     if (!startTimestamp) startTimestamp = timestamp;
@@ -2430,29 +2451,71 @@ function updateChart(records) {
   if (attChart) attChart.destroy();
   attChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [ { label: 'قداس', data: lData, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, borderWidth: 2, pointRadius: 3, order: 3 }, { label: 'ألحان', data: hData, borderColor: '#16a34a', backgroundColor: '#16a34a', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [8, 6], order: 2 }, { label: 'عشية', data: vData, borderColor: '#d97706', backgroundColor: '#d97706', tension: 0.3, borderWidth: 2, pointRadius: 3, borderDash: [2, 4], order: 1 } ] }, options: { responsive: true, plugins: { legend: { labels: { font: { family: 'Cairo' } } } }, scales: { y: { ticks: { stepSize: 1, precision: 0 } }, x: { ticks: { font: { size: 10, family: 'Cairo' } } } } } });
 }
+
+function renderAttendanceData(data) {
+  $('attendance').hidden = false;
+  $('attendance-list').replaceChildren();
+  const records = (data && data.records) || [];
+  const coupons = (data && data.coupons !== undefined) ? Number(data.coupons) : 0;
+  $('coupons-box').classList.add('show');
+  animateValue($('c-val'), lastDisplayedCoupons, coupons, lastDisplayedCoupons === 0 ? 1000 : 400);
+  lastDisplayedCoupons = coupons;
+  if (!records.length) { $('graph-section').hidden = true; return; }
+  $('graph-section').hidden = false;
+  updateChart(records);
+  records.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'att-card';
+    const getTag = (eventName, isPresent, held) => {
+      const cls = held === false ? 'att-na' : (isPresent ? 'att-yes' : 'att-no');
+      return `<span class="att-tag ${cls}">${eventName}</span>`;
+    };
+    card.innerHTML = `<span class="att-date">${item.date}</span><div class="att-tags">${getTag('عشية', item.vespers, item.vespersHeld)}${getTag('ألحان', item.hymns, item.hymnsHeld)}${getTag('قداس', item.liturgy, item.liturgyHeld)}</div>`;
+    $('attendance-list').append(card);
+  });
+}
+
 function fetchAttendance(name) {
   if (!name) { $('attendance').hidden = true; $('coupons-box').classList.remove('show'); return; }
   $('attendance').hidden = false;
   $('attendance-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
   $('coupons-box').classList.remove('show'); 
-  fetch(API + '?action=attendance&name=' + encodeURIComponent(name)).then(r => r.json()).then(data => {
-      $('attendance-list').replaceChildren();
-      const records = data.records || [], coupons = data.coupons !== undefined ? Number(data.coupons) : 0;
-      $('coupons-box').classList.add('show'); animateValue($('c-val'), 0, coupons, 1500);
-      if (!records.length) { $('graph-section').hidden = true; return; }
-      $('graph-section').hidden = false; updateChart(records);
-      
-      records.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'att-card';
-        const getTag = (eventName, isPresent, held) => {
-          const cls = held === false ? 'att-na' : (isPresent ? 'att-yes' : 'att-no');
-          return `<span class="att-tag ${cls}">${eventName}</span>`;
-        };
-        card.innerHTML = `<span class="att-date">${item.date}</span><div class="att-tags">${getTag('عشية', item.vespers, item.vespersHeld)}${getTag('ألحان', item.hymns, item.hymnsHeld)}${getTag('قداس', item.liturgy, item.liturgyHeld)}</div>`;
-        $('attendance-list').append(card);
-      });
-  });
+  fetch(API + '?action=attendance&name=' + encodeURIComponent(name)).then(r => r.json()).then(renderAttendanceData);
+}
+
+function fetchStudentBundle(name) {
+  if (!name) return;
+  const cacheKey = 'student_bundle_' + name;
+  let hadCache = false;
+  try {
+    const cached = JSON.parse(localStorage.getItem(cacheKey));
+    if (cached && cached.attendance) {
+      hadCache = true;
+      renderHistoryData(cached.history || []);
+      renderAttendanceData(cached.attendance);
+      if (cached.challenge) renderChallengeData(cached.challenge);
+    }
+  } catch (e) {}
+
+  if (!hadCache) {
+    $('history').hidden = false;
+    $('history-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
+    $('attendance').hidden = false;
+    $('attendance-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
+    $('coupons-box').classList.remove('show');
+  }
+
+  fetch(API + '?action=studentBundle&name=' + encodeURIComponent(name) + '&t=' + Date.now())
+    .then(r => r.json())
+    .then(b => {
+      if (!b || b.error) return;
+      try { localStorage.setItem(cacheKey, JSON.stringify(b)); } catch (e) {}
+      if ($('name').value !== name) return;
+      renderHistoryData(b.history || []);
+      renderAttendanceData(b.attendance || { records: [], coupons: 0 });
+      if (b.challenge) renderChallengeData(b.challenge);
+    })
+    .catch(() => {});
 }
 
 let currentPlayBtn = null; const sharedAudio = $('preview'); 
@@ -2554,8 +2617,46 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => { naviga
 ================================================== */
 let adminPinCache = '';
 let adminStudents = [];
+let adminPendingItems = [];
+let adminCompletedNames = [];
 let adminSortBy = 'name';
+let adminAuditSortBy = 'time';
 let adminCurrentStudent = '';
+
+function saveAdminCache(adminName) {
+  try {
+    localStorage.setItem('admin_bundle_v1', JSON.stringify({
+      adminName: adminName || $('admin-name-lbl').textContent || '',
+      students: adminStudents,
+      pending: adminPendingItems,
+      completed: adminCompletedNames
+    }));
+  } catch (e) {}
+}
+
+function applyAdminBundle(d, switchTabDefault = false) {
+  $('admin-name-lbl').textContent = d.adminName || '';
+  adminStudents = d.students || [];
+  adminPendingItems = d.pending || [];
+  adminCompletedNames = d.completed || [];
+
+  $('login-screen').hidden = true;
+  $('login-step-admin').hidden = true;
+  $('login-step-name').hidden = false;
+  $('admin-dashboard').hidden = false;
+  $('admin-bottom-bar').hidden = false;
+
+  renderAdminList();
+  renderAdminAudit();
+  renderAdminDone(adminCompletedNames);
+
+  if (switchTabDefault) {
+    $('admin-list-view').hidden = false;
+    $('admin-detail-view').hidden = true;
+    $('admin-search').value = '';
+    switchAdminTab('audit');
+  }
+}
 
 $('btn-admin-entry').onclick = () => {
   $('login-step-name').hidden = true;
@@ -2575,7 +2676,17 @@ $('admin-pin-input').addEventListener('keydown', e => {
 });
 
 function loginAsAdmin(pin, isAuto = false) {
-  if (!isAuto) {
+  let shownFromCache = false;
+  if (isAuto) {
+    try {
+      const cached = JSON.parse(localStorage.getItem('admin_bundle_v1'));
+      if (cached && Array.isArray(cached.students)) {
+        adminPinCache = pin;
+        applyAdminBundle(cached, true);
+        shownFromCache = true;
+      }
+    } catch (e) {}
+  } else {
     $('admin-pin-submit').disabled = true;
     $('admin-pin-submit').textContent = '⏳ جارٍ التحميل...';
     $('admin-pin-error').textContent = '';
@@ -2590,7 +2701,12 @@ function loginAsAdmin(pin, isAuto = false) {
       }
       if (!d.ok) {
         if (isAuto) {
-          try { localStorage.removeItem('saved_admin_pin'); } catch (e) {}
+          try {
+            localStorage.removeItem('saved_admin_pin');
+            localStorage.removeItem('admin_bundle_v1');
+          } catch (e) {}
+          $('admin-dashboard').hidden = true;
+          $('admin-bottom-bar').hidden = true;
           $('login-screen').hidden = false;
         } else {
           $('admin-pin-error').textContent = d.error || 'كلمة السر غير صحيحة ❌';
@@ -2599,26 +2715,15 @@ function loginAsAdmin(pin, isAuto = false) {
       }
       try { localStorage.setItem('saved_admin_pin', pin); } catch (e) {}
       adminPinCache = pin;
-      $('admin-name-lbl').textContent = d.adminName || '';
-      adminStudents = d.students || [];
-      $('login-screen').hidden = true;
-      $('login-step-admin').hidden = true;
-      $('login-step-name').hidden = false;
-      $('admin-dashboard').hidden = false;
-      $('admin-bottom-bar').hidden = false;
-      $('admin-list-view').hidden = false;
-      $('admin-detail-view').hidden = true;
-      $('admin-search').value = '';
-      renderAdminList();
-      switchAdminTab('audit');
-      loadAdminAudit();
+      applyAdminBundle(d, !shownFromCache);
+      saveAdminCache(d.adminName);
     })
     .catch(() => {
       if (!isAuto) {
         $('admin-pin-submit').disabled = false;
         $('admin-pin-submit').textContent = 'دخول للوحة المتابعة';
         $('admin-pin-error').textContent = '⚠️ خطأ في الاتصال بالانترنت';
-      } else {
+      } else if (!shownFromCache) {
         $('login-screen').hidden = false;
       }
     });
@@ -2633,7 +2738,10 @@ $('admin-pin-submit').onclick = () => {
 
 document.querySelectorAll('.btn-admin-exit-all').forEach(btn => {
   btn.onclick = () => {
-    try { localStorage.removeItem('saved_admin_pin'); } catch (e) {}
+    try {
+      localStorage.removeItem('saved_admin_pin');
+      localStorage.removeItem('admin_bundle_v1');
+    } catch (e) {}
     adminPinCache = '';
     $('admin-change-pin-box').hidden = true;
     $('admin-dashboard').hidden = true;
@@ -2696,6 +2804,40 @@ function renderAdminList() {
   });
 }
 
+function renderAdminStudentDetails(data) {
+  const records = (data.attendance && data.attendance.records) || [];
+  $('ad-att-list').replaceChildren();
+  if (!records.length) {
+    $('ad-att-list').textContent = 'لا يوجد سجل حضور';
+  } else {
+    records.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'att-card';
+      const tag = (lbl, ok, held) => `<span class="att-tag ${held === false ? 'att-na' : (ok ? 'att-yes' : 'att-no')}">${lbl}</span>`;
+      card.innerHTML = `<span class="att-date">${item.date}</span><div class="att-tags">${tag('عشية', item.vespers, item.vespersHeld)}${tag('ألحان', item.hymns, item.hymnsHeld)}${tag('قداس', item.liturgy, item.liturgyHeld)}</div>`;
+      $('ad-att-list').appendChild(card);
+    });
+  }
+
+  const hist = data.history || [];
+  $('ad-hist-list').replaceChildren();
+  if (!hist.length) {
+    $('ad-hist-list').textContent = 'لا يوجد سجل تسميع';
+  } else {
+    hist.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'h-card';
+      let st = 'قيد المراجعة', cls = 's-pending';
+      if (item.status === 'Approved') { st = 'مقبول'; cls = 's-approved'; }
+      if (item.status === 'Rejected') { st = 'يحتاج إعادة'; cls = 's-rejected'; }
+      const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
+      card.innerHTML = `<div class="h-title"><div style="display:flex;align-items:center;gap:6px;">${playBtn}<span>${item.category} - ${item.piece}</span></div><span class="${cls}">${st}</span></div>` +
+        (item.comment ? `<div class="h-comment">تعليق: ${item.comment}</div>` : '');
+      $('ad-hist-list').appendChild(card);
+    });
+  }
+}
+
 function openAdminStudent(s) {
   adminCurrentStudent = s.name;
   $('admin-list-view').hidden = true;
@@ -2718,41 +2860,30 @@ function openAdminStudent(s) {
   $('ad-rem-alhan').innerHTML = `<div style="font-size:12.5px;font-weight:800;opacity:0.8;">ألحان (${alhanRem.length}):</div>` +
     (alhanRem.length ? `<div class="admin-chips">${alhanRem.map(p => `<span class="admin-chip">${p}</span>`).join('')}</div>` : '<div style="font-size:12.5px;color:#10b981;font-weight:700;">مخلّص كل الألحان ✅</div>');
 
-  $('ad-att-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
-  $('ad-hist-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
+  const cacheKey = 'student_bundle_' + s.name;
+  let hadCache = false;
+  try {
+    const cached = JSON.parse(localStorage.getItem(cacheKey));
+    if (cached && cached.attendance) {
+      hadCache = true;
+      renderAdminStudentDetails(cached);
+    }
+  } catch (e) {}
 
-  fetch(API + '?action=attendance&name=' + encodeURIComponent(s.name))
-    .then(r => r.json())
-    .then(data => {
-      const records = data.records || [];
-      $('ad-att-list').replaceChildren();
-      if (!records.length) { $('ad-att-list').textContent = 'لا يوجد سجل حضور'; return; }
-      records.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'att-card';
-        const tag = (lbl, ok, held) => `<span class="att-tag ${held === false ? 'att-na' : (ok ? 'att-yes' : 'att-no')}">${lbl}</span>`;
-        card.innerHTML = `<span class="att-date">${item.date}</span><div class="att-tags">${tag('عشية', item.vespers, item.vespersHeld)}${tag('ألحان', item.hymns, item.hymnsHeld)}${tag('قداس', item.liturgy, item.liturgyHeld)}</div>`;
-        $('ad-att-list').appendChild(card);
-      });
-    });
+  if (!hadCache) {
+    $('ad-att-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
+    $('ad-hist-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
+  }
 
-  fetch(API + '?action=history&name=' + encodeURIComponent(s.name))
+  fetch(API + '?action=studentBundle&noChal=1&name=' + encodeURIComponent(s.name) + '&t=' + Date.now())
     .then(r => r.json())
-    .then(data => {
-      $('ad-hist-list').replaceChildren();
-      if (!data || !data.length) { $('ad-hist-list').textContent = 'لا يوجد سجل تسميع'; return; }
-      data.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'h-card';
-        let st = 'قيد المراجعة', cls = 's-pending';
-        if (item.status === 'Approved') { st = 'مقبول'; cls = 's-approved'; }
-        if (item.status === 'Rejected') { st = 'يحتاج إعادة'; cls = 's-rejected'; }
-        const playBtn = item.url ? `<button class="mini-play" data-url="${item.url}">${iconPlay}</button>` : '';
-        card.innerHTML = `<div class="h-title"><div style="display:flex;align-items:center;gap:6px;">${playBtn}<span>${item.category} - ${item.piece}</span></div><span class="${cls}">${st}</span></div>` +
-          (item.comment ? `<div class="h-comment">تعليق: ${item.comment}</div>` : '');
-        $('ad-hist-list').appendChild(card);
-      });
-    });
+    .then(b => {
+      if (!b || b.error) return;
+      try { localStorage.setItem(cacheKey, JSON.stringify(b)); } catch (e) {}
+      if (adminCurrentStudent !== s.name) return;
+      renderAdminStudentDetails(b);
+    })
+    .catch(() => {});
 }
 
 $('btn-admin-back').onclick = () => {
@@ -2772,6 +2903,7 @@ $('btn-admin-reset-pin').onclick = () => {
         if (st) st.hasPin = false;
         $('btn-admin-reset-pin').hidden = true;
         renderAdminList();
+        saveAdminCache();
         alert('تم مسح الرقم السري بنجاح ✅');
       } else {
         alert(d.error || 'حدث خطأ');
@@ -2857,9 +2989,6 @@ function updatePendingBadge(count) {
   b.hidden = count <= 0;
 }
 
-let adminPendingItems = [];
-let adminAuditSortBy = 'time';
-
 document.querySelectorAll('.admin-audit-sort-btn').forEach(btn => {
   btn.onclick = () => {
     adminAuditSortBy = btn.dataset.asort;
@@ -2873,13 +3002,12 @@ function loadAdminAudit() {
   $('admin-audit-list').innerHTML = '<div class="skel-row"></div><div class="skel-row"></div>';
   $('admin-audit-empty').hidden = true;
 
-  fetch(API, { method: 'POST', body: JSON.stringify({ action: 'adminPending', pin: adminPinCache }) })
+  fetch(API, { method: 'POST', body: JSON.stringify({ action: 'adminOverview', pin: adminPinCache, force: true }) })
     .then(r => r.json())
     .then(d => {
       if (!d.ok) return;
-      adminPendingItems = d.pending || [];
-      renderAdminAudit();
-      renderAdminDone(d.completed || []);
+      applyAdminBundle(d, false);
+      saveAdminCache(d.adminName);
     })
     .catch(() => { $('admin-audit-list').textContent = '⚠️ تعذر تحميل التسجيلات'; });
 }
@@ -2988,6 +3116,7 @@ function actAdminAudit(action, row, card, comment) {
   card.remove();
   updatePendingBadge(adminPendingItems.length);
   $('admin-audit-empty').hidden = adminPendingItems.length > 0;
+  saveAdminCache();
 
   fetch(API, { method: 'POST', body: JSON.stringify({ action, pin: adminPinCache, row, comment }) })
     .then(r => r.json())
@@ -3001,6 +3130,7 @@ function actAdminAudit(action, row, card, comment) {
       list.insertBefore(card, next && next.parentNode === list ? next : null);
       updatePendingBadge(adminPendingItems.length);
       $('admin-audit-empty').hidden = true;
+      saveAdminCache();
     });
 }
 
