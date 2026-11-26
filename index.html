@@ -12,6 +12,10 @@
     t = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
   }
   document.documentElement.setAttribute('data-theme', t);
+
+  var s = 'default';
+  try { s = localStorage.getItem('season_theme') || 'default'; } catch (e) {}
+  if (s === 'christmas') document.documentElement.setAttribute('data-season', 'christmas');
 })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
@@ -772,7 +776,6 @@
     text-align: right;
   }
 
-  /* --- Admin Pieces Manager --- */
   .piece-mgr-card {
     background: var(--input-bg);
     border: 1px solid var(--line);
@@ -826,7 +829,6 @@
     gap: 10px;
   }
 
-  /* --- Admin Attendance Editor --- */
   .att-date-card {
     background: var(--input-bg);
     border: 1px solid var(--line);
@@ -870,9 +872,128 @@
     opacity: 1;
   }
   .att-pill-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ==================================================
+     Christmas Liquid Glass Theme (Light + Dark)
+  ================================================== */
+  :root[data-season="christmas"] {
+    --bg: #f4f7f4;
+    --fg: #10231a;
+    --card: rgba(255, 255, 255, 0.74);
+    --card-solid: #ffffff;
+    --line: rgba(22, 101, 52, 0.2);
+    --accent: #14532d;
+    --accent-bright: #b91c1c;
+    --accent-light: rgba(185, 28, 28, 0.1);
+    --rec: #dc2626;
+    --glass-inset: rgba(255, 255, 255, 0.85);
+    --input-bg: rgba(255, 255, 255, 0.72);
+    --shadow-soft: 0 10px 30px -5px rgba(20, 83, 45, 0.11), 0 4px 12px -2px rgba(185, 28, 28, 0.06);
+  }
+
+  :root[data-season="christmas"][data-theme="dark"] {
+    --bg: #05130e;
+    --fg: #f4faf6;
+    --card: rgba(11, 35, 26, 0.66);
+    --card-solid: #0a2319;
+    --line: rgba(167, 243, 208, 0.16);
+    --accent: #22c55e;
+    --accent-bright: #ef4444;
+    --accent-light: rgba(239, 68, 68, 0.16);
+    --rec: #f87171;
+    --glass-inset: rgba(255, 255, 255, 0.12);
+    --input-bg: rgba(4, 18, 13, 0.6);
+    --shadow-soft: 0 12px 36px -6px rgba(0, 0, 0, 0.55), 0 4px 12px -2px rgba(0, 0, 0, 0.35);
+  }
+
+  :root[data-season="christmas"] body::before {
+    background:
+      radial-gradient(circle at 15% 10%, rgba(220, 38, 38, 0.16) 0%, transparent 45%),
+      radial-gradient(circle at 85% 22%, rgba(22, 163, 74, 0.16) 0%, transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(245, 158, 11, 0.13) 0%, transparent 50%);
+  }
+
+  :root[data-season="christmas"][data-theme="dark"] body::before {
+    background:
+      radial-gradient(circle at 15% 10%, rgba(239, 68, 68, 0.18) 0%, transparent 46%),
+      radial-gradient(circle at 85% 25%, rgba(34, 197, 94, 0.16) 0%, transparent 46%),
+      radial-gradient(circle at 50% 90%, rgba(251, 191, 36, 0.12) 0%, transparent 52%);
+  }
+
+  :root[data-season="christmas"] .top-header {
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(217, 119, 6, 0.32);
+  }
+  :root[data-season="christmas"] .top-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    inset-inline: 0;
+    height: 3.5px;
+    background: linear-gradient(90deg, #dc2626, #f59e0b, #16a34a, #f59e0b, #dc2626);
+    background-size: 200% 100%;
+    animation: xmasLights 6s linear infinite;
+  }
+  @keyframes xmasLights {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  :root[data-season="christmas"] .section-card { border-color: rgba(217, 119, 6, 0.22); }
+  :root[data-season="christmas"][data-theme="dark"] .section-card { border-color: rgba(251, 191, 36, 0.18); }
+
+  :root[data-season="christmas"] .ios-bottom-bar {
+    background: rgba(16, 54, 34, 0.78);
+    border-color: rgba(251, 191, 36, 0.28);
+  }
+  :root[data-season="christmas"][data-theme="dark"] .ios-bottom-bar {
+    background: rgba(8, 30, 20, 0.84);
+    border-color: rgba(251, 191, 36, 0.24);
+  }
+  :root[data-season="christmas"] .tab-item.active {
+    background: linear-gradient(180deg, rgba(220, 38, 38, 0.58) 0%, rgba(185, 28, 28, 0.38) 100%);
+    border-color: rgba(254, 240, 138, 0.45);
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  }
+  :root[data-season="christmas"] .tab-item.active svg {
+    filter: drop-shadow(0 2px 6px rgba(251, 191, 36, 0.65));
+  }
+
+  :root[data-season="christmas"] button.mic {
+    background: linear-gradient(145deg, #dc2626, #991b1b);
+    box-shadow: 0 10px 28px rgba(185, 28, 28, 0.38), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  }
+  :root[data-season="christmas"] button.send-btn,
+  :root[data-season="christmas"] .cat-btn.active,
+  :root[data-season="christmas"] .plink-btn,
+  :root[data-season="christmas"] .login-icon {
+    background: linear-gradient(135deg, #166534 0%, #b91c1c 100%);
+    box-shadow: 0 8px 20px rgba(185, 28, 28, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  }
+  :root[data-season="christmas"] .challenge-trigger {
+    background: linear-gradient(135deg, #b91c1c, #d97706);
+    box-shadow: 0 10px 24px rgba(185, 28, 28, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  :root[data-season="christmas"] .chal-card {
+    background: linear-gradient(160deg, #143625, #4c1118);
+    border-color: rgba(251, 191, 36, 0.4);
+  }
+
+  #snow-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    display: none;
+  }
+  :root[data-season="christmas"] #snow-canvas { display: block; }
 </style>
 </head>
 <body>
+<canvas id="snow-canvas" aria-hidden="true"></canvas>
 <div id="ver"></div>
 <main>
   <div class="top-header">
@@ -970,6 +1091,22 @@
       </div>
     </div>
 
+    <div id="admin-season-box" class="section-card" hidden>
+      <div class="section-title">
+        <svg viewBox="0 0 24 24"><path d="M12 2L9.5 8H11v3.1L8.1 9.4 6.5 11l3.6 2.1L6.5 15.2l1.6 1.6 2.9-1.7V18H9.5L12 22l2.5-4H13v-2.9l2.9 1.7 1.6-1.6-3.6-2.1 3.6-2.1-1.6-1.6-2.9 1.7V8h1.5L12 2z"/></svg>
+        ثيم الكريسماس (تحكم خاص)
+      </div>
+      <p style="font-size:12.5px; opacity:0.8; margin:0 0 10px; font-weight:700;">
+        الحالة الحالية: <strong id="season-status-lbl">التصميم العادي</strong>
+      </p>
+      <input id="admin-season-code" class="pin-input" style="letter-spacing:2px; font-size:17px;" type="password" maxlength="24" autocomplete="off" placeholder="اكتب الكود السري للتبديل">
+      <div id="admin-season-msg" class="pin-error"></div>
+      <div style="display:flex; gap:8px;">
+        <button type="button" id="btn-toggle-season" class="send-btn" style="margin-top:0;">تبديل الثيم</button>
+        <button type="button" id="btn-cancel-season" class="alt" style="margin-top:0;">إلغاء</button>
+      </div>
+    </div>
+
     <!-- Admin Tab 1: Review Submissions -->
     <div id="admin-tab-audit" class="tab-content">
       <div class="section-card">
@@ -982,6 +1119,10 @@
             <button type="button" id="btn-audit-refresh" class="switch-user-btn">
               <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
               تحديث
+            </button>
+            <button type="button" id="btn-open-admin-season" class="switch-user-btn">
+              <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M12 2L9.5 8H11v3.1L8.1 9.4 6.5 11l3.6 2.1L6.5 15.2l1.6 1.6 2.9-1.7V18H9.5L12 22l2.5-4H13v-2.9l2.9 1.7 1.6-1.6-3.6-2.1 3.6-2.1-1.6-1.6-2.9 1.7V8h1.5L12 2z"/></svg>
+              ثيم
             </button>
             <button type="button" id="btn-open-admin-cpin" class="switch-user-btn">
               <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M12.65 10A5.99 5.99 0 0 0 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6a5.99 5.99 0 0 0 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
@@ -1543,7 +1684,7 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyf_FOOcosWYvfypZZbVEcYVgCzWI_MGqLDU6QKMujwJegxCBrXC2yuOPyFIw9UyU3H/exec';
 const MAX_SECONDS = 180;
-const VERSION = 'v3.5';
+const VERSION = 'v3.6';
 
 const $ = id => document.getElementById(id);
 $('ver').textContent = VERSION;
@@ -2993,7 +3134,10 @@ function launchConfetti() {
   const ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#fde047'];
+  const isXmas = document.documentElement.getAttribute('data-season') === 'christmas';
+  const colors = isXmas
+    ? ['#dc2626', '#16a34a', '#fbbf24', '#ffffff', '#b91c1c', '#22c55e']
+    : ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#fde047'];
   const pieces = Array.from({ length: 85 }, () => ({
     x: canvas.width * (0.2 + Math.random() * 0.6), y: canvas.height * 0.35 + (Math.random() - 0.5) * 60,
     vx: (Math.random() - 0.5) * 14, vy: -6 - Math.random() * 10,
@@ -3034,11 +3178,19 @@ $('btn-dismiss-install').onclick = () => {
 };
 window.addEventListener('appinstalled', () => { $('install-banner').hidden = true; deferredInstallPrompt = null; });
 
+function updateMetaThemeColor() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const xmas = document.documentElement.getAttribute('data-season') === 'christmas';
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) return;
+  if (xmas) meta.setAttribute('content', dark ? '#05130e' : '#14532d');
+  else meta.setAttribute('content', dark ? '#020b1c' : '#0f2d59');
+}
+
 function applyTheme(t) {
   const dark = t === 'dark';
   document.documentElement.setAttribute('data-theme', t);
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', dark ? '#020b1c' : '#0f2d59');
+  updateMetaThemeColor();
   const btn = $('theme-toggle');
   if (btn) btn.setAttribute('aria-label', dark ? 'التبديل للوضع الفاتح' : 'التبديل للوضع الداكن');
   if (typeof Chart !== 'undefined') {
@@ -3068,6 +3220,100 @@ try {
 } catch (e) {}
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+/* ==================================================
+   Seasonal Theme (Christmas) + Snowfall + Global Sync
+================================================== */
+let snowRaf = null;
+let snowFlakes = [];
+
+function startSnow() {
+  const canvas = $('snow-canvas');
+  if (!canvas || snowRaf) return;
+  const ctx = canvas.getContext('2d');
+
+  const resize = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  };
+  resize();
+  window.addEventListener('resize', resize);
+  canvas._onResize = resize;
+
+  const count = Math.min(48, Math.max(24, Math.floor(window.innerWidth / 24)));
+  snowFlakes = Array.from({ length: count }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: 1.5 + Math.random() * 2.6,
+    vy: 0.45 + Math.random() * 0.9,
+    vx: (Math.random() - 0.5) * 0.4,
+    phase: Math.random() * Math.PI * 2,
+    alpha: 0.35 + Math.random() * 0.5
+  }));
+
+  const draw = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    ctx.fillStyle = isDark ? '#ffffff' : '#cbd5e1';
+
+    for (let i = 0; i < snowFlakes.length; i++) {
+      const f = snowFlakes[i];
+      f.phase += 0.015;
+      f.y += f.vy;
+      f.x += f.vx + Math.sin(f.phase) * 0.35;
+
+      if (f.y > canvas.height + 6) {
+        f.y = -6;
+        f.x = Math.random() * canvas.width;
+      }
+      if (f.x > canvas.width + 6) f.x = -6;
+      if (f.x < -6) f.x = canvas.width + 6;
+
+      ctx.globalAlpha = f.alpha;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    snowRaf = requestAnimationFrame(draw);
+  };
+  snowRaf = requestAnimationFrame(draw);
+}
+
+function stopSnow() {
+  if (snowRaf) {
+    cancelAnimationFrame(snowRaf);
+    snowRaf = null;
+  }
+  const canvas = $('snow-canvas');
+  if (canvas) {
+    if (canvas._onResize) window.removeEventListener('resize', canvas._onResize);
+    const ctx = canvas.getContext('2d');
+    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+function applySeason(season) {
+  const isXmas = season === 'christmas';
+  if (isXmas) {
+    document.documentElement.setAttribute('data-season', 'christmas');
+    startSnow();
+  } else {
+    document.documentElement.removeAttribute('data-season');
+    stopSnow();
+  }
+  try { localStorage.setItem('season_theme', isXmas ? 'christmas' : 'default'); } catch (e) {}
+  updateMetaThemeColor();
+  const lbl = $('season-status-lbl');
+  if (lbl) lbl.textContent = isXmas ? 'ثيم الكريسماس' : 'التصميم العادي';
+}
+
+applySeason(document.documentElement.getAttribute('data-season') === 'christmas' ? 'christmas' : 'default');
+
+fetch(API + '?action=getSeason&t=' + Date.now())
+  .then(r => r.json())
+  .then(d => { if (d && d.ok && d.season) applySeason(d.season); })
+  .catch(() => {});
+
 /* ==================================================
    Admin Dashboard (Review + Students + Attendance + Pieces + Curriculum)
 ================================================== */
@@ -3199,6 +3445,7 @@ document.querySelectorAll('.btn-admin-exit-all').forEach(btn => {
     } catch (e) {}
     adminPinCache = '';
     $('admin-change-pin-box').hidden = true;
+    $('admin-season-box').hidden = true;
     $('admin-dashboard').hidden = true;
     $('admin-bottom-bar').hidden = true;
     $('login-screen').hidden = false;
@@ -3212,6 +3459,54 @@ try {
     loginAsAdmin(savedAdminPin, true);
   }
 } catch (e) {}
+
+/* --- Secret-Code Seasonal Theme Controls (Global) --- */
+$('btn-open-admin-season').onclick = () => {
+  $('admin-change-pin-box').hidden = true;
+  $('admin-season-code').value = '';
+  $('admin-season-msg').textContent = '';
+  $('season-status-lbl').textContent =
+    document.documentElement.getAttribute('data-season') === 'christmas' ? 'ثيم الكريسماس' : 'التصميم العادي';
+  $('admin-season-box').hidden = !$('admin-season-box').hidden;
+  if (!$('admin-season-box').hidden) $('admin-season-code').focus();
+};
+
+$('btn-cancel-season').onclick = () => { $('admin-season-box').hidden = true; };
+
+$('admin-season-code').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); $('btn-toggle-season').click(); }
+});
+
+$('btn-toggle-season').onclick = () => {
+  const code = String($('admin-season-code').value || '').trim();
+  $('admin-season-msg').textContent = '';
+  if (!code) { $('admin-season-msg').textContent = 'اكتب الكود السري'; return; }
+
+  const next = document.documentElement.getAttribute('data-season') === 'christmas' ? 'default' : 'christmas';
+  $('btn-toggle-season').disabled = true;
+  $('btn-toggle-season').textContent = 'جارٍ التبديل...';
+
+  fetch(API, { method: 'POST', body: JSON.stringify({ action: 'setSeason', code, season: next }) })
+    .then(r => r.json())
+    .then(d => {
+      $('btn-toggle-season').disabled = false;
+      $('btn-toggle-season').textContent = 'تبديل الثيم';
+      if (!d.ok) {
+        $('admin-season-msg').textContent = d.error || 'الكود السري غير صحيح';
+        $('admin-season-code').classList.add('wrong-anim');
+        setTimeout(() => $('admin-season-code').classList.remove('wrong-anim'), 500);
+        return;
+      }
+      applySeason(d.season);
+      $('admin-season-box').hidden = true;
+      if (d.season === 'christmas') launchConfetti();
+    })
+    .catch(() => {
+      $('btn-toggle-season').disabled = false;
+      $('btn-toggle-season').textContent = 'تبديل الثيم';
+      $('admin-season-msg').textContent = 'خطأ في الاتصال بالانترنت';
+    });
+};
 
 function showAdminStudentsSubView(view) {
   $('admin-list-view').hidden = (view !== 'list');
@@ -3795,6 +4090,7 @@ function switchAdminTab(tab) {
 }
 
 $('btn-open-admin-cpin').onclick = () => {
+  $('admin-season-box').hidden = true;
   $('admin-new-pin').value = '';
   $('admin-new-pin-conf').value = '';
   $('admin-cpin-msg').textContent = '';
